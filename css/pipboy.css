@@ -154,3 +154,133 @@
 .modalMsg{min-height:18px;color:#a4dc56;text-align:center;text-transform:uppercase;font-size:12px}
 .toast{position:fixed;left:50%;bottom:calc(var(--nav-h) + 18px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:80;border:1px solid rgba(157,255,69,.55);border-radius:999px;background:rgba(3,10,3,.94);color:var(--green);padding:10px 16px;text-transform:uppercase;font-weight:700;box-shadow:0 0 18px rgba(157,255,69,.35);opacity:0;pointer-events:none;transition:opacity .18s ease}
 .toast.show{opacity:1}
+
+/* Budd€ 1.1.1 — correction responsive popup budget */
+#budgetModal{
+  align-items:center!important;
+  justify-content:center!important;
+  padding:12px!important;
+}
+#budgetModal .budgetSheet{
+  width:calc(100vw - 24px)!important;
+  max-width:430px!important;
+  max-height:calc(100dvh - 48px)!important;
+  overflow:auto!important;
+  border-radius:18px!important;
+  padding:14px!important;
+  border:1px solid rgba(157,255,69,.75)!important;
+  box-shadow:0 0 22px rgba(157,255,69,.34), inset 0 0 22px rgba(0,0,0,.95)!important;
+}
+#budgetModal .budgetSheet h2{
+  font-size:clamp(15px,5vw,20px)!important;
+  white-space:normal!important;
+  overflow:visible!important;
+  line-height:1.15!important;
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+#budgetModal .budgetSheet h2::before{
+  content:'◎';
+  font-size:24px;
+  line-height:1;
+  text-shadow:0 0 10px rgba(157,255,69,.8);
+}
+#budgetModal .budgetSummary{
+  grid-template-columns:minmax(0,1fr) minmax(0,auto)!important;
+  font-size:clamp(11px,3.1vw,13px)!important;
+  overflow:hidden!important;
+}
+#budgetModal .budgetSummary strong{
+  min-width:0!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+}
+#budgetModal .budgetAmountInput{
+  width:100%!important;
+  font-size:clamp(24px,9vw,36px)!important;
+  padding:12px 14px!important;
+  border:1px solid rgba(157,255,69,.7)!important;
+  border-radius:8px!important;
+  background:#020602!important;
+}
+#budgetModal .budgetChoices{
+  gap:10px!important;
+}
+#budgetModal .budgetChoices label{
+  width:100%!important;
+  min-width:0!important;
+  display:grid!important;
+  grid-template-columns:32px minmax(0,1fr)!important;
+  align-items:center!important;
+  gap:12px!important;
+  padding:13px!important;
+  border:1px solid rgba(157,255,69,.45)!important;
+  border-radius:12px!important;
+  background:linear-gradient(180deg,rgba(8,18,8,.96),rgba(2,7,2,.98))!important;
+  box-shadow:inset 0 0 16px rgba(0,0,0,.9)!important;
+}
+#budgetModal .budgetChoices input[type="radio"]{
+  width:24px!important;
+  height:24px!important;
+  min-width:24px!important;
+  margin:0!important;
+  accent-color:#9dff45!important;
+  justify-self:center!important;
+}
+#budgetModal .budgetChoices span{
+  display:block!important;
+  min-width:0!important;
+  white-space:normal!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  word-break:normal!important;
+  line-height:1.25!important;
+  font-size:clamp(11px,3.3vw,13px)!important;
+}
+#budgetModal .modalActions{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:12px!important;
+  margin-top:14px!important;
+}
+#budgetModal .modalActions button{
+  min-height:48px!important;
+  border:1px solid rgba(157,255,69,.68)!important;
+  border-radius:8px!important;
+  background:linear-gradient(180deg,rgba(8,18,8,.96),rgba(2,7,2,.98))!important;
+  color:var(--green)!important;
+  font-family:inherit!important;
+  font-weight:700!important;
+  text-transform:uppercase!important;
+  letter-spacing:.08em!important;
+  text-shadow:0 0 9px rgba(157,255,69,.65)!important;
+  box-shadow:0 0 14px rgba(157,255,69,.18), inset 0 0 16px rgba(0,0,0,.95)!important;
+  position:relative!important;
+}
+#budgetModal .modalActions button::before,
+#budgetModal .modalActions button::after{
+  content:'';
+  position:absolute;
+  width:7px;
+  height:7px;
+  border:1px solid rgba(157,255,69,.65);
+  border-radius:50%;
+  top:7px;
+}
+#budgetModal .modalActions button::before{left:7px}
+#budgetModal .modalActions button::after{right:7px}
+#budgetModal .modalActions button:active{
+  transform:translateY(1px);
+  box-shadow:0 0 22px rgba(157,255,69,.42), inset 0 0 20px rgba(157,255,69,.16)!important;
+}
+#budgetModal .modalMsg{
+  white-space:normal!important;
+  overflow:visible!important;
+}
+@media(max-width:380px){
+  #budgetModal{padding:8px!important}
+  #budgetModal .budgetSheet{width:calc(100vw - 16px)!important;padding:12px!important}
+  #budgetModal .modalActions{grid-template-columns:1fr!important;gap:8px!important}
+}
