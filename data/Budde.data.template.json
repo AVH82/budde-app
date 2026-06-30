@@ -1,0 +1,28 @@
+{
+  "schemaVersion": 1,
+  "app": "Budd€",
+  "settings": {
+    "currency": "EUR",
+    "locale": "fr-FR"
+  },
+  "cards": [
+    {
+      "id": "main",
+      "name": "Carte principale",
+      "startMonth": "2026-01"
+    }
+  ],
+  "currentCardId": "main",
+  "currentMonth": "2026-06",
+  "budgets": {
+    "main": {}
+  },
+  "budgetRules": [],
+  "expenses": [],
+  "merchants": {},
+  "categories": {},
+  "ocr": {
+    "aliases": {},
+    "learning": {}
+  }
+}
