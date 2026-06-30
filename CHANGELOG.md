@@ -1,12 +1,14 @@
 # Changelog Budd€
 
-## 1.0.0
+## 1.0.1 — Séparation des données personnelles
 
-- Préparation du projet pour GitHub Pages.
-- Ajout de `manifest.webmanifest`.
-- Ajout de `service-worker.js`.
-- Ajout des icônes PWA.
-- Ajout de `.nojekyll`.
-- Ajout de `README.md`.
-- Création de `data/budget.json` à partir des données existantes.
-- Aucune modification graphique volontaire.
+### Modifié
+- Suppression de la dépendance à `data/seed.js` dans `index.html`.
+- Ajout d'un modèle public `data/Budde.data.template.json`.
+- Ajout de `.gitignore` pour exclure le futur fichier privé `data/Budde.data.json`.
+- Neutralisation de `data/budget.json` et `data/seed.js` pour éviter toute donnée personnelle dans GitHub.
+- Export renommé en `Budde.data.json`.
+
+### Important
+- Les dépenses, budgets, commerçants et paramètres réels ne doivent pas être publiés dans GitHub.
+- Le vrai fichier de données devra s'appeler `Budde.data.json` et rester sur Google Drive ou localement.

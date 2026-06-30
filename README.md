@@ -1,19 +1,45 @@
 # Budd€
 
-Application personnelle de gestion de budget Budd€.
+Application personnelle de gestion de budget.
 
-## Installation GitHub Pages
+## Architecture
 
-1. Envoyer tous les fichiers et dossiers de ce projet dans le dépôt GitHub `budde-app`.
-2. Dans GitHub : `Settings` → `Pages`.
-3. Source : `Deploy from a branch`.
-4. Branch : `main` / dossier `/root`.
-5. Attendre la publication de GitHub Pages.
-6. Ouvrir l'URL générée dans Safari sur iPhone.
-7. Utiliser `Partager` → `Ajouter à l’écran d’accueil`.
+Le dépôt GitHub contient uniquement le code de l'application :
 
-## Notes
+- `index.html`
+- `css/`
+- `js/`
+- `assets/`
+- `manifest.webmanifest`
+- `service-worker.js`
+- `data/Budde.data.template.json`
 
-- L'ouverture directe de `index.html` depuis l'application Fichiers iOS n'est pas le mode cible.
-- Les données existantes sont conservées dans `data/seed.js` et copiées dans `data/budget.json` pour préparer la séparation données/code.
-- Le stockage actif actuel reste local au navigateur via `localStorage`.
+Les données personnelles ne doivent pas être publiées dans GitHub.
+
+## Données privées
+
+Le fichier réel de données doit s'appeler :
+
+```text
+Budde.data.json
+```
+
+Il contient notamment :
+
+- dépenses ;
+- budgets ;
+- reports ;
+- commerçants ;
+- catégories ;
+- paramètres ;
+- apprentissage OCR.
+
+Ce fichier devra être stocké hors GitHub, par exemple dans Google Drive.
+
+## Installation PWA
+
+Une fois le dépôt publié via GitHub Pages :
+
+1. Ouvrir l'URL dans Safari sur iPhone.
+2. Appuyer sur Partager.
+3. Choisir Ajouter à l'écran d'accueil.
