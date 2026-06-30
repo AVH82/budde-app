@@ -1,27 +1,286 @@
-# Changelog Budd€
 
-## 1.0.1 — Séparation des données personnelles
-
-### Modifié
-- Suppression de la dépendance à `data/seed.js` dans `index.html`.
-- Ajout d'un modèle public `data/Budde.data.template.json`.
-- Ajout de `.gitignore` pour exclure le futur fichier privé `data/Budde.data.json`.
-- Neutralisation de `data/budget.json` et `data/seed.js` pour éviter toute donnée personnelle dans GitHub.
-- Export renommé en `Budde.data.json`.
-
-### Important
-- Les dépenses, budgets, commerçants et paramètres réels ne doivent pas être publiés dans GitHub.
-- Le vrai fichier de données devra s'appeler `Budde.data.json` et rester sur Google Drive ou localement.
+:root{--bg:#020402;--panel:#071008;--line:#475313;--green:#9dff45;--dim:#79a929;--red:#ff7b3d;--gold:#c7a044;--nav-h:78px}*{box-sizing:border-box}html,body{margin:0;background:#010201;color:var(--green);font-family:'Share Tech Mono','Courier New',monospace;font-size:14px;letter-spacing:.04em}body:before{content:'';position:fixed;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(144,255,55,.055) 0 1px,transparent 2px 4px),radial-gradient(circle at 50% 0,rgba(150,255,60,.11),transparent 36%);mix-blend-mode:screen}.app{width:min(430px,100%);margin:0 auto;min-height:100vh;padding:8px 10px calc(var(--nav-h) + 16px + env(safe-area-inset-bottom));background:linear-gradient(180deg,#071107,#030603);border-left:1px solid #30410e;border-right:1px solid #30410e;overflow:hidden}.status{height:28px;display:flex;justify-content:space-between;align-items:center;padding:0 18px;font-size:17px;text-shadow:0 0 8px var(--green)}.logo{width:100%;display:block;border:1px solid rgba(190,160,60,.55);border-radius:18px;filter:sepia(1) hue-rotate(35deg) saturate(1.6) brightness(.7) drop-shadow(0 0 10px rgba(157,255,69,.24))}.monthbar{height:52px;margin:10px 0;border:1px solid rgba(157,255,69,.38);border-radius:14px;background:#050b05;display:grid;grid-template-columns:42px 42px 1fr 42px;align-items:center;gap:6px;padding:0 10px;box-shadow:inset 0 0 18px #000}.monthbar button{background:none;border:0;color:var(--green);font-family:inherit;text-shadow:0 0 8px var(--green);cursor:pointer}.cal{font-size:27px}.arrow{font-size:32px;line-height:1}.monthLabel{font-size:22px;font-weight:700;text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.card{position:relative;border:1px solid rgba(145,130,40,.55);border-radius:15px;background:linear-gradient(180deg,rgba(7,16,8,.96),rgba(3,8,3,.98));box-shadow:inset 0 0 18px rgba(0,0,0,.9);margin:10px 0;padding:13px}.card:after{content:'';position:absolute;inset:0;pointer-events:none;background-image:radial-gradient(rgba(157,255,69,.13) .7px,transparent .8px);background-size:12px 12px}.budgetCard{display:grid;grid-template-columns:1fr 1px 1fr;gap:12px;align-items:center;min-height:125px}.split{height:80%;background:rgba(157,255,69,.25)}.label{text-transform:uppercase;color:#9ddc4a;font-weight:700;font-size:12px;margin-bottom:5px}.money{font-size:clamp(25px,8vw,35px);font-weight:700;white-space:nowrap;text-shadow:0 0 10px rgba(157,255,69,.65);letter-spacing:-.04em}.remaining{color:var(--red);text-shadow:0 0 8px rgba(255,123,61,.55);font-size:clamp(24px,7.4vw,32px)}.bar{height:12px;border:1px solid #6b801e;border-radius:999px;overflow:hidden;background:#020402;margin:6px 0}.bar i{display:block;height:100%;width:0;background:linear-gradient(90deg,#629820,#b6ff50);box-shadow:0 0 8px var(--green)}.spent{font-size:11px;text-transform:uppercase;text-align:center;color:#a4dc56;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.actions{display:grid;grid-template-columns:1fr 1fr;gap:8px}.actions button,.card button,.fileBtn{border:1px solid rgba(145,130,40,.55);border-radius:10px;background:#061006;color:var(--green);font-family:inherit;text-transform:uppercase;font-weight:700;padding:10px;box-shadow:inset 0 0 12px #000;cursor:pointer}.actions button{height:64px;display:flex;align-items:center;justify-content:center;gap:12px}.actions span{font-size:30px;text-shadow:0 0 9px var(--green)}.actions small{font-size:12px;line-height:1.05}.view{display:none}.view.active{display:block}.head{position:relative;z-index:1;display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}.head h2,.card h2{margin:0;color:var(--green);font-size:18px;text-transform:uppercase;font-weight:700;letter-spacing:.06em}.expense{position:relative;z-index:1;display:grid;grid-template-columns:42px minmax(0,1fr) auto;gap:10px;align-items:center;border-top:1px solid rgba(157,255,69,.16);padding:8px 0}.expense:first-child{border-top:0}.logoRound{width:36px;height:36px;border-radius:50%;background:#111;border:1px solid rgba(157,255,69,.35);display:grid;place-items:center;overflow:hidden}.logoRound img{width:100%;height:100%;object-fit:cover}.merchant{font-size:16px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;text-transform:uppercase}.meta{font-size:11px;color:#88bd42;text-transform:uppercase}.amount{font-size:15px;white-space:nowrap}.rowBtns{display:flex;gap:6px;margin-top:4px;justify-content:flex-end}.icon{width:30px;height:30px;border:1px solid rgba(157,255,69,.38);border-radius:7px;display:grid;place-items:center;font-size:16px;padding:0;background:rgba(7,16,7,.85)}.nav{position:fixed;left:50%;transform:translateX(-50%);bottom:0;width:min(430px,calc(100% - 12px));height:calc(var(--nav-h) + env(safe-area-inset-bottom));display:grid;grid-template-columns:repeat(5,1fr);gap:7px;padding:7px 7px calc(7px + env(safe-area-inset-bottom));background:rgba(2,5,2,.96);border:1px solid rgba(145,130,40,.62);border-radius:14px 14px 0 0;z-index:30;box-shadow:0 -10px 28px #000}.nav button{border:1px solid rgba(145,130,40,.6);border-radius:9px;background-color:#050b05;background-repeat:no-repeat;background-position:center;background-size:contain;box-shadow:inset 0 0 18px #000;cursor:pointer;min-width:0}.nav button[data-view=home]{background-image:url('../assets/nav/home.png')}.nav button[data-view=expenses]{background-image:url('../assets/nav/expenses.png')}.nav button[data-view=budget]{background-image:url('../assets/nav/budget.png')}.nav button[data-view=stats]{background-image:url('../assets/nav/stats.png')}.nav button[data-view=merchants]{background-image:url('../assets/nav/merchants.png')}.nav button.active{border-color:#b9ff55;box-shadow:0 0 13px rgba(157,255,69,.75),inset 0 0 18px rgba(157,255,69,.16);background-color:#0a1906}.modal{position:fixed;inset:0;background:rgba(0,0,0,.72);display:none;align-items:flex-end;justify-content:center;z-index:60}.modal.open{display:flex}.sheet{width:min(430px,100%);max-height:88vh;overflow:auto;background:#050b05;border:1px solid rgba(157,255,69,.45);border-radius:18px 18px 0 0;padding:16px;box-shadow:0 -10px 28px #000}.sheetHead{display:grid;grid-template-columns:44px 1fr 44px;align-items:center;text-align:center;margin-bottom:12px}.sheetHead button{font-size:28px}.monthGrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.monthGrid button{padding:15px 6px;border:1px solid rgba(157,255,69,.28);border-radius:9px;background:#071007;color:var(--green);font-family:inherit}.monthGrid button.active{border-color:#b9ff55;box-shadow:0 0 12px rgba(157,255,69,.7),inset 0 0 14px rgba(157,255,69,.18)}.form{position:relative;z-index:1;display:grid;gap:9px}.form label{font-size:12px;text-transform:uppercase;color:#90c84a}.form input,.form select,.form textarea,.inputBtn{width:100%;background:#030703;color:var(--green);border:1px solid rgba(157,255,69,.35);border-radius:8px;padding:10px;font-family:inherit}.form textarea{min-height:80px}.fileBtn{display:block;text-align:center}.fileBtn input{display:none}.stats{position:relative;z-index:1;display:grid;gap:8px;margin-bottom:12px}.stat{border:1px solid rgba(157,255,69,.22);border-radius:9px;padding:10px}.stat b{font-size:20px}@media(max-width:380px){.app{padding-left:8px;padding-right:8px}.status{font-size:15px}.logo{border-radius:14px}.monthbar{grid-template-columns:34px 34px 1fr 34px;height:48px}.monthLabel{font-size:18px}.budgetCard{gap:8px;padding:11px}.label{font-size:10.5px}.money{font-size:25px}.remaining{font-size:23px}.merchant{font-size:14px}.amount{font-size:13px}.nav{--nav-h:66px;gap:5px}.actions small{display:none}.actions button{height:58px}}
 
 
-## 1.1.0 — Ergonomie du budget
+/* V7.1 — corrections d'intégration demandées */
+:root{--nav-h:74px}
+.app{padding-bottom:calc(var(--nav-h) + 18px + env(safe-area-inset-bottom));}
+.status b{min-width:58px;text-align:left}
+.logo{max-height:210px;object-fit:contain;background:#030703}
+.monthbar{height:46px;margin:8px 0 8px;grid-template-columns:38px 38px minmax(0,1fr) 38px;padding:0 8px}
+.monthLabel{font-size:clamp(16px,4.8vw,20px);letter-spacing:.08em}
+.cal{font-size:23px}.arrow{font-size:28px}
+.card{overflow:hidden}
+.budgetCard{min-height:108px;padding:10px 12px;grid-template-columns:minmax(0,1fr) 1px minmax(0,1fr);gap:10px}
+.budgetCard>div{min-width:0;overflow:hidden}.split{height:88%}
+.label{font-size:clamp(9px,2.8vw,11px);line-height:1.05;margin-bottom:4px;white-space:normal}
+.money{font-size:clamp(21px,6.2vw,28px);line-height:1;max-width:100%;overflow:hidden;text-overflow:clip;letter-spacing:-.055em}
+.remaining{font-size:clamp(20px,5.8vw,26px)}
+.bar{width:100%;height:11px;margin:6px 0 4px}.bar i{max-width:100%}
+.spent{font-size:clamp(8px,2.4vw,10px);max-width:100%}
+.actions{gap:8px}.actions button{height:54px}.actions span{font-size:26px}.actions small{font-size:10px}
+.head h2,.card h2{font-size:clamp(15px,4.7vw,18px)}
+.expense{grid-template-columns:44px minmax(0,1fr) minmax(72px,auto);gap:8px;padding:7px 0}
+.logoRound{width:38px;height:38px;align-self:center;justify-self:center;background:radial-gradient(circle at center,rgba(157,255,69,.08),rgba(2,5,2,.95));}
+.logoRound img{width:82%;height:82%;object-fit:contain;filter:sepia(1) hue-rotate(35deg) saturate(1.65) brightness(.95) drop-shadow(0 0 4px rgba(157,255,69,.35));}
+.merchant{font-size:clamp(13px,4.2vw,15px);line-height:1.05}.meta{font-size:clamp(9px,2.7vw,10px)}.amount{font-size:clamp(12px,3.6vw,14px);text-align:right}
+.rowBtns{gap:5px;justify-content:flex-end}.icon{width:28px;height:28px;border-radius:7px;font-size:0;position:relative;color:var(--green);background:rgba(4,10,4,.86);}
+.icon::before{font-size:17px;line-height:1;text-shadow:0 0 7px var(--green)}
+.icon.editIcon::before{content:'✎'}
+.icon.deleteIcon::before{content:'♙';font-size:0}
+.icon.deleteIcon::after{content:'';width:15px;height:17px;display:block;background:linear-gradient(var(--green),var(--green)) center 4px/13px 2px no-repeat,linear-gradient(var(--green),var(--green)) center 0/8px 2px no-repeat,linear-gradient(var(--green),var(--green)) left 5px top 7px/2px 9px no-repeat,linear-gradient(var(--green),var(--green)) right 5px top 7px/2px 9px no-repeat,linear-gradient(var(--green),var(--green)) center 15px/12px 2px no-repeat,linear-gradient(90deg,transparent 0 3px,var(--green) 3px 5px,transparent 5px 8px,var(--green) 8px 10px,transparent 10px) center 8px/12px 8px no-repeat;filter:drop-shadow(0 0 5px rgba(157,255,69,.75));}
+.nav{height:calc(var(--nav-h) + env(safe-area-inset-bottom));gap:8px;padding:7px 8px calc(7px + env(safe-area-inset-bottom));}
+.nav button{background-size:72% 72%;background-position:center;background-color:#050b05;display:flex;align-items:center;justify-content:center;overflow:hidden}
+.nav button[data-view=expenses]{background-size:74% 74%}
+.nav button[data-view=merchants]{background-size:58% 58%;transform:none}
+.nav button.active{background-color:#071407;border-color:#b9ff55;box-shadow:0 0 14px rgba(157,255,69,.8),inset 0 0 18px rgba(157,255,69,.18)}
+@media(max-width:380px){:root{--nav-h:66px}.budgetCard{min-height:100px}.money{font-size:clamp(19px,6vw,24px)}.remaining{font-size:clamp(18px,5.7vw,23px)}.actions button{height:50px}.expense{grid-template-columns:38px minmax(0,1fr) minmax(64px,auto)}.logoRound{width:34px;height:34px}.rowBtns{gap:4px}.icon{width:25px;height:25px}.nav{gap:5px;padding-left:6px;padding-right:6px}.nav button{background-size:74% 74%}.nav button[data-view=merchants]{background-size:62% 62%}}
 
-### Ajouté
-- Popup de modification du budget depuis la carte Budget mensuel.
-- Affichage du mois et du budget actuel dans le popup.
-- Champ de saisie du nouveau montant.
-- Choix entre modification du mois uniquement ou du mois affiché et de tous les mois suivants.
-- Message de confirmation après validation.
 
-### Règle métier
-- Les mois précédents ne sont jamais modifiés lors d'une application aux mois suivants.
+/* V7.4.1 — correction stricte du bandeau bas : proportions respectées, icônes centrées, aucune déformation */
+:root{--nav-h:104px}
+.app{padding-bottom:calc(var(--nav-h) + 14px + env(safe-area-inset-bottom))!important}
+
+.nav{
+  height:calc(var(--nav-h) + env(safe-area-inset-bottom))!important;
+  width:min(430px,calc(100% - 12px))!important;
+  display:grid!important;
+  grid-template-columns:repeat(5,minmax(0,1fr))!important;
+  gap:7px!important;
+  padding:7px 8px calc(7px + env(safe-area-inset-bottom))!important;
+  background:rgba(2,5,2,.96)!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+}
+
+.nav button{
+  position:relative!important;
+  min-width:0!important;
+  margin:0!important;
+  padding:0!important;
+  border:1px solid rgba(119,121,24,.76)!important;
+  border-radius:10px!important;
+  background-color:#050b05!important;
+  background-repeat:no-repeat!important;
+  background-position:center center!important;
+  /* IMPORTANT : jamais de "width height" simultanés, sinon l'image est écrasée.
+     On fixe seulement une dimension et l'autre reste auto pour conserver le ratio. */
+  background-size:auto 68%!important;
+  box-shadow:inset 0 0 20px rgba(0,0,0,.96), inset 0 0 22px rgba(93,255,30,.035)!important;
+  overflow:hidden!important;
+  transform:none!important;
+}
+
+.nav button::before{
+  content:''!important;
+  position:absolute!important;
+  inset:0!important;
+  pointer-events:none!important;
+  background:
+    linear-gradient(180deg,rgba(137,255,60,.035),transparent 45%,rgba(137,255,60,.025)),
+    repeating-linear-gradient(0deg,rgba(145,255,55,.035) 0 1px,transparent 2px 4px)!important;
+  opacity:.72!important;
+}
+
+.nav button[data-view=home]{
+  background-image:url('../assets/nav/home.png')!important;
+  background-size:auto 72%!important;
+}
+.nav button[data-view=expenses]{
+  background-image:url('../assets/nav/expenses.png')!important;
+  background-size:70% auto!important;
+}
+.nav button[data-view=budget]{
+  background-image:url('../assets/nav/budget.png')!important;
+  background-size:auto 70%!important;
+}
+.nav button[data-view=stats]{
+  background-image:url('../assets/nav/stats.png')!important;
+  background-size:auto 72%!important;
+}
+.nav button[data-view=merchants]{
+  background-image:url('../assets/nav/merchants.png')!important;
+  background-size:auto 74%!important;
+}
+
+.nav button.active{
+  background-color:#071407!important;
+  border-color:#b9ff55!important;
+  box-shadow:
+    0 0 14px rgba(157,255,69,.85),
+    0 0 32px rgba(157,255,69,.26),
+    inset 0 0 22px rgba(157,255,69,.18)!important;
+}
+
+@media(max-width:380px){
+  :root{--nav-h:94px!important}
+  .nav{gap:6px!important;padding-left:7px!important;padding-right:7px!important}
+  .nav button{border-radius:9px!important;background-size:auto 68%!important}
+  .nav button[data-view=home]{background-size:auto 72%!important}
+  .nav button[data-view=expenses]{background-size:70% auto!important}
+  .nav button[data-view=budget]{background-size:auto 70%!important}
+  .nav button[data-view=stats]{background-size:auto 72%!important}
+  .nav button[data-view=merchants]{background-size:auto 74%!important}
+}
+
+
+/* V7.4 v3 nav fix */
+.nav button{
+ background-size: contain !important;
+ background-repeat:no-repeat!important;
+ background-position:center center!important;
+ overflow:visible!important;
+}
+.nav button[data-view=home]{background-size:64% auto!important;}
+.nav button[data-view=expenses]{background-size:66% auto!important;}
+.nav button[data-view=budget]{background-size:64% auto!important;}
+.nav button[data-view=stats]{background-size:60% auto!important;}
+.nav button[data-view=merchants]{background-size:58% auto!important;}
+
+
+/* Budd€ 1.1 — popup de modification du budget */
+.budgetCard{cursor:pointer}
+.budgetCard:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.primaryBtn{border-color:rgba(157,255,69,.55)!important;box-shadow:0 0 10px rgba(157,255,69,.18),inset 0 0 12px #000!important}
+.budgetSheet h2{margin:0 0 12px;text-transform:uppercase;color:var(--green);font-size:18px;letter-spacing:.08em}
+.budgetSummary{display:grid;grid-template-columns:1fr auto;gap:8px 12px;margin:8px 0 14px;padding:10px;border:1px solid rgba(157,255,69,.22);border-radius:10px;background:rgba(2,6,2,.72);text-transform:uppercase;color:#91c84b}
+.budgetSummary strong{color:var(--green);text-align:right;text-shadow:0 0 8px rgba(157,255,69,.45)}
+.budgetAmountInput{font-size:24px!important;font-weight:700;text-align:right;color:var(--green)!important;text-shadow:0 0 8px rgba(157,255,69,.45)}
+.budgetChoices{display:grid;gap:8px;margin:10px 0}
+.budgetChoices label{display:flex;align-items:center;gap:10px;border:1px solid rgba(145,130,40,.5);border-radius:10px;padding:10px;background:#050b05;color:#a7dd5a;text-transform:uppercase;font-weight:700;font-size:12px;line-height:1.25}
+.budgetChoices input{accent-color:#9dff45;transform:scale(1.1)}
+.modalActions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.modalMsg{min-height:18px;color:#a4dc56;text-align:center;text-transform:uppercase;font-size:12px}
+.toast{position:fixed;left:50%;bottom:calc(var(--nav-h) + 18px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:80;border:1px solid rgba(157,255,69,.55);border-radius:999px;background:rgba(3,10,3,.94);color:var(--green);padding:10px 16px;text-transform:uppercase;font-weight:700;box-shadow:0 0 18px rgba(157,255,69,.35);opacity:0;pointer-events:none;transition:opacity .18s ease}
+.toast.show{opacity:1}
+
+/* Budd€ 1.1.1 — correction responsive popup budget */
+#budgetModal{
+  align-items:center!important;
+  justify-content:center!important;
+  padding:12px!important;
+}
+#budgetModal .budgetSheet{
+  width:calc(100vw - 24px)!important;
+  max-width:430px!important;
+  max-height:calc(100dvh - 48px)!important;
+  overflow:auto!important;
+  border-radius:18px!important;
+  padding:14px!important;
+  border:1px solid rgba(157,255,69,.75)!important;
+  box-shadow:0 0 22px rgba(157,255,69,.34), inset 0 0 22px rgba(0,0,0,.95)!important;
+}
+#budgetModal .budgetSheet h2{
+  font-size:clamp(15px,5vw,20px)!important;
+  white-space:normal!important;
+  overflow:visible!important;
+  line-height:1.15!important;
+  display:flex;
+  gap:10px;
+  align-items:center;
+}
+#budgetModal .budgetSheet h2::before{
+  content:'◎';
+  font-size:24px;
+  line-height:1;
+  text-shadow:0 0 10px rgba(157,255,69,.8);
+}
+#budgetModal .budgetSummary{
+  grid-template-columns:minmax(0,1fr) minmax(0,auto)!important;
+  font-size:clamp(11px,3.1vw,13px)!important;
+  overflow:hidden!important;
+}
+#budgetModal .budgetSummary strong{
+  min-width:0!important;
+  overflow:hidden!important;
+  text-overflow:ellipsis!important;
+  white-space:nowrap!important;
+}
+#budgetModal .budgetAmountInput{
+  width:100%!important;
+  font-size:clamp(24px,9vw,36px)!important;
+  padding:12px 14px!important;
+  border:1px solid rgba(157,255,69,.7)!important;
+  border-radius:8px!important;
+  background:#020602!important;
+}
+#budgetModal .budgetChoices{
+  gap:10px!important;
+}
+#budgetModal .budgetChoices label{
+  width:100%!important;
+  min-width:0!important;
+  display:grid!important;
+  grid-template-columns:32px minmax(0,1fr)!important;
+  align-items:center!important;
+  gap:12px!important;
+  padding:13px!important;
+  border:1px solid rgba(157,255,69,.45)!important;
+  border-radius:12px!important;
+  background:linear-gradient(180deg,rgba(8,18,8,.96),rgba(2,7,2,.98))!important;
+  box-shadow:inset 0 0 16px rgba(0,0,0,.9)!important;
+}
+#budgetModal .budgetChoices input[type="radio"]{
+  width:24px!important;
+  height:24px!important;
+  min-width:24px!important;
+  margin:0!important;
+  accent-color:#9dff45!important;
+  justify-self:center!important;
+}
+#budgetModal .budgetChoices span{
+  display:block!important;
+  min-width:0!important;
+  white-space:normal!important;
+  overflow:visible!important;
+  text-overflow:clip!important;
+  word-break:normal!important;
+  line-height:1.25!important;
+  font-size:clamp(11px,3.3vw,13px)!important;
+}
+#budgetModal .modalActions{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:12px!important;
+  margin-top:14px!important;
+}
+#budgetModal .modalActions button{
+  min-height:48px!important;
+  border:1px solid rgba(157,255,69,.68)!important;
+  border-radius:8px!important;
+  background:linear-gradient(180deg,rgba(8,18,8,.96),rgba(2,7,2,.98))!important;
+  color:var(--green)!important;
+  font-family:inherit!important;
+  font-weight:700!important;
+  text-transform:uppercase!important;
+  letter-spacing:.08em!important;
+  text-shadow:0 0 9px rgba(157,255,69,.65)!important;
+  box-shadow:0 0 14px rgba(157,255,69,.18), inset 0 0 16px rgba(0,0,0,.95)!important;
+  position:relative!important;
+}
+#budgetModal .modalActions button::before,
+#budgetModal .modalActions button::after{
+  content:'';
+  position:absolute;
+  width:7px;
+  height:7px;
+  border:1px solid rgba(157,255,69,.65);
+  border-radius:50%;
+  top:7px;
+}
+#budgetModal .modalActions button::before{left:7px}
+#budgetModal .modalActions button::after{right:7px}
+#budgetModal .modalActions button:active{
+  transform:translateY(1px);
+  box-shadow:0 0 22px rgba(157,255,69,.42), inset 0 0 20px rgba(157,255,69,.16)!important;
+}
+#budgetModal .modalMsg{
+  white-space:normal!important;
+  overflow:visible!important;
+}
+@media(max-width:380px){
+  #budgetModal{padding:8px!important}
+  #budgetModal .budgetSheet{width:calc(100vw - 16px)!important;padding:12px!important}
+  #budgetModal .modalActions{grid-template-columns:1fr!important;gap:8px!important}
+}
