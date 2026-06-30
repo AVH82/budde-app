@@ -137,3 +137,20 @@
 .nav button[data-view=budget]{background-size:64% auto!important;}
 .nav button[data-view=stats]{background-size:60% auto!important;}
 .nav button[data-view=merchants]{background-size:58% auto!important;}
+
+
+/* Budd€ 1.1 — popup de modification du budget */
+.budgetCard{cursor:pointer}
+.budgetCard:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+.primaryBtn{border-color:rgba(157,255,69,.55)!important;box-shadow:0 0 10px rgba(157,255,69,.18),inset 0 0 12px #000!important}
+.budgetSheet h2{margin:0 0 12px;text-transform:uppercase;color:var(--green);font-size:18px;letter-spacing:.08em}
+.budgetSummary{display:grid;grid-template-columns:1fr auto;gap:8px 12px;margin:8px 0 14px;padding:10px;border:1px solid rgba(157,255,69,.22);border-radius:10px;background:rgba(2,6,2,.72);text-transform:uppercase;color:#91c84b}
+.budgetSummary strong{color:var(--green);text-align:right;text-shadow:0 0 8px rgba(157,255,69,.45)}
+.budgetAmountInput{font-size:24px!important;font-weight:700;text-align:right;color:var(--green)!important;text-shadow:0 0 8px rgba(157,255,69,.45)}
+.budgetChoices{display:grid;gap:8px;margin:10px 0}
+.budgetChoices label{display:flex;align-items:center;gap:10px;border:1px solid rgba(145,130,40,.5);border-radius:10px;padding:10px;background:#050b05;color:#a7dd5a;text-transform:uppercase;font-weight:700;font-size:12px;line-height:1.25}
+.budgetChoices input{accent-color:#9dff45;transform:scale(1.1)}
+.modalActions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px}
+.modalMsg{min-height:18px;color:#a4dc56;text-align:center;text-transform:uppercase;font-size:12px}
+.toast{position:fixed;left:50%;bottom:calc(var(--nav-h) + 18px + env(safe-area-inset-bottom));transform:translateX(-50%);z-index:80;border:1px solid rgba(157,255,69,.55);border-radius:999px;background:rgba(3,10,3,.94);color:var(--green);padding:10px 16px;text-transform:uppercase;font-weight:700;box-shadow:0 0 18px rgba(157,255,69,.35);opacity:0;pointer-events:none;transition:opacity .18s ease}
+.toast.show{opacity:1}
