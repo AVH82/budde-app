@@ -1,4 +1,0 @@
-{
-  "deprecated": true,
-  "message": "Ce fichier ne doit plus contenir de données personnelles. Utiliser Budde.data.json hors GitHub et Budde.data.template.json comme modèle public."
-}
