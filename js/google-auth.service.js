@@ -1,9 +1,8 @@
-const GOOGLE_CLIENT_ID = 'TODO_GOOGLE_CLIENT_ID';
+const GOOGLE_CLIENT_ID = '336553597848-ooiu6khcjtodrhkku13olc5cfqi93a5f.apps.googleusercontent.com';
 const GOOGLE_AUTH_SCOPE = 'https://www.googleapis.com/auth/drive.appdata';
 
 const GoogleAuthService = (() => {
   const SCRIPT_SRC = 'https://accounts.google.com/gsi/client';
-  const TODO_CLIENT_ID = 'TODO_GOOGLE_CLIENT_ID';
   const state = {
     initialized: false,
     configured: false,
@@ -15,7 +14,7 @@ const GoogleAuthService = (() => {
   };
 
   function hasClientId() {
-    return Boolean(GOOGLE_CLIENT_ID && GOOGLE_CLIENT_ID !== TODO_CLIENT_ID);
+    return Boolean(GOOGLE_CLIENT_ID);
   }
 
   function markNotConfigured() {
@@ -60,10 +59,34 @@ const GoogleAuthService = (() => {
     }
   }
 
-  function updateToken(response) {
+  const listeners = new Set();
+
+  function notify() {
+    listeners.forEach(listener => listener(getStatus()));
+  }
+
+  async function fetchUserInfo(accessToken) {
+    try {
+      const res = await fetch(`https://www.googleapis.com/oauth2/v3/tokeninfo?access_token=${encodeURIComponent(accessToken)}`);
+      if (!res.ok) return null;
+      const info = await res.json();
+      return {
+        id: info.sub || null,
+        email: info.email || null,
+        name: info.name || null,
+        picture: info.picture || null
+      };
+    } catch (error) {
+      console.warn('Profil Google indisponible après connexion.', error);
+      return null;
+    }
+  }
+
+  async function updateToken(response) {
     if (response.error) {
       state.message = `Erreur Google Auth : ${response.error}`;
       console.warn(state.message, response);
+      notify();
       return;
     }
     state.accessToken = response.access_token || null;
@@ -75,7 +98,11 @@ const GoogleAuthService = (() => {
       name: profile.name,
       picture: profile.picture
     } : null;
+    if (state.accessToken && (!state.user?.email || !state.user?.name)) {
+      state.user = { ...(state.user || {}), ...(await fetchUserInfo(state.accessToken) || {}) };
+    }
     state.message = state.accessToken ? 'Connecté à Google.' : 'Réponse Google reçue sans jeton d’accès.';
+    notify();
   }
 
   function getStatus() {
@@ -102,6 +129,7 @@ const GoogleAuthService = (() => {
     state.initialized = true;
     state.configured = true;
     state.message = 'Google Auth prêt.';
+    notify();
     return getStatus();
   }
 
@@ -120,6 +148,7 @@ const GoogleAuthService = (() => {
     state.tokenExpiresAt = null;
     state.user = null;
     state.message = state.configured ? 'Déconnecté de Google.' : state.message;
+    notify();
     return getStatus();
   }
 
@@ -130,6 +159,10 @@ const GoogleAuthService = (() => {
     isSignedIn: () => getStatus().signedIn,
     getUser: () => state.user,
     getAccessToken: () => getStatus().signedIn ? state.accessToken : null,
+    onChange: listener => {
+      listeners.add(listener);
+      return () => listeners.delete(listener);
+    },
     getStatus
   };
 })();
