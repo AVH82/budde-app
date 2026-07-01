@@ -43,6 +43,8 @@ L'application accède désormais au stockage via `js/storage.service.js`, une co
 L'application continue d'utiliser le même format `Budde.data.json` et les mêmes clés `localStorage` (`budde-data-v1` et migration legacy `budde-v7`).
 Cette séparation prépare l'ajout futur d'un adaptateur Google Drive sans modifier l'interface utilisateur ni le comportement hors ligne.
 
+`GoogleDriveAdapter` est préparé dans `js/storage.google-drive.js`, mais il n'est pas encore actif et n'appelle pas Google Drive. Le stockage réel reste local via `localStorage`, orchestré par `StorageService` avec `LocalStorageAdapter` comme backend par défaut.
+
 ## Installation PWA
 
 Une fois le dépôt publié via GitHub Pages :

@@ -7,6 +7,7 @@ const ASSETS = [
   './js/app.js',
   './js/storage.local.js',
   './js/storage.service.js',
+  './js/storage.google-drive.js',
   './assets/logo/budde_logo.png',
   './assets/nav/home.png',
   './assets/nav/expenses.png',
