@@ -36,6 +36,12 @@ Il contient notamment :
 
 Ce fichier devra être stocké hors GitHub, par exemple dans Google Drive.
 
+## Note technique
+
+La persistance locale de la PWA est isolée dans `js/storage.local.js` via `LocalStorageAdapter`.
+L'application continue d'utiliser le même format `Budde.data.json` et les mêmes clés `localStorage` (`budde-data-v1` et migration legacy `budde-v7`).
+Cette séparation prépare l'ajout futur d'un adaptateur Google Drive sans modifier l'interface utilisateur.
+
 ## Installation PWA
 
 Une fois le dépôt publié via GitHub Pages :
