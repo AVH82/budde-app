@@ -6,6 +6,7 @@ const ASSETS = [
   './css/pipboy.css',
   './js/app.js',
   './js/storage.local.js',
+  './js/storage.service.js',
   './assets/logo/budde_logo.png',
   './assets/nav/home.png',
   './assets/nav/expenses.png',
