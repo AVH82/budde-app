@@ -9,21 +9,25 @@ const GoogleDriveAdapter={
     throw new Error('GoogleDriveAdapter.load is not implemented yet. Google Drive restore is not active.');
   },
   async save(db){
-    const token=this.getAccessToken();
+    console.info('Google Drive : démarrage de la sauvegarde manuelle.', { fileName:this.FILE_NAME, space:this.APPDATA_FOLDER });
+    const token=await this.getAccessToken();
+    console.info('Google Drive : jeton obtenu, recherche de la sauvegarde existante.');
     const existing=await this.findBackupFile(token);
     if(existing?.id){
+      console.info('Google Drive : fichier existant trouvé, mise à jour PATCH.', { id:existing.id, name:existing.name, modifiedTime:existing.modifiedTime });
       return this.updateBackupFile(token,existing.id,db);
     }
+    console.info('Google Drive : aucun fichier existant, création dans appDataFolder.');
     return this.createBackupFile(token,db);
   },
   clear(){
     throw new Error('GoogleDriveAdapter.clear is not implemented yet. Google Drive storage is backup-only.');
   },
-  getAccessToken(){
+  async getAccessToken(){
     if(!window.GoogleAuthService){
       throw new Error('Google Auth est indisponible. Connectez-vous à Google avant de sauvegarder.');
     }
-    const token=GoogleAuthService.getAccessToken();
+    const token=GoogleAuthService.ensureAccessToken ? await GoogleAuthService.ensureAccessToken() : GoogleAuthService.getAccessToken();
     if(!token){
       throw new Error('Vous devez être connecté à Google pour sauvegarder sur Drive.');
     }
@@ -41,11 +45,13 @@ const GoogleDriveAdapter={
       fields:'files(id,name,modifiedTime)',
       pageSize:'1'
     });
+    console.info('Google Drive : appel files.list dans appDataFolder.');
     const response=await fetch(`${this.DRIVE_API}/files?${params.toString()}`,{
       headers:{Authorization:`Bearer ${token}`}
     });
     const body=await this.parseDriveResponse(response);
     if(!response.ok){
+      console.error('Google Drive : échec files.list.', { status:response.status, body });
       throw new Error(this.driveErrorMessage(body,'Recherche de la sauvegarde Google Drive impossible.'));
     }
     return body.files?.[0]||null;
@@ -77,6 +83,7 @@ const GoogleDriveAdapter={
       `--${boundary}--`,
       ''
     ].join('\r\n');
+    console.info('Google Drive : upload multipart.', { method, url });
     const response=await fetch(url,{
       method,
       headers:{
@@ -87,8 +94,10 @@ const GoogleDriveAdapter={
     });
     const responseBody=await this.parseDriveResponse(response);
     if(!response.ok){
+      console.error('Google Drive : échec upload multipart.', { status:response.status, body:responseBody });
       throw new Error(this.driveErrorMessage(responseBody,'Sauvegarde Google Drive impossible.'));
     }
+    console.info('Google Drive : sauvegarde terminée.', responseBody);
     return responseBody;
   },
   async parseDriveResponse(response){
