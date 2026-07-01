@@ -113,3 +113,5 @@ const GoogleDriveAdapter={
     return String(value).replace(/\\/g,'\\\\').replace(/'/g,"\\'");
   }
 };
+
+window.GoogleDriveAdapter = GoogleDriveAdapter;
