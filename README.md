@@ -43,7 +43,33 @@ L'application accède désormais au stockage via `js/storage.service.js`, une co
 L'application continue d'utiliser le même format `Budde.data.json` et les mêmes clés `localStorage` (`budde-data-v1` et migration legacy `budde-v7`).
 Cette séparation prépare l'ajout futur d'un adaptateur Google Drive sans modifier l'interface utilisateur ni le comportement hors ligne.
 
-`GoogleDriveAdapter` est préparé dans `js/storage.google-drive.js`, mais il n'est pas encore actif et n'appelle pas Google Drive. Le stockage réel reste local via `localStorage`, orchestré par `StorageService` avec `LocalStorageAdapter` comme backend par défaut.
+`GoogleDriveAdapter` est préparé dans `js/storage.google-drive.js` pour la sauvegarde manuelle Google Drive. Le stockage réel reste local via `localStorage`, orchestré par `StorageService` avec `LocalStorageAdapter` comme backend par défaut.
+
+## Sauvegarde manuelle Google Drive appDataFolder
+
+L'écran **Statistiques** propose désormais le bouton **Sauvegarder sur Google Drive** lorsque l'utilisateur est connecté avec Google. Cette action conserve `LocalStorageAdapter` comme source principale : elle copie seulement l'état JSON courant de Budd€ vers Google Drive en sauvegarde supplémentaire.
+
+La sauvegarde utilise l'API Google Drive v3 avec le scope OAuth suivant :
+
+```text
+https://www.googleapis.com/auth/drive.appdata
+```
+
+Le fichier est stocké uniquement dans l'espace applicatif masqué Google Drive `appDataFolder`, et jamais dans le Drive visible de l'utilisateur. Le nom du fichier est :
+
+```text
+budde-data.json
+```
+
+À chaque sauvegarde manuelle, `GoogleDriveAdapter` recherche ce fichier dans `appDataFolder` :
+
+- si `budde-data.json` existe déjà, il est mis à jour avec une requête `PATCH` ;
+- s'il n'existe pas, il est créé dans `appDataFolder` ;
+- aucun doublon n'est volontairement créé, car la recherche précède toujours la création.
+
+Après succès, l'interface affiche la date et l'heure de la dernière sauvegarde. En cas d'erreur Google Auth ou Drive, un message clair est affiché dans l'écran **Statistiques**.
+
+La restauration depuis Google Drive n'est pas encore implémentée. Le démarrage de l'application continue de charger uniquement le stockage local via `StorageService` et `LocalStorageAdapter`. La synchronisation automatique n'est pas encore implémentée non plus.
 
 ## Installation PWA
 
@@ -65,4 +91,4 @@ Le scope OAuth prévu est :
 https://www.googleapis.com/auth/drive.appdata
 ```
 
-Ce scope prépare l'accès futur au dossier applicatif Google Drive (`appDataFolder`). À ce stade, la connexion Google est active mais la synchronisation Drive n'est pas encore implémentée : l'application ne lit pas Google Drive, n'écrit pas dans Google Drive et ne connecte pas `GoogleAuthService` à `GoogleDriveAdapter`. Le stockage réel reste local via `StorageService` et `LocalStorageAdapter`, afin de conserver le fonctionnement hors ligne.
+Ce scope donne accès au dossier applicatif Google Drive (`appDataFolder`) utilisé par la sauvegarde manuelle `budde-data.json`. À ce stade, l'application ne restaure pas les données depuis Drive et ne synchronise pas automatiquement : le stockage réel reste local via `StorageService` et `LocalStorageAdapter`, afin de conserver le fonctionnement hors ligne.
