@@ -53,17 +53,11 @@ Une fois le dépôt publié via GitHub Pages :
 2. Appuyer sur Partager.
 3. Choisir Ajouter à l'écran d'accueil.
 
-## Authentification Google préparée
+## Authentification Google active
 
-Une couche d'authentification Google isolée est préparée dans `js/google-auth.service.js` avec Google Identity Services pour navigateur/PWA.
+La connexion Google est active dans l'écran **Statistiques** via `js/google-auth.service.js` et Google Identity Services pour navigateur/PWA. Le bouton **Connexion Google** lance le consentement OAuth, puis affiche l'état connecté ainsi que l'e-mail et le nom du compte lorsque Google les fournit. Une action **Déconnexion Google** révoque le jeton en mémoire.
 
-Pour l'activer :
-
-1. Créer un client OAuth dans Google Cloud de type **Application Web** (adapté à une PWA servie depuis un domaine HTTPS, par exemple GitHub Pages).
-2. Ajouter l'origine JavaScript autorisée correspondant au domaine de publication de la PWA.
-3. Copier l'identifiant client public dans la constante `GOOGLE_CLIENT_ID` de `js/google-auth.service.js` à la place de `TODO_GOOGLE_CLIENT_ID`.
-
-Aucun secret client, aucune clé API et aucun identifiant réel ne doivent être committés si le dépôt est public.
+L'identifiant client OAuth Web public est renseigné dans `js/google-auth.service.js`. Aucun secret client et aucune clé API ne sont nécessaires ni stockés dans le dépôt.
 
 Le scope OAuth prévu est :
 
@@ -71,4 +65,4 @@ Le scope OAuth prévu est :
 https://www.googleapis.com/auth/drive.appdata
 ```
 
-Ce scope prépare l'accès futur au dossier applicatif Google Drive (`appDataFolder`). À ce stade, seule l'authentification est préparée : l'application ne lit pas Google Drive, n'écrit pas dans Google Drive et ne connecte pas encore `GoogleAuthService` à `GoogleDriveAdapter`. Le stockage réel reste local via `StorageService` et `LocalStorageAdapter`, afin de conserver le fonctionnement hors ligne.
+Ce scope prépare l'accès futur au dossier applicatif Google Drive (`appDataFolder`). À ce stade, la connexion Google est active mais la synchronisation Drive n'est pas encore implémentée : l'application ne lit pas Google Drive, n'écrit pas dans Google Drive et ne connecte pas `GoogleAuthService` à `GoogleDriveAdapter`. Le stockage réel reste local via `StorageService` et `LocalStorageAdapter`, afin de conserver le fonctionnement hors ligne.

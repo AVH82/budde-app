@@ -284,3 +284,4 @@
   #budgetModal .budgetSheet{width:calc(100vw - 16px)!important;padding:12px!important}
   #budgetModal .modalActions{grid-template-columns:1fr!important;gap:8px!important}
 }
+.googleAuthBox{position:relative;z-index:1;border:1px solid rgba(157,255,69,.22);border-radius:9px;padding:10px;margin-bottom:10px}.googleAuthBox p{display:grid;gap:3px;margin:0 0 8px;color:#9ddc4a}.googleAuthBox span:first-child{color:var(--green);font-weight:700;text-transform:uppercase}
