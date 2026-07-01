@@ -52,3 +52,23 @@ Une fois le dépôt publié via GitHub Pages :
 1. Ouvrir l'URL dans Safari sur iPhone.
 2. Appuyer sur Partager.
 3. Choisir Ajouter à l'écran d'accueil.
+
+## Authentification Google préparée
+
+Une couche d'authentification Google isolée est préparée dans `js/google-auth.service.js` avec Google Identity Services pour navigateur/PWA.
+
+Pour l'activer :
+
+1. Créer un client OAuth dans Google Cloud de type **Application Web** (adapté à une PWA servie depuis un domaine HTTPS, par exemple GitHub Pages).
+2. Ajouter l'origine JavaScript autorisée correspondant au domaine de publication de la PWA.
+3. Copier l'identifiant client public dans la constante `GOOGLE_CLIENT_ID` de `js/google-auth.service.js` à la place de `TODO_GOOGLE_CLIENT_ID`.
+
+Aucun secret client, aucune clé API et aucun identifiant réel ne doivent être committés si le dépôt est public.
+
+Le scope OAuth prévu est :
+
+```text
+https://www.googleapis.com/auth/drive.appdata
+```
+
+Ce scope prépare l'accès futur au dossier applicatif Google Drive (`appDataFolder`). À ce stade, seule l'authentification est préparée : l'application ne lit pas Google Drive, n'écrit pas dans Google Drive et ne connecte pas encore `GoogleAuthService` à `GoogleDriveAdapter`. Le stockage réel reste local via `StorageService` et `LocalStorageAdapter`, afin de conserver le fonctionnement hors ligne.

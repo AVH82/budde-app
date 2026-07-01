@@ -1,4 +1,4 @@
-const CACHE_NAME = 'budde-1-0-1';
+const CACHE_NAME = 'budde-1-0-2';
 const ASSETS = [
   './',
   './index.html',
@@ -8,6 +8,7 @@ const ASSETS = [
   './js/storage.local.js',
   './js/storage.service.js',
   './js/storage.google-drive.js',
+  './js/google-auth.service.js',
   './assets/logo/budde_logo.png',
   './assets/nav/home.png',
   './assets/nav/expenses.png',
