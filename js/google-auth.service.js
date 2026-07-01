@@ -83,6 +83,7 @@ const GoogleAuthService = (() => {
   }
 
   async function updateToken(response) {
+    console.info('Google Auth : réponse jeton reçue.', { hasAccessToken: Boolean(response?.access_token), expiresIn: response?.expires_in, error: response?.error });
     if (response.error) {
       state.message = `Erreur Google Auth : ${response.error}`;
       console.warn(state.message, response);
@@ -102,6 +103,11 @@ const GoogleAuthService = (() => {
       state.user = { ...(state.user || {}), ...(await fetchUserInfo(state.accessToken) || {}) };
     }
     state.message = state.accessToken ? 'Connecté à Google.' : 'Réponse Google reçue sans jeton d’accès.';
+    if (state.accessToken) {
+      console.info('Google Auth : jeton d’accès disponible.', { expiresAt: state.tokenExpiresAt ? new Date(state.tokenExpiresAt).toISOString() : null });
+    } else {
+      console.warn('Google Auth : aucun jeton d’accès dans la réponse Google.', response);
+    }
     notify();
   }
 
@@ -133,11 +139,42 @@ const GoogleAuthService = (() => {
     return getStatus();
   }
 
-  async function signIn() {
+  async function requestAccessToken(prompt = 'consent') {
     const status = await init();
-    if (!status.configured) return status;
-    state.tokenClient.requestAccessToken({ prompt: 'consent' });
+    if (!status.configured) return null;
+    return new Promise((resolve, reject) => {
+      const previousCallback = state.tokenClient.callback;
+      state.tokenClient.callback = async response => {
+        state.tokenClient.callback = previousCallback || updateToken;
+        try {
+          await updateToken(response);
+          if (response?.error) {
+            reject(new Error(`Erreur Google Auth : ${response.error}`));
+            return;
+          }
+          resolve(getStatus().signedIn ? state.accessToken : null);
+        } catch (error) {
+          reject(error);
+        }
+      };
+      console.info('Google Auth : demande de jeton d’accès.', { prompt });
+      state.tokenClient.requestAccessToken({ prompt });
+    });
+  }
+
+  async function signIn() {
+    await requestAccessToken('consent');
     return getStatus();
+  }
+
+  async function ensureAccessToken() {
+    const current = getStatus();
+    if (current.signedIn && state.accessToken) {
+      console.info('Google Auth : jeton existant valide au moment du clic.', { expiresAt: state.tokenExpiresAt ? new Date(state.tokenExpiresAt).toISOString() : null });
+      return state.accessToken;
+    }
+    console.warn('Google Auth : jeton absent ou expiré, nouvelle demande avant sauvegarde Drive.', { signedIn: current.signedIn, expiresAt: state.tokenExpiresAt ? new Date(state.tokenExpiresAt).toISOString() : null });
+    return requestAccessToken(state.accessToken ? '' : 'consent');
   }
 
   function signOut() {
@@ -159,6 +196,7 @@ const GoogleAuthService = (() => {
     isSignedIn: () => getStatus().signedIn,
     getUser: () => state.user,
     getAccessToken: () => getStatus().signedIn ? state.accessToken : null,
+    ensureAccessToken,
     onChange: listener => {
       listeners.add(listener);
       return () => listeners.delete(listener);
