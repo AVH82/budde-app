@@ -1,6 +1,7 @@
 const GoogleDriveAdapter={
   FILE_NAME:'budde-data.json',
   DRIVE_API:'https://www.googleapis.com/drive/v3',
+  DRIVE_UPLOAD_API:'https://www.googleapis.com/upload/drive/v3',
   APPDATA_FOLDER:'appDataFolder',
   getBackendName(){
     return 'google-drive';
@@ -57,38 +58,51 @@ const GoogleDriveAdapter={
     return body.files?.[0]||null;
   },
   async createBackupFile(token,db){
-    return this.uploadMultipart(token,`${this.DRIVE_API}/files?uploadType=multipart&fields=id,name,modifiedTime`,{
+    return this.uploadMultipart(token,`${this.DRIVE_UPLOAD_API}/files?uploadType=multipart&fields=id,name,modifiedTime`,{
       name:this.FILE_NAME,
       parents:[this.APPDATA_FOLDER],
       mimeType:'application/json'
     },db,'POST');
   },
   async updateBackupFile(token,fileId,db){
-    return this.uploadMultipart(token,`${this.DRIVE_API}/files/${encodeURIComponent(fileId)}?uploadType=multipart&fields=id,name,modifiedTime`,{
+    return this.uploadMultipart(token,`${this.DRIVE_UPLOAD_API}/files/${encodeURIComponent(fileId)}?uploadType=multipart&fields=id,name,modifiedTime`,{
       name:this.FILE_NAME,
       mimeType:'application/json'
     },db,'PATCH');
   },
   async uploadMultipart(token,url,metadata,db,method){
     const boundary=`budde_${Date.now()}_${Math.random().toString(36).slice(2)}`;
+    const metadataJson=JSON.stringify(metadata);
+    const fileJson=JSON.stringify(db,null,2);
+    const contentType=`multipart/related; boundary=${boundary}`;
     const body=[
       `--${boundary}`,
       'Content-Type: application/json; charset=UTF-8',
       '',
-      JSON.stringify(metadata),
+      metadataJson,
       `--${boundary}`,
       'Content-Type: application/json; charset=UTF-8',
       '',
-      JSON.stringify(db,null,2),
+      fileJson,
       `--${boundary}--`,
       ''
     ].join('\r\n');
+    const debugHeaders={
+      'Content-Type':contentType
+    };
     console.info('Google Drive : upload multipart.', { method, url });
+    console.debug('Google Drive : requête upload multipart.', {
+      url,
+      method,
+      headers:debugHeaders,
+      metadataJson,
+      bodyPreview:body.slice(0,300)
+    });
     const response=await fetch(url,{
       method,
       headers:{
         Authorization:`Bearer ${token}`,
-        'Content-Type':`multipart/related; boundary=${boundary}`
+        'Content-Type':contentType
       },
       body
     });
