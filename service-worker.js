@@ -1,12 +1,11 @@
-const CACHE_NAME = 'budde-1-0-0';
+const CACHE_NAME = 'budde-1-0-1';
 const ASSETS = [
   './',
   './index.html',
   './manifest.webmanifest',
   './css/pipboy.css',
   './js/app.js',
-  './data/seed.js',
-  './data/budget.json',
+  './js/storage.local.js',
   './assets/logo/budde_logo.png',
   './assets/nav/home.png',
   './assets/nav/expenses.png',
