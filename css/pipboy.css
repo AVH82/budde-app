@@ -285,5 +285,6 @@
   #budgetModal .modalActions{grid-template-columns:1fr!important;gap:8px!important}
 }
 .googleAuthBox{position:relative;z-index:1;border:1px solid rgba(157,255,69,.22);border-radius:9px;padding:10px;margin-bottom:10px}.googleAuthBox p{display:grid;gap:3px;margin:0 0 8px;color:#9ddc4a}.googleAuthBox span:first-child{color:var(--green);font-weight:700;text-transform:uppercase}
-.googleAuthBox button{width:100%;margin-top:8px}
+.googleAuthBox button{position:relative;z-index:2;width:100%;margin-top:8px;pointer-events:auto}
 .driveBackupStatus{min-height:18px;color:#a4dc56;text-transform:uppercase;font-size:12px}
+.driveDiagnostic{position:relative;z-index:2;min-height:52px;margin:8px 0 0;padding:8px;border:1px dashed rgba(157,255,69,.35);border-radius:8px;color:#b9ff55;background:rgba(2,7,2,.72);font:11px/1.35 inherit;white-space:pre-wrap;text-transform:none}
