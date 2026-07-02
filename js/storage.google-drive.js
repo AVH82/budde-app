@@ -6,8 +6,34 @@ const GoogleDriveAdapter={
   getBackendName(){
     return 'google-drive';
   },
-  load(){
-    throw new Error('GoogleDriveAdapter.load is not implemented yet. Google Drive restore is not active.');
+  async load(){
+    console.info('Google Drive : démarrage de la restauration manuelle.', { fileName:this.FILE_NAME, space:this.APPDATA_FOLDER });
+    const token=await this.getAccessToken();
+    console.info('Google Drive : jeton obtenu, recherche de la sauvegarde à restaurer.');
+    const existing=await this.findBackupFile(token);
+    if(!existing?.id){
+      throw new Error('Aucune sauvegarde Google Drive trouvée.');
+    }
+    console.info('Google Drive : fichier trouvé, téléchargement du contenu.', { id:existing.id, name:existing.name, modifiedTime:existing.modifiedTime });
+    const params=new URLSearchParams({alt:'media'});
+    const response=await fetch(`${this.DRIVE_API}/files/${encodeURIComponent(existing.id)}?${params.toString()}`,{
+      headers:{Authorization:`Bearer ${token}`}
+    });
+    const text=await response.text();
+    if(!response.ok){
+      let body;
+      try{body=text?JSON.parse(text):{}}catch(error){body={error:{message:text}}}
+      console.error('Google Drive : échec téléchargement.', { status:response.status, body });
+      throw new Error(this.driveErrorMessage(body,'Téléchargement de la sauvegarde Google Drive impossible.'));
+    }
+    try{
+      const data=JSON.parse(text);
+      console.info('Google Drive : restauration téléchargée et JSON valide.');
+      return data;
+    }catch(error){
+      console.error('Google Drive : JSON de sauvegarde invalide.',error);
+      throw new Error('Sauvegarde Google Drive invalide : JSON illisible.');
+    }
   },
   async save(db){
     console.info('Google Drive : démarrage de la sauvegarde manuelle.', { fileName:this.FILE_NAME, space:this.APPDATA_FOLDER });
