@@ -45,6 +45,11 @@ Cette séparation prépare l'ajout futur d'un adaptateur Google Drive sans modif
 
 `GoogleDriveAdapter` est préparé dans `js/storage.google-drive.js` pour la sauvegarde manuelle Google Drive. Le stockage réel reste local via `localStorage`, orchestré par `StorageService` avec `LocalStorageAdapter` comme backend par défaut.
 
+
+## Sauvegarde locale JSON
+
+L'écran **Paramètres** contient une section **Sauvegarde locale** avec les actions **Exporter Budde.data.json** et **Importer Budde.data.json**. Ces contrôles utilisent le même format JSON `Budde.data.json` que précédemment : l'export télécharge l'état courant de l'application, et l'import remplace le stockage local après normalisation des données.
+
 ## Sauvegarde manuelle Google Drive appDataFolder
 
 L'écran **Paramètres**, accessible depuis la roue dentée en haut à droite de la bannière, propose désormais le bouton **Sauvegarder sur Google Drive** lorsque l'utilisateur est connecté avec Google. Cette action conserve `LocalStorageAdapter` comme source principale : elle copie seulement l'état JSON courant de Budd€ vers Google Drive en sauvegarde supplémentaire.

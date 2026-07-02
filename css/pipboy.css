@@ -302,3 +302,4 @@
   border-radius:50%;
 }
 /* body.debug-settings-hotspot .settingsHotspot{outline:2px solid var(--red);background:rgba(255,123,61,.18)} */
+.settingsSection{position:relative;z-index:1;border:1px solid rgba(157,255,69,.22);border-radius:9px;padding:10px;margin-bottom:10px}.settingsSection h3{margin:0 0 10px;color:var(--green);font-size:14px;text-transform:uppercase;letter-spacing:.06em}.localBackupBox button,.localBackupBox .fileBtn{position:relative;z-index:2;width:100%;margin-top:8px}.googleAuthBox{margin-bottom:0}
