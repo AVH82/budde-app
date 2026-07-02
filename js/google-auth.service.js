@@ -12,7 +12,8 @@ const GoogleAuthService = (() => {
     tokenExpiresAt: null,
     user: null,
     message: '',
-    silentReconnectInProgress: false
+    silentReconnectInProgress: false,
+    driveScopeGranted: false
   };
 
   function hasClientId() {
@@ -84,6 +85,28 @@ const GoogleAuthService = (() => {
     }
   }
 
+  function hasDriveScope(response) {
+    if (!response) return false;
+    if (window.google?.accounts?.oauth2?.hasGrantedAllScopes) {
+      return google.accounts.oauth2.hasGrantedAllScopes(response, GOOGLE_AUTH_SCOPE);
+    }
+    return String(response.scope || '').split(/\s+/).includes(GOOGLE_AUTH_SCOPE);
+  }
+
+  function needsExplicitConsent(response) {
+    const error = response?.error || '';
+    const description = `${response?.error_description || ''} ${response?.error_uri || ''}`.toLowerCase();
+    return ['consent_required', 'interaction_required', 'insufficient_scope'].includes(error)
+      || description.includes('consent')
+      || description.includes('scope');
+  }
+
+  function rememberGrantedScopes(response) {
+    if (response?.access_token && hasDriveScope(response)) {
+      state.driveScopeGranted = true;
+    }
+  }
+
   async function updateToken(response, options = {}) {
     const silent = Boolean(options.silent);
     console.info('Google Auth : réponse jeton reçue.', { hasAccessToken: Boolean(response?.access_token), expiresIn: response?.expires_in, error: response?.error, silent });
@@ -98,6 +121,7 @@ const GoogleAuthService = (() => {
       notify();
       return;
     }
+    rememberGrantedScopes(response);
     state.accessToken = response.access_token || null;
     state.tokenExpiresAt = response.expires_in ? Date.now() + response.expires_in * 1000 : null;
     const profile = decodeJwtPayload(response.id_token);
@@ -175,7 +199,7 @@ const GoogleAuthService = (() => {
     return getStatus();
   }
 
-  async function requestAccessToken(prompt = 'consent') {
+  async function requestAccessToken(prompt = '') {
     const status = await init();
     if (!status.configured) return null;
     return new Promise((resolve, reject) => {
@@ -185,7 +209,7 @@ const GoogleAuthService = (() => {
         try {
           await updateToken(response);
           if (response?.error) {
-            reject(new Error(`Erreur Google Auth : ${response.error}`));
+            reject(Object.assign(new Error(`Erreur Google Auth : ${response.error}`), { googleResponse: response }));
             return;
           }
           resolve(getStatus().signedIn ? state.accessToken : null);
@@ -198,8 +222,26 @@ const GoogleAuthService = (() => {
     });
   }
 
+  async function requestAccessTokenWithFallback(prompt = '', options = {}) {
+    try {
+      const token = await requestAccessToken(prompt);
+      if (token && state.driveScopeGranted) return token;
+      if (options.allowConsent && token && !state.driveScopeGranted) {
+        console.info('Google Auth : scope Drive non confirmé, demande de consentement explicite.');
+        return requestAccessToken('consent');
+      }
+      return token;
+    } catch (error) {
+      if (options.allowConsent && needsExplicitConsent(error.googleResponse)) {
+        console.info('Google Auth : consentement explicite requis par Google, nouvelle demande.');
+        return requestAccessToken('consent');
+      }
+      throw error;
+    }
+  }
+
   async function signIn() {
-    await requestAccessToken('consent');
+    await requestAccessTokenWithFallback('select_account', { allowConsent: true });
     return getStatus();
   }
 
@@ -210,7 +252,7 @@ const GoogleAuthService = (() => {
       return state.accessToken;
     }
     console.warn('Google Auth : jeton absent ou expiré, nouvelle demande avant sauvegarde Drive.', { signedIn: current.signedIn, expiresAt: state.tokenExpiresAt ? new Date(state.tokenExpiresAt).toISOString() : null });
-    return requestAccessToken(state.accessToken ? '' : 'consent');
+    return requestAccessTokenWithFallback(state.driveScopeGranted ? '' : 'select_account', { allowConsent: true });
   }
 
   function signOut() {
@@ -220,6 +262,7 @@ const GoogleAuthService = (() => {
     state.accessToken = null;
     state.tokenExpiresAt = null;
     state.user = null;
+    state.driveScopeGranted = false;
     state.message = state.configured ? 'Déconnecté de Google.' : state.message;
     notify();
     return getStatus();
