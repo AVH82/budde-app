@@ -100,3 +100,11 @@ https://www.googleapis.com/auth/drive.appdata
 ```
 
 Ce scope donne accès au dossier applicatif Google Drive (`appDataFolder`) utilisé par la sauvegarde manuelle `budde-data.json`. À ce stade, l'application ne restaure pas les données depuis Drive et ne synchronise pas automatiquement : le stockage réel reste local via `StorageService` et `LocalStorageAdapter`, afin de conserver le fonctionnement hors ligne.
+
+## Socle OCR de reçus
+
+Le module `js/receipt-ocr.service.js` prépare l'analyse locale de reçus dans le navigateur. Il expose un `ReceiptOcrService` isolé avec initialisation, reconnaissance d'image, extraction de champs simples et état de disponibilité.
+
+L'OCR s'appuie sur Tesseract.js chargé depuis un CDN navigateur lorsque la bibliothèque est disponible. Aucun moteur OCR lourd n'est ajouté au dépôt. Si Tesseract.js ne peut pas être chargé, le service retourne un statut d'indisponibilité propre au lieu de bloquer l'application.
+
+L'analyse est prévue pour rester locale : les images de reçus sont traitées côté navigateur et aucune donnée de reçu n'est envoyée à un serveur par ce socle. Cette première PR n'ajoute pas encore d'interface Scanner complète et ne crée aucune dépense automatiquement ; l'intégration UI et la validation d'une dépense préremplie sont prévues dans la PR suivante.
