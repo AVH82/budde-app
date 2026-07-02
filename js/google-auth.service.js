@@ -7,10 +7,12 @@ const GoogleAuthService = (() => {
     initialized: false,
     configured: false,
     tokenClient: null,
+    silentTokenClient: null,
     accessToken: null,
     tokenExpiresAt: null,
     user: null,
-    message: ''
+    message: '',
+    silentReconnectInProgress: false
   };
 
   function hasClientId() {
@@ -82,11 +84,17 @@ const GoogleAuthService = (() => {
     }
   }
 
-  async function updateToken(response) {
-    console.info('Google Auth : réponse jeton reçue.', { hasAccessToken: Boolean(response?.access_token), expiresIn: response?.expires_in, error: response?.error });
+  async function updateToken(response, options = {}) {
+    const silent = Boolean(options.silent);
+    console.info('Google Auth : réponse jeton reçue.', { hasAccessToken: Boolean(response?.access_token), expiresIn: response?.expires_in, error: response?.error, silent });
     if (response.error) {
-      state.message = `Erreur Google Auth : ${response.error}`;
-      console.warn(state.message, response);
+      if (silent) {
+        state.message = state.configured ? 'Google Auth prêt.' : state.message;
+        console.info('Google Auth : reconnexion silencieuse indisponible.', response);
+      } else {
+        state.message = `Erreur Google Auth : ${response.error}`;
+        console.warn(state.message, response);
+      }
       notify();
       return;
     }
@@ -111,6 +119,18 @@ const GoogleAuthService = (() => {
     notify();
   }
 
+  function attemptSilentReconnect() {
+    if (!state.silentTokenClient || state.silentReconnectInProgress || getStatus().signedIn) return;
+    state.silentReconnectInProgress = true;
+    try {
+      console.info('Google Auth : tentative de reconnexion silencieuse.');
+      state.silentTokenClient.requestAccessToken({ prompt: '' });
+    } catch (error) {
+      state.silentReconnectInProgress = false;
+      console.warn('Google Auth : reconnexion silencieuse non démarrée.', error);
+    }
+  }
+
   function getStatus() {
     const expired = Boolean(state.tokenExpiresAt && Date.now() >= state.tokenExpiresAt);
     return {
@@ -132,10 +152,26 @@ const GoogleAuthService = (() => {
       scope: GOOGLE_AUTH_SCOPE,
       callback: updateToken
     });
+    state.silentTokenClient = google.accounts.oauth2.initTokenClient({
+      client_id: GOOGLE_CLIENT_ID,
+      scope: GOOGLE_AUTH_SCOPE,
+      callback: async response => {
+        try {
+          await updateToken(response, { silent: true });
+        } catch (error) {
+          console.warn('Google Auth : reconnexion silencieuse impossible.', error);
+          state.message = state.configured ? 'Google Auth prêt.' : state.message;
+          notify();
+        } finally {
+          state.silentReconnectInProgress = false;
+        }
+      }
+    });
     state.initialized = true;
     state.configured = true;
     state.message = 'Google Auth prêt.';
     notify();
+    setTimeout(attemptSilentReconnect, 0);
     return getStatus();
   }
 
