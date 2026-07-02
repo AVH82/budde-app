@@ -333,3 +333,18 @@
 .storageModeValue span{display:block;min-width:0}
 .storageModeLocal{color:#a4dc56;text-transform:uppercase}
 @media(max-width:360px){.storageModeValue{text-align:left!important}}
+
+
+/* Sprint 10.6 — écran d’entrée Google / hors ligne */
+.entryGate{position:fixed;inset:0;z-index:120;display:grid;place-items:center;padding:18px;background:radial-gradient(circle at 50% 0,rgba(157,255,69,.13),transparent 42%),rgba(1,2,1,.96);}
+.entryGate[hidden]{display:none!important}
+.entryPanel{width:min(390px,100%);border:1px solid rgba(157,255,69,.62);border-radius:18px;background:linear-gradient(180deg,rgba(7,17,7,.98),rgba(2,6,2,.99));box-shadow:0 0 28px rgba(157,255,69,.22),inset 0 0 24px rgba(0,0,0,.92);padding:18px;text-align:center;position:relative;overflow:hidden}
+.entryPanel::after{content:'';position:absolute;inset:0;pointer-events:none;background:repeating-linear-gradient(0deg,rgba(145,255,55,.05) 0 1px,transparent 2px 4px)}
+.entryLogo{position:relative;z-index:1;width:100%;max-height:170px;object-fit:contain;border:1px solid rgba(190,160,60,.5);border-radius:14px;filter:sepia(1) hue-rotate(35deg) saturate(1.6) brightness(.72) drop-shadow(0 0 10px rgba(157,255,69,.24));background:#030703}
+.entryPanel h1,.entryPanel p,.entryActions{position:relative;z-index:1}
+.entryPanel h1{margin:16px 0 8px;text-transform:uppercase;font-size:22px;letter-spacing:.08em;text-shadow:0 0 10px rgba(157,255,69,.75)}
+.entryPanel p{margin:0 0 14px;color:#a6dc5b;line-height:1.4;text-transform:uppercase}
+.entryActions{display:grid;gap:10px}
+.entryActions button{min-height:48px;border:1px solid rgba(145,130,40,.62);border-radius:10px;background:#061006;color:var(--green);font-family:inherit;text-transform:uppercase;font-weight:700;padding:11px;box-shadow:inset 0 0 12px #000;cursor:pointer}
+.entryStatus{min-height:18px;margin-top:12px!important;font-size:12px;color:#91c84b}
+.offlineModeNotice{display:block;margin-top:4px;color:#ffbf6a;text-transform:uppercase}
