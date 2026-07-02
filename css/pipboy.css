@@ -327,3 +327,9 @@
 .googleAuthBox{margin-bottom:0}.googleAuthBox p{margin:10px 0 0}.googleAuthBox button{margin-top:0}
 .driveBackupStatus{min-height:18px;margin:10px 0 0;color:#a4dc56;text-transform:uppercase;font-size:clamp(10px,2.9vw,12px);line-height:1.25}
 @media(max-width:360px){.settingsStatus div{grid-template-columns:1fr}.settingsStatus dd{text-align:left}.settingsSection{padding-left:8px;padding-right:8px}}
+
+/* Sprint 7.8 — séparation explicite du mode de stockage */
+.storageModeValue{display:grid!important;grid-template-columns:1fr!important;gap:5px!important;text-align:right}
+.storageModeValue span{display:block;min-width:0}
+.storageModeLocal{color:#a4dc56;text-transform:uppercase}
+@media(max-width:360px){.storageModeValue{text-align:left!important}}
