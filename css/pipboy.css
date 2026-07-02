@@ -373,3 +373,30 @@
 .chartMonth,.chartYLabel{font-family:'Share Tech Mono','Courier New',monospace;fill:#a4dc56;font-size:10px;text-anchor:middle;text-transform:uppercase}
 .chartYLabel{text-anchor:end;fill:#8fbd45;font-size:9px}
 @media(max-width:380px){.annualChart{padding:9px}.chartLegend{font-size:11px;gap:6px 10px}.chartMonth{font-size:9px}.chartYLabel{font-size:8px}}
+
+/* Sprint 12 PR 2 — interface Pip-Boy du scanner de reçu */
+.scanInput{position:absolute;width:1px;height:1px;opacity:0;pointer-events:none}
+.scannerTerminal{min-height:62vh}
+.scannerHeader{position:relative;z-index:1;display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.scannerHeader h2{margin:0;text-transform:uppercase}
+.scannerGrid{position:relative;z-index:1;display:grid;grid-template-columns:minmax(0,1.15fr) minmax(0,.85fr);gap:12px}
+.scannerPanel{border:1px solid rgba(157,255,69,.34);border-radius:12px;background:rgba(2,7,2,.72);padding:12px;box-shadow:inset 0 0 18px rgba(0,0,0,.92)}
+.scannerTitle{text-align:center;line-height:1.35;font-weight:700;text-transform:uppercase;text-shadow:0 0 10px rgba(157,255,69,.68);margin-bottom:14px;white-space:nowrap;font-size:clamp(11px,3.1vw,14px)}
+.scannerProgressFrame{height:18px;border:1px solid rgba(157,255,69,.62);border-radius:4px;background:#020402;overflow:hidden;box-shadow:inset 0 0 12px #000}
+.scannerProgressBar{height:100%;width:0;background:linear-gradient(90deg,#4f7f1b,#9dff45 55%,#d7ff7a);box-shadow:0 0 12px rgba(157,255,69,.86);transition:width .38s ease}
+.scannerProgressPercent{text-align:right;margin:6px 0 10px;color:#b9ff55;text-shadow:0 0 8px rgba(157,255,69,.65)}
+.scannerSteps{list-style:none;margin:0;padding:0;display:grid;gap:8px;text-transform:uppercase}
+.scannerSteps li{display:grid;grid-template-columns:28px 1fr;gap:8px;align-items:center;color:#7eaa39}
+.scannerSteps li.done{color:var(--green)}
+.scannerSteps li.active{color:#d7ff7a;text-shadow:0 0 9px rgba(157,255,69,.72)}
+.scannerSteps .glyph{font-size:18px;text-align:center}
+.scannerStatus{min-height:20px;margin:12px 0 0;text-transform:uppercase;color:#a4dc56}
+.scannerFields h3{margin:0 0 10px;text-transform:uppercase;font-size:15px}
+.scannerFields dl{display:grid;grid-template-columns:1fr;gap:10px;margin:0}
+.scannerFields dt{font-size:12px;text-transform:uppercase;color:#90c84a}
+.scannerFields dd{margin:2px 0 0;min-height:24px;border-bottom:1px solid rgba(157,255,69,.24);font-size:18px;color:var(--green);text-shadow:0 0 8px rgba(157,255,69,.45)}
+.scannerFields dd.pending{color:#668c2e;text-shadow:none}
+.scannerActions{margin-top:14px;display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.scannerActions p{grid-column:1/-1;margin:0;text-align:center;text-transform:uppercase;color:#d7ff7a;text-shadow:0 0 10px rgba(157,255,69,.8)}
+.scannerActions button:disabled{opacity:.62;cursor:not-allowed}
+@media(max-width:720px){.scannerGrid{grid-template-columns:1fr}.scannerTitle{font-size:clamp(10px,3vw,13px)}}
