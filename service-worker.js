@@ -1,4 +1,4 @@
-const CACHE_NAME = 'budde-1-0-25';
+const CACHE_NAME = 'budde-1-0-26';
 const ASSETS = [
   './',
   './index.html',
@@ -31,13 +31,60 @@ self.addEventListener('activate', event => {
   self.clients.claim();
 });
 
+const NETWORK_FIRST_ASSETS = new Set([
+  '/',
+  '/index.html',
+  '/css/pipboy.css',
+  '/js/app.js'
+]);
+
+function normalizeAssetPath(requestUrl) {
+  const url = new URL(requestUrl);
+  const scopePath = new URL(self.registration.scope).pathname.replace(/\/$/, '');
+  const pathname = url.pathname.startsWith(scopePath)
+    ? url.pathname.slice(scopePath.length) || '/'
+    : url.pathname;
+
+  return pathname.endsWith('/') ? '/' : pathname;
+}
+
+function isNetworkFirstRequest(request) {
+  return NETWORK_FIRST_ASSETS.has(normalizeAssetPath(request.url));
+}
+
+async function cacheFirst(request) {
+  const cached = await caches.match(request);
+  if (cached) return cached;
+
+  try {
+    const response = await fetch(request);
+    const copy = response.clone();
+    const cache = await caches.open(CACHE_NAME);
+    await cache.put(request, copy);
+    return response;
+  } catch (error) {
+    return caches.match('./index.html');
+  }
+}
+
+async function networkFirst(request) {
+  try {
+    const response = await fetch(request);
+    const copy = response.clone();
+    const cache = await caches.open(CACHE_NAME);
+    await cache.put(request, copy);
+    return response;
+  } catch (error) {
+    return caches.match(request, { ignoreSearch: true }).then(cached => cached || caches.match('./index.html'));
+  }
+}
+
 self.addEventListener('fetch', event => {
   if (event.request.method !== 'GET') return;
+
   event.respondWith(
-    caches.match(event.request).then(cached => cached || fetch(event.request).then(response => {
-      const copy = response.clone();
-      caches.open(CACHE_NAME).then(cache => cache.put(event.request, copy));
-      return response;
-    }).catch(() => caches.match('./index.html')))
+    isNetworkFirstRequest(event.request)
+      ? networkFirst(event.request)
+      : cacheFirst(event.request)
   );
 });
