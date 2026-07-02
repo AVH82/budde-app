@@ -76,6 +76,9 @@ Après succès, l'interface affiche la date et l'heure de la dernière sauvegard
 
 La restauration depuis Google Drive n'est pas encore implémentée. Le démarrage de l'application continue de charger uniquement le stockage local via `StorageService` et `LocalStorageAdapter`. La synchronisation automatique n'est pas encore implémentée non plus.
 
+
+Les fichiers applicatifs critiques sont chargés en network-first pour éviter les anciennes versions PWA en cache.
+
 ## Installation PWA
 
 Une fois le dépôt publié via GitHub Pages :
