@@ -348,3 +348,9 @@
 .entryActions button{min-height:48px;border:1px solid rgba(145,130,40,.62);border-radius:10px;background:#061006;color:var(--green);font-family:inherit;text-transform:uppercase;font-weight:700;padding:11px;box-shadow:inset 0 0 12px #000;cursor:pointer}
 .entryStatus{min-height:18px;margin-top:12px!important;font-size:12px;color:#91c84b}
 .offlineModeNotice{display:block;margin-top:4px;color:#ffbf6a;text-transform:uppercase}
+
+/* Bilan annuel des statistiques */
+.annualStat{background:rgba(2,6,2,.72);border-color:rgba(199,160,68,.48)}
+.annualStat h3{margin:0 0 10px;color:var(--green);font-size:16px;text-transform:uppercase;letter-spacing:.08em;text-shadow:0 0 8px rgba(157,255,69,.55)}
+.annualStatGrid{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px 12px;align-items:baseline;text-transform:uppercase;color:#91c84b}
+.annualStatGrid b{color:var(--green);text-align:right;white-space:nowrap;text-shadow:0 0 8px rgba(157,255,69,.45)}
