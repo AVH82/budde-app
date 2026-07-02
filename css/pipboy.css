@@ -400,3 +400,7 @@
 .scannerActions p{grid-column:1/-1;margin:0;text-align:center;text-transform:uppercase;color:#d7ff7a;text-shadow:0 0 10px rgba(157,255,69,.8)}
 .scannerActions button:disabled{opacity:.62;cursor:not-allowed}
 @media(max-width:720px){.scannerGrid{grid-template-columns:1fr}.scannerTitle{font-size:clamp(10px,3vw,13px)}}
+
+/* Sprint UX — version visible sur l’écran d’entrée */
+.entryAppVersion{margin-bottom:4px!important;font-size:13px;color:var(--green);letter-spacing:.08em}
+.entryBuildId{margin-bottom:14px!important;font-size:10px;color:#75a83a;letter-spacing:.06em;opacity:.78;text-transform:lowercase!important}
