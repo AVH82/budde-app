@@ -303,3 +303,22 @@
 }
 /* body.debug-settings-hotspot .settingsHotspot{outline:2px solid var(--red);background:rgba(255,123,61,.18)} */
 .settingsSection{position:relative;z-index:1;border:1px solid rgba(157,255,69,.22);border-radius:9px;padding:10px;margin-bottom:10px}.settingsSection h3{margin:0 0 10px;color:var(--green);font-size:14px;text-transform:uppercase;letter-spacing:.06em}.localBackupBox button,.localBackupBox .fileBtn{position:relative;z-index:2;width:100%;margin-top:8px}.googleAuthBox{margin-bottom:0}
+
+/* Sprint UI — Terminal de maintenance Paramètres */
+.settingsTerminal{display:grid;gap:12px}
+.settingsTerminal h2{position:relative;z-index:1;margin-bottom:0;font-size:clamp(17px,5vw,20px);letter-spacing:.1em}
+.settingsSubtitle{position:relative;z-index:1;margin:0;color:#9ddc4a;text-transform:uppercase;font-size:clamp(11px,3.2vw,13px);letter-spacing:.12em}
+.settingsSection{position:relative;z-index:1;margin:0;padding:12px 10px 14px;border:0;border-top:1px solid rgba(157,255,69,.26);border-radius:0;background:linear-gradient(180deg,rgba(157,255,69,.035),transparent 38%)}
+.settingsSection::before{content:'[ SYS ]';position:absolute;top:-8px;right:6px;padding:0 6px;background:#051005;color:#79a929;font-size:10px;letter-spacing:.12em;text-shadow:0 0 7px rgba(157,255,69,.35)}
+.settingsSection h3{margin:0 0 10px;color:var(--green);font-size:clamp(13px,3.7vw,15px);line-height:1.1;text-transform:uppercase;letter-spacing:.1em;text-shadow:0 0 8px rgba(157,255,69,.45)}
+.settingsStatus{display:grid;gap:8px;margin:0;color:#9ddc4a;font-size:clamp(11px,3.2vw,13px)}
+.settingsStatus div{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.35fr);gap:10px;align-items:start}
+.settingsStatus dt{color:#88bd42;text-transform:uppercase}
+.settingsStatus dd{margin:0;color:var(--green);text-align:right;overflow-wrap:anywhere}
+.settingsActions,.localArchiveActions{display:grid;grid-template-columns:1fr;gap:9px;margin-top:12px}
+.settingsActions button,.localArchiveActions button,.localArchiveActions .fileBtn{width:100%;min-height:46px;margin:0;display:flex;align-items:center;justify-content:center;text-align:center;font-size:clamp(11px,3.2vw,13px);line-height:1.15;letter-spacing:.07em}
+.localArchiveActions .fileBtn{padding:10px}
+.googleAuthBox{margin-bottom:0}.googleAuthBox p{margin:10px 0 0}.googleAuthBox button{margin-top:0}
+.driveBackupStatus{min-height:18px;margin:10px 0 0;color:#a4dc56;text-transform:uppercase;font-size:clamp(10px,2.9vw,12px);line-height:1.25}
+@media(min-width:390px){.localArchiveActions{grid-template-columns:1fr 1fr}}
+@media(max-width:360px){.settingsStatus div{grid-template-columns:1fr}.settingsStatus dd{text-align:left}.settingsSection{padding-left:8px;padding-right:8px}}
