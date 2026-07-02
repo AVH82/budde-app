@@ -47,7 +47,7 @@ Cette séparation prépare l'ajout futur d'un adaptateur Google Drive sans modif
 
 ## Sauvegarde manuelle Google Drive appDataFolder
 
-L'écran **Statistiques** propose désormais le bouton **Sauvegarder sur Google Drive** lorsque l'utilisateur est connecté avec Google. Cette action conserve `LocalStorageAdapter` comme source principale : elle copie seulement l'état JSON courant de Budd€ vers Google Drive en sauvegarde supplémentaire.
+L'écran **Paramètres**, accessible depuis la roue dentée en haut à droite de la bannière, propose désormais le bouton **Sauvegarder sur Google Drive** lorsque l'utilisateur est connecté avec Google. Cette action conserve `LocalStorageAdapter` comme source principale : elle copie seulement l'état JSON courant de Budd€ vers Google Drive en sauvegarde supplémentaire.
 
 La sauvegarde utilise l'API Google Drive v3 avec le scope OAuth suivant :
 
@@ -67,7 +67,7 @@ budde-data.json
 - s'il n'existe pas, il est créé dans `appDataFolder` ;
 - aucun doublon n'est volontairement créé, car la recherche précède toujours la création.
 
-Après succès, l'interface affiche la date et l'heure de la dernière sauvegarde. En cas d'erreur Google Auth ou Drive, un message clair est affiché dans l'écran **Statistiques**.
+Après succès, l'interface affiche la date et l'heure de la dernière sauvegarde. En cas d'erreur Google Auth ou Drive, un message clair est affiché dans l'écran **Paramètres**.
 
 La restauration depuis Google Drive n'est pas encore implémentée. Le démarrage de l'application continue de charger uniquement le stockage local via `StorageService` et `LocalStorageAdapter`. La synchronisation automatique n'est pas encore implémentée non plus.
 
@@ -81,7 +81,7 @@ Une fois le dépôt publié via GitHub Pages :
 
 ## Authentification Google active
 
-La connexion Google est active dans l'écran **Statistiques** via `js/google-auth.service.js` et Google Identity Services pour navigateur/PWA. Le bouton **Connexion Google** lance le consentement OAuth, puis affiche l'état connecté ainsi que l'e-mail et le nom du compte lorsque Google les fournit. Une action **Déconnexion Google** révoque le jeton en mémoire.
+La connexion Google est active dans l'écran **Paramètres** via `js/google-auth.service.js` et Google Identity Services pour navigateur/PWA. Le bouton **Connexion Google** lance le consentement OAuth, puis affiche l'état connecté ainsi que l'e-mail et le nom du compte lorsque Google les fournit. Une action **Déconnexion Google** révoque le jeton en mémoire.
 
 L'identifiant client OAuth Web public est renseigné dans `js/google-auth.service.js`. Aucun secret client et aucune clé API ne sont nécessaires ni stockés dans le dépôt.
 
