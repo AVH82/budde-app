@@ -1,7 +1,7 @@
 
 const MONTHS=['JANVIER','FÉVRIER','MARS','AVRIL','MAI','JUIN','JUILLET','AOÛT','SEPTEMBRE','OCTOBRE','NOVEMBRE','DÉCEMBRE'];
 const ENVELOPE_START_MONTH='2026-01';
-const APP_VERSION='1.0.38';
+const APP_VERSION='1.0.39';
 const APP_BUILD_ID=`budde-${APP_VERSION.replaceAll('.','-')}`;
 const DEFAULT_DB={
   schemaVersion:1,
