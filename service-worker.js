@@ -1,4 +1,4 @@
-const CACHE_NAME = 'budde-1-0-11';
+const CACHE_NAME = 'budde-1-0-12';
 const ASSETS = [
   './',
   './index.html',
