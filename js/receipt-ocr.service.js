@@ -23,9 +23,11 @@
     { name: 'LEROY MERLIN', aliases: ['leroy merlin', 'ler0y merlin', 'leroy mer1in'] }
   ];
 
-  const TOTAL_KEYWORD_PATTERN = /\b(total(?:\s+(?:eur|ttc))?|net\s+[àa]\s+payer|[àa]\s+payer)\b/i;
-  const FINAL_TOTAL_PATTERN = /\b(total\s+(?:eur|ttc)|net\s+[àa]\s+payer|[àa]\s+payer)\b/i;
-  const AMOUNT_EXCLUSION_PATTERN = /\b(article|tva|cb|carte\s+bleue|carte\s+bancaire|dont\s+deee|deee|remise|fid[eé]lit[eé]|avoir|rendu|monnaie|acompte|sous[-\s]?total)\b/i;
+  const TOTAL_KEYWORD_PATTERN = /\b(total(?:\s+(?:eur|ttc))?|net\s+[àa]\s+payer|[àa]\s+payer|carte\s+bleue|cb)\b/i;
+  const FINAL_TOTAL_PATTERN = /\b(total\s+(?:eur|ttc)|net\s+[àa]\s+payer|[àa]\s+payer|carte\s+bleue|cb|total)\b/i;
+  const ARTICLE_ZONE_MARKER_PATTERN = /\b(article|qt[eé]|prix|désignation|designation|libell[eé])\b/i;
+  const TOTAL_ZONE_MARKER_PATTERN = /\b(total(?:\s+(?:eur|ttc))?|net\s+[àa]\s+payer|[àa]\s+payer|carte\s+bleue|cb|mode\s+de\s+paiement|paiement)\b/i;
+  const AMOUNT_EXCLUSION_PATTERN = /\b(tva|dont\s+deee|deee|remise|fid[eé]lit[eé]|avoir|rendu|monnaie|acompte|sous[-\s]?total)\b/i;
 
   const state = {
     initialized: false,
@@ -190,37 +192,6 @@
     return null;
   }
 
-  function extractTotal(lines) {
-    const structuredLines = normalizeStructuredLines(lines);
-    const labelCandidates = findTotalLabelCandidates(structuredLines);
-    if (labelCandidates.length) return labelCandidates[0].amount;
-
-    const amountPattern = /(?:^|\s)(\d{1,4}(?:[\s.]\d{3})*(?:[,.]\d{2})|\d+[,.]\d{2})(?:\s?€|\s?eur)?\b/gi;
-    const candidates = [];
-
-    structuredLines.forEach((line, index) => {
-      if (AMOUNT_EXCLUSION_PATTERN.test(line.text)) return;
-
-      let match;
-      while ((match = amountPattern.exec(line.text)) !== null) {
-        const amount = parseAmount(match[1]);
-        if (!Number.isFinite(amount) || amount <= 0) continue;
-
-        candidates.push({
-          amount,
-          hasTotalKeyword: TOTAL_KEYWORD_PATTERN.test(line.text),
-          score: totalLineScore(line.text, index, structuredLines.length, amount)
-        });
-      }
-    });
-
-    const totalCandidates = candidates.filter(candidate => candidate.hasTotalKeyword);
-    const eligibleCandidates = totalCandidates.length ? totalCandidates : candidates;
-    if (!eligibleCandidates.length) return null;
-    eligibleCandidates.sort((a, b) => b.score - a.score || b.amount - a.amount);
-    return roundAmount(eligibleCandidates[0].amount);
-  }
-
   function normalizeStructuredLines(lines) {
     return (lines || []).map((line, index) => {
       if (typeof line === 'string') return { text: line, index, y: index, x: null, words: [] };
@@ -234,28 +205,123 @@
     }).filter(line => line.text);
   }
 
-  function findTotalLabelCandidates(lines) {
+  function extractTotal(lines) {
+    const structuredLines = normalizeStructuredLines(lines);
+    const zonedLines = assignReceiptZones(structuredLines);
+    const diagnostic = { candidates: [], chosen: null };
+
+    const totalZoneLines = zonedLines.filter(line => line.zone === 'totals');
+    const priorityLines = totalZoneLines.length ? totalZoneLines : zonedLines;
+    findTotalLabelCandidates(priorityLines, diagnostic, totalZoneLines.length ? 'zone totaux' : 'ticket complet');
+
+    if (!diagnostic.candidates.length && totalZoneLines.length) {
+      collectFallbackAmountCandidates(totalZoneLines, diagnostic, 'montant dans la zone totaux');
+    }
+
+    if (!diagnostic.candidates.length) {
+      collectFallbackAmountCandidates(zonedLines.filter(line => line.zone !== 'items'), diagnostic, 'montant hors zone articles');
+    }
+
+    if (!diagnostic.candidates.length) return null;
+    diagnostic.candidates.sort((a, b) => b.score - a.score || b.amount - a.amount);
+    diagnostic.chosen = diagnostic.candidates[0];
+    logAmountDiagnostic(diagnostic);
+    return roundAmount(diagnostic.chosen.amount);
+  }
+
+  function assignReceiptZones(lines) {
+    if (!lines.length) return [];
+    const positions = lines.map((line, index) => Number.isFinite(line.y) ? line.y : index);
+    const minY = Math.min(...positions);
+    const maxY = Math.max(...positions);
+    const range = Math.max(1, maxY - minY);
+    const firstTotalIndex = lines.findIndex(line => isTotalsZoneMarkerLine(line.text));
+    const firstArticleIndex = lines.findIndex(line => ARTICLE_ZONE_MARKER_PATTERN.test(line.text));
+
+    return lines.map((line, index) => {
+      const y = Number.isFinite(line.y) ? line.y : index;
+      const ratio = (y - minY) / range;
+      const receiptArea = ratio < 0.25 ? 'top' : ratio < 0.7 ? 'middle' : 'bottom';
+      let zone = receiptArea === 'top' ? 'header' : receiptArea === 'bottom' ? 'totals' : 'items';
+
+      if (firstTotalIndex >= 0 && index >= firstTotalIndex) zone = 'totals';
+      else if (firstArticleIndex >= 0 && index >= firstArticleIndex) zone = 'items';
+      else if (isTotalsZoneMarkerLine(line.text)) zone = 'totals';
+
+      return { ...line, receiptArea, zone };
+    });
+  }
+
+  function isTotalsZoneMarkerLine(text) {
+    return TOTAL_ZONE_MARKER_PATTERN.test(text) && !ARTICLE_ZONE_MARKER_PATTERN.test(text);
+  }
+
+  function collectFallbackAmountCandidates(lines, diagnostic, reason) {
+    lines.forEach((line, index) => {
+      if (AMOUNT_EXCLUSION_PATTERN.test(line.text)) return;
+      extractLineAmounts(line).forEach(amountInfo => {
+        addAmountCandidate(diagnostic, {
+          amount: roundAmount(amountInfo.amount),
+          score: fallbackTotalScore(line, index, lines.length, amountInfo),
+          reason: `${reason} (${line.zone || 'zone inconnue'}): ${line.text}`
+        });
+      });
+    });
+  }
+
+  function addAmountCandidate(diagnostic, candidate) {
+    if (!Number.isFinite(candidate?.amount) || candidate.amount <= 0) return;
+    diagnostic.candidates.push(candidate);
+    diagnostic.candidates.sort((a, b) => b.score - a.score || b.amount - a.amount);
+    diagnostic.candidates = diagnostic.candidates.slice(0, 3);
+  }
+
+  function logAmountDiagnostic(diagnostic) {
+    if (!isDevelopmentMode() || typeof console === 'undefined' || typeof console.debug !== 'function') return;
+    console.debug('[ReceiptOcrService] Montant retenu', {
+      chosen: diagnostic.chosen,
+      topCandidates: diagnostic.candidates
+    });
+  }
+
+  function isDevelopmentMode() {
+    if (typeof process !== 'undefined' && process.env?.NODE_ENV === 'production') return false;
+    if (typeof location === 'undefined') return true;
+    return ['localhost', '127.0.0.1', ''].includes(location.hostname);
+  }
+
+  function findTotalLabelCandidates(lines, diagnostic, source) {
     const candidates = [];
 
     lines.forEach((line, index) => {
-      if (!TOTAL_KEYWORD_PATTERN.test(line.text)) return;
+      if (!FINAL_TOTAL_PATTERN.test(line.text)) return;
 
-      const sameLineAmounts = extractLineAmounts(line);
+      const sameLineAmounts = extractLineAmounts(line).filter(amountInfo => !looksLikeMergedQuantityAndPrice(line, amountInfo));
       if (sameLineAmounts.length) {
-        const amount = sameLineAmounts.sort((a, b) => b.right - a.right || b.start - a.start)[0].amount;
-        candidates.push({ amount: roundAmount(amount), score: totalLabelScore(line.text, index, lines.length) + 100 });
+        const amountInfo = sameLineAmounts.sort((a, b) => b.right - a.right || b.start - a.start)[0];
+        candidates.push({
+          amount: roundAmount(amountInfo.amount),
+          score: totalLabelScore(line.text, index, lines.length) + 100 + rightnessScore(amountInfo, line),
+          reason: `${source}: libellé et montant sur la même ligne (${line.text})`
+        });
         return;
       }
 
       const nextLine = lines[index + 1];
-      const nextLineAmounts = nextLine ? extractLineAmounts(nextLine) : [];
+      const nextLineAmounts = nextLine ? extractLineAmounts(nextLine).filter(amountInfo => !looksLikeMergedQuantityAndPrice(nextLine, amountInfo)) : [];
       if (nextLineAmounts.length) {
-        const amount = nextLineAmounts.sort((a, b) => b.right - a.right || b.start - a.start)[0].amount;
-        candidates.push({ amount: roundAmount(amount), score: totalLabelScore(line.text, index, lines.length) + 40 });
+        const amountInfo = nextLineAmounts.sort((a, b) => b.right - a.right || b.start - a.start)[0];
+        candidates.push({
+          amount: roundAmount(amountInfo.amount),
+          score: totalLabelScore(line.text, index, lines.length) + 40 + rightnessScore(amountInfo, nextLine),
+          reason: `${source}: libellé seul puis montant ligne suivante (${line.text} -> ${nextLine.text})`
+        });
       }
     });
 
-    return candidates.sort((a, b) => b.score - a.score || b.amount - a.amount);
+    const sorted = candidates.sort((a, b) => b.score - a.score || b.amount - a.amount);
+    if (diagnostic) sorted.forEach(candidate => addAmountCandidate(diagnostic, candidate));
+    return sorted;
   }
 
   function extractLineAmounts(line) {
@@ -269,6 +335,25 @@
       amounts.push({ amount, start: match.index, right: rightEdgeForAmount(line, match.index, match[0]) });
     }
     return amounts;
+  }
+
+  function looksLikeMergedQuantityAndPrice(line, amountInfo) {
+    const prefix = line.text.slice(0, amountInfo.start).trim();
+    if (!prefix) return false;
+    return /\b\d+\s*$/.test(prefix) && amountInfo.start - prefix.length <= 1;
+  }
+
+  function rightnessScore(amountInfo, line) {
+    const textRight = line.text.length || 1;
+    return Math.min(10, (amountInfo.right / textRight) * 10);
+  }
+
+  function fallbackTotalScore(line, index, lineCount, amountInfo) {
+    let score = (index / Math.max(1, lineCount)) * 20 + rightnessScore(amountInfo, line);
+    if (TOTAL_KEYWORD_PATTERN.test(line.text)) score += 50;
+    if (line.zone === 'totals') score += 25;
+    if (line.zone === 'items') score -= 100;
+    return score;
   }
 
   function rightEdgeForAmount(line, amountStart, rawAmount) {
