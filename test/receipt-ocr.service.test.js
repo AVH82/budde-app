@@ -104,3 +104,34 @@ test('uses receipt structure to prefer WELDOM TOTAL EUR over item column amounts
   assert.equal(fields.total, 994);
   assert.notEqual(fields.total, 1999);
 });
+
+test('keeps TOTAL EUR 994,00 over article and noisy lower amount candidates', () => {
+  const text = `
+    Magasin Maison
+    Article / Qté / Prix / Total
+    CLIMATISEUR 1 999,00 999,00
+    Passeport Fidélité -5,00
+    Lecture bruitée 934,00
+    TOTAL EUR 994,00
+    Carte Bleue 994,00
+  `;
+
+  const fields = ReceiptOcrService.extractReceiptFields(text);
+
+  assert.equal(fields.total, 994);
+  assert.notEqual(fields.total, 1999);
+  assert.notEqual(fields.total, 934);
+});
+
+test('uses Carte Bleue payment line when it is in the totals zone', () => {
+  const text = `
+    Magasin Test
+    Article Qté Prix Total
+    Accessoire 1 12,00 12,00
+    Carte Bleue 994,00
+  `;
+
+  const fields = ReceiptOcrService.extractReceiptFields(text);
+
+  assert.equal(fields.total, 994);
+});
