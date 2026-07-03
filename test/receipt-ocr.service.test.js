@@ -151,3 +151,39 @@ test('never returns zero when TOTAL EUR 994,00 is present', () => {
   assert.equal(fields.total, 994);
   assert.notEqual(fields.total, 0);
 });
+
+test('prioritizes rightmost amount visually aligned with TOTAL EUR split into OCR blocks', () => {
+  const ocrData = {
+    lines: [
+      { text: 'Magasin Test', bbox: { x0: 20, y0: 20, x1: 180, y1: 40 } },
+      { text: 'Article Qté Prix Total', bbox: { x0: 20, y0: 70, x1: 260, y1: 90 } },
+      { text: 'CLIMATISEUR 1 999,00 999,00', bbox: { x0: 20, y0: 95, x1: 390, y1: 115 } },
+      { text: 'TOTAL EUR', bbox: { x0: 20, y0: 150, x1: 130, y1: 170 } },
+      { text: '994,00', bbox: { x0: 330, y0: 151, x1: 390, y1: 171 } },
+      { text: 'NET A PAYER 934,00', bbox: { x0: 20, y0: 180, x1: 390, y1: 200 } },
+      { text: 'CB 934,00', bbox: { x0: 20, y0: 210, x1: 390, y1: 230 } }
+    ]
+  };
+
+  const fields = ReceiptOcrService.extractReceiptFields('', ocrData);
+
+  assert.equal(fields.total, 994);
+  assert.notEqual(fields.total, 999);
+  assert.notEqual(fields.total, 934);
+});
+
+test('does not use NET A PAYER or CB when an exploitable TOTAL line exists', () => {
+  const text = `
+    Magasin Test
+    Article Qté Prix Total
+    Produit 1 999,00 999,00
+    TOTAL TTC 994,00
+    NET A PAYER 934,00
+    Carte Bleue 934,00
+  `;
+
+  const fields = ReceiptOcrService.extractReceiptFields(text);
+
+  assert.equal(fields.total, 994);
+  assert.notEqual(fields.total, 934);
+});
