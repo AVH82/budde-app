@@ -24,6 +24,9 @@
   ];
 
   const TOTAL_KEYWORD_PATTERN = /\b(total(?:\s+(?:eur|ttc))?|net\s+[àa]\s+payer|[àa]\s+payer|carte\s+bleue|cb)\b/i;
+  const STRICT_TOTAL_PATTERN = /\btotal(?:\s+(?:eur|ttc))?\b/i;
+  const PAYABLE_TOTAL_PATTERN = /\b(net\s+[àa]\s+payer|[àa]\s+payer)\b/i;
+  const CARD_TOTAL_PATTERN = /\b(carte\s+bleue|cb)\b/i;
   const FINAL_TOTAL_PATTERN = /\b(total\s+(?:eur|ttc)|net\s+[àa]\s+payer|[àa]\s+payer|carte\s+bleue|cb|total)\b/i;
   const ARTICLE_ZONE_MARKER_PATTERN = /\b(article|qt[eé]|prix|désignation|designation|libell[eé])\b/i;
   const TOTAL_ZONE_MARKER_PATTERN = /\b(total(?:\s+(?:eur|ttc))?|net\s+[àa]\s+payer|[àa]\s+payer|carte\s+bleue|cb|mode\s+de\s+paiement|paiement)\b/i;
@@ -167,7 +170,10 @@
         text: String(line.text || '').trim(),
         index,
         y: numberOrNull(line.bbox?.y0 ?? line.y0),
+        y0: numberOrNull(line.bbox?.y0 ?? line.y0),
+        y1: numberOrNull(line.bbox?.y1 ?? line.y1),
         x: numberOrNull(line.bbox?.x0 ?? line.x0),
+        x1: numberOrNull(line.bbox?.x1 ?? line.x1),
         words
       };
     }).filter(line => line.text);
@@ -180,7 +186,10 @@
       text: line,
       index,
       y: index,
+      y0: index,
+      y1: index,
       x: null,
+      x1: null,
       words: []
     }));
   }
@@ -204,12 +213,17 @@
 
   function normalizeStructuredLines(lines) {
     return (lines || []).map((line, index) => {
-      if (typeof line === 'string') return { text: line, index, y: index, x: null, words: [] };
+      if (typeof line === 'string') return { text: line, index, y: index, y0: index, y1: index, x: null, x1: null, words: [] };
+      const y0 = numberOrNull(line?.y0 ?? line?.bbox?.y0 ?? line?.y);
+      const y1 = numberOrNull(line?.y1 ?? line?.bbox?.y1);
       return {
         text: String(line?.text || '').trim(),
         index: Number.isFinite(line?.index) ? line.index : index,
-        y: numberOrNull(line?.y),
-        x: numberOrNull(line?.x),
+        y: numberOrNull(line?.y ?? y0),
+        y0,
+        y1,
+        x: numberOrNull(line?.x ?? line?.bbox?.x0),
+        x1: numberOrNull(line?.x1 ?? line?.bbox?.x1),
         words: Array.isArray(line?.words) ? line.words : []
       };
     }).filter(line => line.text);
@@ -220,9 +234,17 @@
     const zonedLines = assignReceiptZones(structuredLines);
     const diagnostic = { candidates: [], chosen: null };
 
+    findPriorityAmountCandidates(zonedLines, STRICT_TOTAL_PATTERN, diagnostic, 'priorité TOTAL');
+
+    if (!diagnostic.candidates.length) {
+      findPriorityAmountCandidates(zonedLines, PAYABLE_TOTAL_PATTERN, diagnostic, 'fallback NET A PAYER / A PAYER');
+    }
+
+    if (!diagnostic.candidates.length) {
+      findPriorityAmountCandidates(zonedLines, CARD_TOTAL_PATTERN, diagnostic, 'fallback Carte Bleue / CB');
+    }
+
     const totalZoneLines = zonedLines.filter(line => line.zone === 'totals');
-    const priorityLines = totalZoneLines.length ? totalZoneLines : zonedLines;
-    findTotalLabelCandidates(priorityLines, diagnostic, totalZoneLines.length ? 'zone totaux' : 'ticket complet');
 
     if (!diagnostic.candidates.length && totalZoneLines.length) {
       collectFallbackAmountCandidates(totalZoneLines, diagnostic, 'montant dans la zone totaux');
@@ -345,19 +367,25 @@
     return ['localhost', '127.0.0.1', ''].includes(location.hostname);
   }
 
-  function findTotalLabelCandidates(lines, diagnostic, source) {
+  function findPriorityAmountCandidates(lines, labelPattern, diagnostic, source) {
+    const candidates = findTotalLabelCandidates(lines, null, source, labelPattern);
+    if (diagnostic) candidates.forEach(candidate => addAmountCandidate(diagnostic, candidate));
+    return candidates;
+  }
+
+  function findTotalLabelCandidates(lines, diagnostic, source, labelPattern = FINAL_TOTAL_PATTERN) {
     const candidates = [];
 
     lines.forEach((line, index) => {
-      if (!FINAL_TOTAL_PATTERN.test(line.text)) return;
+      if (!labelPattern.test(line.text) || AMOUNT_EXCLUSION_PATTERN.test(line.text) || ARTICLE_ZONE_MARKER_PATTERN.test(line.text)) return;
 
-      const sameLineAmounts = extractLineAmounts(line).filter(amountInfo => !looksLikeMergedQuantityAndPrice(line, amountInfo));
+      const sameLineAmounts = extractVisualLineAmounts(line, lines).filter(amountInfo => !looksLikeMergedQuantityAndPrice(amountInfo.line || line, amountInfo));
       if (sameLineAmounts.length) {
         const amountInfo = sameLineAmounts.sort((a, b) => b.right - a.right || b.start - a.start)[0];
         candidates.push({
           amount: roundAmount(amountInfo.amount),
-          score: totalLabelScore(line.text, index, lines.length) + 100 + rightnessScore(amountInfo, line),
-          reason: `${source}: libellé et montant sur la même ligne (${line.text})`
+          score: totalLabelScore(line.text, index, lines.length) + 1000 + rightnessScore(amountInfo, amountInfo.line || line),
+          reason: `${source}: libellé et montant sur la même ligne visuelle (${line.text})`
         });
         return;
       }
@@ -377,6 +405,34 @@
     const sorted = candidates.sort((a, b) => b.score - a.score || b.amount - a.amount);
     if (diagnostic) sorted.forEach(candidate => addAmountCandidate(diagnostic, candidate));
     return sorted;
+  }
+
+  function extractVisualLineAmounts(labelLine, lines) {
+    const amounts = extractLineAmounts(labelLine).map(amountInfo => ({ ...amountInfo, line: labelLine }));
+    const labelY = visualLineCenter(labelLine);
+    if (!Number.isFinite(labelY)) return amounts;
+    const tolerance = visualLineTolerance(lines);
+    if (!Number.isFinite(tolerance)) return amounts;
+    lines.forEach(line => {
+      if (line === labelLine || line.index === labelLine.index) return;
+      const lineY = visualLineCenter(line);
+      if (!Number.isFinite(lineY) || Math.abs(lineY - labelY) > tolerance) return;
+      extractLineAmounts(line).forEach(amountInfo => amounts.push({ ...amountInfo, line }));
+    });
+    return amounts;
+  }
+
+  function visualLineCenter(line) {
+    if (Number.isFinite(line.y0) && Number.isFinite(line.y1)) return (line.y0 + line.y1) / 2;
+    if (Number.isFinite(line.y)) return line.y;
+    return null;
+  }
+
+  function visualLineTolerance(lines) {
+    const heights = lines.map(line => Number.isFinite(line.y0) && Number.isFinite(line.y1) ? Math.abs(line.y1 - line.y0) : null).filter(height => Number.isFinite(height) && height > 0).sort((a, b) => a - b);
+    if (!heights.length) return null;
+    const medianHeight = heights[Math.floor(heights.length / 2)];
+    return Math.max(3, medianHeight * 0.8);
   }
 
   function extractLineAmounts(line) {
@@ -419,6 +475,7 @@
       return wordText && normalizeAmountToken(rawAmount).includes(wordText);
     });
     if (matchingWords.length) return Math.max(...matchingWords.map(word => word.x1));
+    if (Number.isFinite(line.x1)) return line.x1;
     return amountEnd;
   }
 
