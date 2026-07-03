@@ -108,7 +108,7 @@
         });
         const text = result?.data?.text || '';
         emitProgress(onProgress, 'done', 100, 'Analyse OCR terminée.');
-        return { text, fields: extractReceiptFields(text), status: getStatus(), unavailable: false };
+        return { text, fields: extractReceiptFields(text, result?.data), status: getStatus(), unavailable: false };
       } catch (error) {
         lastError = error;
         emitProgress(onProgress, 'retry', 10, 'Nouvelle tentative OCR avec une autre langue…');
@@ -128,14 +128,53 @@
     return `${status} (${suffix})`;
   }
 
-  function extractReceiptFields(text) {
-    const lines = String(text || '').split(/\r?\n/).map(line => line.trim()).filter(Boolean);
+  function extractReceiptFields(text, ocrData) {
+    const structuredLines = buildStructuredOcrLines(text, ocrData);
+    const lines = structuredLines.map(line => line.text);
     return {
       merchant: extractMerchant(lines),
       date: extractDate(lines),
-      total: extractTotal(lines),
+      total: extractTotal(structuredLines),
       rawText: String(text || '')
     };
+  }
+
+  function buildStructuredOcrLines(text, ocrData) {
+    const ocrLines = Array.isArray(ocrData?.lines) ? ocrData.lines : [];
+    const structured = ocrLines.map((line, index) => {
+      const words = Array.isArray(line.words) ? line.words.map((word, wordIndex) => ({
+        text: String(word.text || '').trim(),
+        index: wordIndex,
+        x0: numberOrNull(word.bbox?.x0 ?? word.x0),
+        y0: numberOrNull(word.bbox?.y0 ?? word.y0),
+        x1: numberOrNull(word.bbox?.x1 ?? word.x1),
+        y1: numberOrNull(word.bbox?.y1 ?? word.y1)
+      })).filter(word => word.text) : [];
+
+      return {
+        text: String(line.text || '').trim(),
+        index,
+        y: numberOrNull(line.bbox?.y0 ?? line.y0),
+        x: numberOrNull(line.bbox?.x0 ?? line.x0),
+        words
+      };
+    }).filter(line => line.text);
+
+    if (structured.length) {
+      return structured.sort((a, b) => (a.y ?? a.index) - (b.y ?? b.index)).map((line, index) => ({ ...line, index }));
+    }
+
+    return String(text || '').split(/\r?\n/).map(line => line.trim()).filter(Boolean).map((line, index) => ({
+      text: line,
+      index,
+      y: index,
+      x: null,
+      words: []
+    }));
+  }
+
+  function numberOrNull(value) {
+    return Number.isFinite(Number(value)) ? Number(value) : null;
   }
 
   function extractDate(lines) {
@@ -152,21 +191,25 @@
   }
 
   function extractTotal(lines) {
+    const structuredLines = normalizeStructuredLines(lines);
+    const labelCandidates = findTotalLabelCandidates(structuredLines);
+    if (labelCandidates.length) return labelCandidates[0].amount;
+
     const amountPattern = /(?:^|\s)(\d{1,4}(?:[\s.]\d{3})*(?:[,.]\d{2})|\d+[,.]\d{2})(?:\s?€|\s?eur)?\b/gi;
     const candidates = [];
 
-    lines.forEach((line, index) => {
-      if (AMOUNT_EXCLUSION_PATTERN.test(line)) return;
+    structuredLines.forEach((line, index) => {
+      if (AMOUNT_EXCLUSION_PATTERN.test(line.text)) return;
 
       let match;
-      while ((match = amountPattern.exec(line)) !== null) {
+      while ((match = amountPattern.exec(line.text)) !== null) {
         const amount = parseAmount(match[1]);
         if (!Number.isFinite(amount) || amount <= 0) continue;
 
         candidates.push({
           amount,
-          hasTotalKeyword: TOTAL_KEYWORD_PATTERN.test(line),
-          score: totalLineScore(line, index, lines.length, amount)
+          hasTotalKeyword: TOTAL_KEYWORD_PATTERN.test(line.text),
+          score: totalLineScore(line.text, index, structuredLines.length, amount)
         });
       }
     });
@@ -175,20 +218,87 @@
     const eligibleCandidates = totalCandidates.length ? totalCandidates : candidates;
     if (!eligibleCandidates.length) return null;
     eligibleCandidates.sort((a, b) => b.score - a.score || b.amount - a.amount);
-    return Math.round(eligibleCandidates[0].amount * 100) / 100;
+    return roundAmount(eligibleCandidates[0].amount);
   }
 
-  function totalLineScore(line, index, lineCount, amount) {
+  function normalizeStructuredLines(lines) {
+    return (lines || []).map((line, index) => {
+      if (typeof line === 'string') return { text: line, index, y: index, x: null, words: [] };
+      return {
+        text: String(line?.text || '').trim(),
+        index: Number.isFinite(line?.index) ? line.index : index,
+        y: numberOrNull(line?.y),
+        x: numberOrNull(line?.x),
+        words: Array.isArray(line?.words) ? line.words : []
+      };
+    }).filter(line => line.text);
+  }
+
+  function findTotalLabelCandidates(lines) {
+    const candidates = [];
+
+    lines.forEach((line, index) => {
+      if (!TOTAL_KEYWORD_PATTERN.test(line.text)) return;
+
+      const sameLineAmounts = extractLineAmounts(line);
+      if (sameLineAmounts.length) {
+        const amount = sameLineAmounts.sort((a, b) => b.right - a.right || b.start - a.start)[0].amount;
+        candidates.push({ amount: roundAmount(amount), score: totalLabelScore(line.text, index, lines.length) + 100 });
+        return;
+      }
+
+      const nextLine = lines[index + 1];
+      const nextLineAmounts = nextLine ? extractLineAmounts(nextLine) : [];
+      if (nextLineAmounts.length) {
+        const amount = nextLineAmounts.sort((a, b) => b.right - a.right || b.start - a.start)[0].amount;
+        candidates.push({ amount: roundAmount(amount), score: totalLabelScore(line.text, index, lines.length) + 40 });
+      }
+    });
+
+    return candidates.sort((a, b) => b.score - a.score || b.amount - a.amount);
+  }
+
+  function extractLineAmounts(line) {
+    const text = line.text;
+    const amountPattern = /(\d{1,4}(?:[\s.]\d{3})*(?:[,.]\d{2})|\d+[,.]\d{2})(?:\s?€|\s?eur)?\b/gi;
+    const amounts = [];
+    let match;
+    while ((match = amountPattern.exec(text)) !== null) {
+      const amount = parseAmount(match[1]);
+      if (!Number.isFinite(amount) || amount <= 0) continue;
+      amounts.push({ amount, start: match.index, right: rightEdgeForAmount(line, match.index, match[0]) });
+    }
+    return amounts;
+  }
+
+  function rightEdgeForAmount(line, amountStart, rawAmount) {
+    const amountEnd = amountStart + rawAmount.length;
+    const matchingWords = (line.words || []).filter(word => {
+      if (!Number.isFinite(word.x1)) return false;
+      const wordText = normalizeAmountToken(word.text);
+      return wordText && normalizeAmountToken(rawAmount).includes(wordText);
+    });
+    if (matchingWords.length) return Math.max(...matchingWords.map(word => word.x1));
+    return amountEnd;
+  }
+
+  function normalizeAmountToken(value) {
+    return String(value || '').toLocaleLowerCase('fr-FR').replace(/[^0-9,\.]/g, '');
+  }
+
+  function totalLabelScore(line, index, lineCount) {
     const normalized = normalizeForMatching(line);
-    let score = amount / 1000 + index / Math.max(1, lineCount);
-    if (TOTAL_KEYWORD_PATTERN.test(line)) score += 100;
-    if (FINAL_TOTAL_PATTERN.test(line)) score += 60;
+    let score = index / Math.max(1, lineCount);
     if (/net\s+a\s+payer/i.test(normalized)) score += 80;
     if (/total\s+eur/i.test(normalized)) score += 75;
     if (/total\s+ttc/i.test(normalized)) score += 70;
     if (/\ba\s+payer\b/i.test(normalized)) score += 65;
     if (/\btotal\b/i.test(normalized)) score += 50;
     return score;
+  }
+
+  function roundAmount(amount) {
+    return Math.round(amount * 100) / 100;
   }
 
   function parseAmount(value) {
