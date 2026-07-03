@@ -89,3 +89,18 @@ test('prefers WELDOM over a short noisy OCR line', () => {
   assert.equal(fields.merchant, 'WELDOM');
   assert.equal(fields.total, 42.50);
 });
+
+test('uses receipt structure to prefer WELDOM TOTAL EUR over item column amounts', () => {
+  const text = `
+    WELDOM
+    Article Qté Prix Total
+    CLIMATISEUR 1 999,00 999,00
+    TOTAL EUR 994,00
+  `;
+
+  const fields = ReceiptOcrService.extractReceiptFields(text);
+
+  assert.equal(fields.merchant, 'WELDOM');
+  assert.equal(fields.total, 994);
+  assert.notEqual(fields.total, 1999);
+});
