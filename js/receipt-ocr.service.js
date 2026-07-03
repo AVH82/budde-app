@@ -275,6 +275,54 @@
     return roundAmount(diagnostic.chosen.amount);
   }
 
+
+  function recalculateTotal(lines) {
+    const structuredLines = normalizeStructuredLines(lines);
+    const zonedLines = assignReceiptZones(structuredLines);
+    const diagnostic = { candidates: [], chosen: null };
+
+    findPriorityAmountCandidates(zonedLines, STRICT_TOTAL_PATTERN, diagnostic, 'recalcul TOTAL / TOTAL EUR / TOTAL TTC');
+
+    if (!diagnostic.candidates.length) {
+      findPriorityAmountCandidates(zonedLines, CARD_TOTAL_PATTERN, diagnostic, 'recalcul Carte Bleue / CB');
+    }
+
+    if (!diagnostic.candidates.length) {
+      const totalZoneLines = zonedLines.filter(line => line.zone === 'totals');
+      collectLastPositiveAmountCandidate(totalZoneLines.length ? totalZoneLines : zonedLines, diagnostic, 'recalcul dernier montant positif du bloc totaux');
+    }
+
+    if (!diagnostic.candidates.length) return { amount: null, diagnostic: buildAmountDiagnosticPayload(diagnostic, zonedLines) };
+    diagnostic.candidates.sort((a, b) => b.score - a.score || b.amount - a.amount);
+    diagnostic.chosen = diagnostic.candidates[0];
+    return { amount: roundAmount(diagnostic.chosen.amount), diagnostic: buildAmountDiagnosticPayload(diagnostic, zonedLines) };
+  }
+
+  function collectLastPositiveAmountCandidate(lines, diagnostic, reason) {
+    const candidates = [];
+    lines.forEach((line, index) => {
+      if (AMOUNT_EXCLUSION_PATTERN.test(line.text)) return;
+      extractLineAmounts(line).forEach(amountInfo => {
+        candidates.push({ line, index, amountInfo });
+      });
+    });
+    const last = candidates.filter(candidate => candidate.amountInfo.amount > 0).at(-1);
+    if (!last) return;
+    addAmountCandidate(diagnostic, {
+      amount: roundAmount(last.amountInfo.amount),
+      score: 700 + last.index + rightnessScore(last.amountInfo, last.line),
+      reason: `${reason}: ${last.line.text}`
+    });
+  }
+
+  function recalculateMerchant(lines, currentMerchant) {
+    const normalizedLines = normalizeStructuredLines(lines).map(line => line.text);
+    const candidates = extractMerchantCandidates(normalizedLines);
+    const current = normalizeForMatching(currentMerchant || '');
+    const alternative = candidates.find(candidate => normalizeForMatching(candidate.name) !== current) || candidates[0];
+    return alternative ? alternative.name : null;
+  }
+
   function assignReceiptZones(lines) {
     if (!lines.length) return [];
     const positions = lines.map((line, index) => Number.isFinite(line.y) ? line.y : index);
@@ -504,17 +552,18 @@
   }
 
   function extractMerchant(lines) {
-    const candidates = lines.slice(0, 20).map((line, index) => {
+    const candidates = extractMerchantCandidates(lines);
+    return candidates[0]?.name || null;
+  }
+
+  function extractMerchantCandidates(lines) {
+    return lines.slice(0, 20).map((line, index) => {
       const cleaned = cleanMerchantLine(line);
       const known = knownMerchantMatch(line, index);
-      if (known) return { value: known.name, score: known.score };
+      if (known) return { name: known.name, score: known.score };
       if (!isPossibleMerchantLine(cleaned)) return null;
-      return { value: cleaned.toUpperCase(), score: merchantLineScore(cleaned, index) };
-    }).filter(Boolean);
-
-    if (!candidates.length) return null;
-    candidates.sort((a, b) => b.score - a.score);
-    return candidates[0].value;
+      return { name: cleaned.toUpperCase(), score: merchantLineScore(cleaned, index) };
+    }).filter(Boolean).sort((a, b) => b.score - a.score);
   }
 
   function knownMerchantMatch(line, index) {
@@ -627,7 +676,7 @@
     return { ...state, tesseractAvailable: !!global.Tesseract };
   }
 
-  const service = { init, recognizeImage, extractReceiptFields, getStatus, isDevelopmentMode };
+  const service = { init, recognizeImage, extractReceiptFields, recalculateTotal, recalculateMerchant, getStatus, isDevelopmentMode };
   global.ReceiptOcrService = service;
 
   if (typeof module !== 'undefined' && module.exports) {
