@@ -88,7 +88,8 @@
 
     if (!state.available || !global.Tesseract) {
       emitProgress(onProgress, 'unavailable', 100, 'OCR indisponible dans ce navigateur.');
-      return { text: '', fields: extractReceiptFields(''), status: getStatus(), unavailable: true };
+      const extracted = extractReceiptFields('');
+      return { text: '', fields: extracted, diagnostic: extracted.diagnostic, status: getStatus(), unavailable: true };
     }
 
     if (!fileOrBlob) throw new Error('Aucune image fournie pour la reconnaissance OCR.');
@@ -110,7 +111,8 @@
         });
         const text = result?.data?.text || '';
         emitProgress(onProgress, 'done', 100, 'Analyse OCR terminée.');
-        return { text, fields: extractReceiptFields(text, result?.data), status: getStatus(), unavailable: false };
+        const extracted = extractReceiptFields(text, result?.data);
+        return { text, fields: extracted, diagnostic: extracted.diagnostic, status: getStatus(), unavailable: false };
       } catch (error) {
         lastError = error;
         emitProgress(onProgress, 'retry', 10, 'Nouvelle tentative OCR avec une autre langue…');
@@ -119,7 +121,8 @@
 
     state.error = lastError?.message || 'Reconnaissance OCR impossible.';
     emitProgress(onProgress, 'error', 100, 'OCR impossible pour cette image.');
-    return { text: '', fields: extractReceiptFields(''), status: getStatus(), unavailable: true, error: state.error };
+    const extracted = extractReceiptFields('');
+    return { text: '', fields: extracted, diagnostic: extracted.diagnostic, status: getStatus(), unavailable: true, error: state.error };
   }
 
   function readableStatus(status, language) {
@@ -133,11 +136,18 @@
   function extractReceiptFields(text, ocrData) {
     const structuredLines = buildStructuredOcrLines(text, ocrData);
     const lines = structuredLines.map(line => line.text);
+    const totalResult = extractTotal(structuredLines, { includeDiagnostic: true });
     return {
       merchant: extractMerchant(lines),
       date: extractDate(lines),
-      total: extractTotal(structuredLines),
-      rawText: String(text || '')
+      total: totalResult.amount,
+      rawText: String(text || ''),
+      structuredLines,
+      diagnostic: {
+        rawText: String(text || ''),
+        structuredLines,
+        amount: totalResult.diagnostic
+      }
     };
   }
 
@@ -205,7 +215,7 @@
     }).filter(line => line.text);
   }
 
-  function extractTotal(lines) {
+  function extractTotal(lines, options = {}) {
     const structuredLines = normalizeStructuredLines(lines);
     const zonedLines = assignReceiptZones(structuredLines);
     const diagnostic = { candidates: [], chosen: null };
@@ -226,7 +236,10 @@
       collectFallbackAmountCandidates(zonedLines.filter(line => line.zone !== 'items'), diagnostic, 'montant hors zone articles');
     }
 
-    if (!diagnostic.candidates.length) return null;
+    if (!diagnostic.candidates.length) {
+      if (options.includeDiagnostic) return { amount: null, diagnostic: buildAmountDiagnosticPayload(diagnostic, zonedLines) };
+      return null;
+    }
     diagnostic.candidates.sort((a, b) => b.score - a.score || b.amount - a.amount);
     diagnostic.chosen = diagnostic.candidates[0];
     if ((!Number.isFinite(diagnostic.chosen.amount) || diagnostic.chosen.amount <= 0) && hasPositiveAmount(zonedLines)) {
@@ -235,7 +248,8 @@
       diagnostic.candidates.sort((a, b) => b.score - a.score || b.amount - a.amount);
       diagnostic.chosen = diagnostic.candidates.find(candidate => candidate.amount > 0) || diagnostic.chosen;
     }
-    logAmountDiagnostic(diagnostic);
+    logAmountDiagnostic(buildAmountDiagnosticPayload(diagnostic, zonedLines));
+    if (options.includeDiagnostic) return { amount: roundAmount(diagnostic.chosen.amount), diagnostic: buildAmountDiagnosticPayload(diagnostic, zonedLines) };
     return roundAmount(diagnostic.chosen.amount);
   }
 
@@ -303,12 +317,26 @@
     diagnostic.candidates = diagnostic.candidates.slice(0, 3);
   }
 
+  function buildAmountDiagnosticPayload(diagnostic, lines) {
+    const candidates = (diagnostic.candidates || []).map(candidate => ({
+      amount: candidate.amount,
+      score: Math.round((Number(candidate.score) || 0) * 100) / 100,
+      reason: candidate.reason || 'raison indisponible'
+    }));
+    return {
+      structuredLines: (lines || []).map(line => ({ index: line.index, zone: line.zone, text: line.text })),
+      candidates,
+      chosen: diagnostic.chosen ? {
+        amount: diagnostic.chosen.amount,
+        score: Math.round((Number(diagnostic.chosen.score) || 0) * 100) / 100,
+        reason: diagnostic.chosen.reason || 'raison indisponible'
+      } : null
+    };
+  }
+
   function logAmountDiagnostic(diagnostic) {
     if (!isDevelopmentMode() || typeof console === 'undefined' || typeof console.debug !== 'function') return;
-    console.debug('[ReceiptOcrService] Montant retenu', {
-      chosen: diagnostic.chosen,
-      topCandidates: diagnostic.candidates
-    });
+    console.debug('[ReceiptOcrService] Diagnostic montant OCR', diagnostic);
   }
 
   function isDevelopmentMode() {
@@ -542,7 +570,7 @@
     return { ...state, tesseractAvailable: !!global.Tesseract };
   }
 
-  const service = { init, recognizeImage, extractReceiptFields, getStatus };
+  const service = { init, recognizeImage, extractReceiptFields, getStatus, isDevelopmentMode };
   global.ReceiptOcrService = service;
 
   if (typeof module !== 'undefined' && module.exports) {
