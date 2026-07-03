@@ -219,12 +219,22 @@
     }
 
     if (!diagnostic.candidates.length) {
+      collectKeywordFallbackCandidates(zonedLines, diagnostic, 'fallback libellé total/paiement');
+    }
+
+    if (!diagnostic.candidates.length) {
       collectFallbackAmountCandidates(zonedLines.filter(line => line.zone !== 'items'), diagnostic, 'montant hors zone articles');
     }
 
     if (!diagnostic.candidates.length) return null;
     diagnostic.candidates.sort((a, b) => b.score - a.score || b.amount - a.amount);
     diagnostic.chosen = diagnostic.candidates[0];
+    if ((!Number.isFinite(diagnostic.chosen.amount) || diagnostic.chosen.amount <= 0) && hasPositiveAmount(zonedLines)) {
+      collectKeywordFallbackCandidates(zonedLines, diagnostic, 'sécurité montant positif');
+      collectFallbackAmountCandidates(zonedLines.filter(line => line.zone !== 'items'), diagnostic, 'sécurité montant positif hors articles');
+      diagnostic.candidates.sort((a, b) => b.score - a.score || b.amount - a.amount);
+      diagnostic.chosen = diagnostic.candidates.find(candidate => candidate.amount > 0) || diagnostic.chosen;
+    }
     logAmountDiagnostic(diagnostic);
     return roundAmount(diagnostic.chosen.amount);
   }
@@ -254,6 +264,23 @@
 
   function isTotalsZoneMarkerLine(text) {
     return TOTAL_ZONE_MARKER_PATTERN.test(text) && !ARTICLE_ZONE_MARKER_PATTERN.test(text);
+  }
+
+  function collectKeywordFallbackCandidates(lines, diagnostic, reason) {
+    lines.forEach((line, index) => {
+      if (!TOTAL_KEYWORD_PATTERN.test(line.text) || AMOUNT_EXCLUSION_PATTERN.test(line.text)) return;
+      extractLineAmounts(line).forEach(amountInfo => {
+        addAmountCandidate(diagnostic, {
+          amount: roundAmount(amountInfo.amount),
+          score: totalLabelScore(line.text, index, lines.length) + 85 + rightnessScore(amountInfo, line),
+          reason: `${reason}: ${line.text}`
+        });
+      });
+    });
+  }
+
+  function hasPositiveAmount(lines) {
+    return lines.some(line => extractLineAmounts(line).some(amountInfo => amountInfo.amount > 0));
   }
 
   function collectFallbackAmountCandidates(lines, diagnostic, reason) {

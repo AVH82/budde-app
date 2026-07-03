@@ -135,3 +135,19 @@ test('uses Carte Bleue payment line when it is in the totals zone', () => {
 
   assert.equal(fields.total, 994);
 });
+
+
+test('never returns zero when TOTAL EUR 994,00 is present', () => {
+  const text = `
+    WELDOM
+    Article Qté Prix Total
+    CLIMATISEUR 1 999,00 999,00
+    TOTAL EUR 0,00
+    TOTAL EUR 994,00
+  `;
+
+  const fields = ReceiptOcrService.extractReceiptFields(text);
+
+  assert.equal(fields.total, 994);
+  assert.notEqual(fields.total, 0);
+});
