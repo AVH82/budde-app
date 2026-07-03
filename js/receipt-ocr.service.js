@@ -6,7 +6,9 @@
     'ticket', 'recu', 'reçu', 'facture', 'duplicata', 'client', 'caisse', 'cb',
     'carte', 'bancaire', 'total', 'ttc', 'ht', 'tva', 'eur', 'euro', 'euros',
     'merci', 'a payer', 'à payer', 'siret', 'ape', 'naf', 'tel', 'telephone',
-    'téléphone', 'date', 'heure', 'slogan', 'magasin', 'bienvenue'
+    'téléphone', 'date', 'heure', 'slogan', 'magasin', 'bienvenue',
+    'adresse', 'rue', 'avenue', 'boulevard', 'route', 'zone', 'commerciale',
+    'siren', 'rcs', 'naf', 'ape', 'ticket', 'caisse', 'vendeur'
   ]);
 
   const KNOWN_MERCHANTS = [
@@ -195,11 +197,10 @@
   }
 
   function extractMerchant(lines) {
-    const known = findKnownMerchant(lines);
-    if (known) return known;
-
-    const candidates = lines.slice(0, 10).map((line, index) => {
+    const candidates = lines.slice(0, 20).map((line, index) => {
       const cleaned = cleanMerchantLine(line);
+      const known = knownMerchantMatch(line, index);
+      if (known) return { value: known.name, score: known.score };
       if (!isPossibleMerchantLine(cleaned)) return null;
       return { value: cleaned.toUpperCase(), score: merchantLineScore(cleaned, index) };
     }).filter(Boolean);
@@ -209,24 +210,36 @@
     return candidates[0].value;
   }
 
-  function findKnownMerchant(lines) {
+  function knownMerchantMatch(line, index) {
+    const normalized = normalizeForMatching(line);
+    if (!normalized) return null;
     let best = null;
-    lines.slice(0, 14).forEach((line, index) => {
-      const normalized = normalizeForMatching(line);
-      if (!normalized) return;
-      KNOWN_MERCHANTS.forEach(merchant => {
-        merchant.aliases.forEach(alias => {
-          const aliasKey = normalizeForMatching(alias);
-          const distance = levenshtein(normalized.replace(/\s/g, ''), aliasKey.replace(/\s/g, ''));
-          const containsAlias = normalized.includes(aliasKey);
-          const maxDistance = aliasKey.length <= 5 ? 1 : 2;
-          if (!containsAlias && distance > maxDistance) return;
-          const score = (containsAlias ? 120 : 90) - (index * 4) - (distance * 10);
-          if (!best || score > best.score) best = { name: merchant.name, score };
-        });
+    KNOWN_MERCHANTS.forEach(merchant => {
+      merchant.aliases.forEach(alias => {
+        const aliasKey = normalizeForMatching(alias);
+        const distance = merchantAliasDistance(normalized, aliasKey);
+        const containsAlias = normalized.includes(aliasKey);
+        const maxDistance = aliasKey.length <= 5 ? 1 : 2;
+        if (!containsAlias && distance > maxDistance) return;
+        const score = 260 + (containsAlias ? 80 : 45) - (index * 6) - (distance * 18);
+        if (!best || score > best.score) best = { name: merchant.name, score };
       });
     });
-    return best?.name || null;
+    return best;
+  }
+
+  function merchantAliasDistance(normalized, aliasKey) {
+    const compactLine = normalized.replace(/\s/g, '');
+    const compactAlias = aliasKey.replace(/\s/g, '');
+    if (compactLine.includes(compactAlias)) return 0;
+    const lengths = new Set([compactAlias.length, compactAlias.length + 1, compactAlias.length + 2]);
+    let best = levenshtein(compactLine, compactAlias);
+    lengths.forEach(length => {
+      for (let start = 0; start <= compactLine.length - length; start += 1) {
+        best = Math.min(best, levenshtein(compactLine.slice(start, start + length), compactAlias));
+      }
+    });
+    return best;
   }
 
   function cleanMerchantLine(line) {
@@ -236,19 +249,41 @@
   function isPossibleMerchantLine(cleaned) {
     if (cleaned.length < 3) return false;
     const normalized = cleaned.toLocaleLowerCase('fr-FR');
+    if (usefulLetterCount(cleaned) < 5) return false;
+    if (isNoisyShortMerchantLine(cleaned)) return false;
     if (/\d{2}[./-]\d{2}[./-]\d{2,4}/.test(cleaned)) return false;
     if (/\d+[,.]\d{2}/.test(cleaned)) return false;
+    if (/\b(?:tva|ticket|caisse|carte|total|tel|telephone|siret|siren|rcs)\b/i.test(normalized)) return false;
+    if (/\b(?:rue|avenue|av|boulevard|bd|route|chemin|zone|zac|zi|code\s+postal)\b/i.test(normalized)) return false;
     if (GENERIC_MERCHANT_WORDS.has(normalized)) return false;
     if ([...GENERIC_MERCHANT_WORDS].some(word => normalized === word || normalized.startsWith(`${word} `))) return false;
     return true;
   }
 
+  function usefulLetterCount(value) {
+    return (String(value || '').match(/\p{L}/gu) || []).length;
+  }
+
+  function isNoisyShortMerchantLine(cleaned) {
+    const letters = usefulLetterCount(cleaned);
+    if (letters > 6) return false;
+    const tokens = normalizeForMatching(cleaned).split(' ').filter(Boolean);
+    if (!tokens.length) return true;
+    if (tokens.length > 1 && tokens.every(token => token.length <= 3)) return true;
+    const compact = tokens.join('');
+    const vowels = (compact.match(/[aeiouy]/g) || []).length;
+    return compact.length <= 6 && vowels <= 1;
+  }
+
   function merchantLineScore(cleaned, index) {
     const normalized = normalizeForMatching(cleaned);
-    let score = 100 - (index * 12);
+    let score = 160 - (index * 10);
+    if (index < 3) score += 30 - (index * 5);
     if (/\b(sas|sarl|sa|eurl|magasin)\b/i.test(normalized)) score -= 15;
-    if (/\d/.test(cleaned)) score -= 20;
+    if (/\d/.test(cleaned)) score -= 25;
     if (cleaned.length > 28) score -= 10;
+    if (/\b(?:rue|avenue|av|boulevard|bd|route|chemin|zone|zac|zi|code postal)\b/i.test(normalized)) score -= 90;
+    if (/\b(?:date|heure|tel|telephone|tva|ticket|caisse|carte|total|cb|siret|siren|rcs)\b/i.test(normalized)) score -= 110;
     return score;
   }
 
