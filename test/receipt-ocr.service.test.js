@@ -57,3 +57,20 @@ test('keeps merchant selection near the top when no known brand is found', () =>
   assert.equal(fields.merchant, 'BOULANGERIE DUPONT');
   assert.equal(fields.total, 7.40);
 });
+
+
+test('prefers WELDOM over a short noisy OCR line', () => {
+  const text = `
+    JYFF
+    WELDOM
+    Zone Commerciale
+    CA ES
+    03/07/2026 09:12
+    TOTAL EUR 42,50
+  `;
+
+  const fields = ReceiptOcrService.extractReceiptFields(text);
+
+  assert.equal(fields.merchant, 'WELDOM');
+  assert.equal(fields.total, 42.50);
+});
