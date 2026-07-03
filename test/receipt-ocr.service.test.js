@@ -45,6 +45,21 @@ test('prefers a final payment total over ignored card and VAT amounts', () => {
   assert.equal(fields.total, 52.10);
 });
 
+
+test('keeps WELDOM final total when item amount and discount are present', () => {
+  const text = `
+    WELDOM
+    article 999,00
+    remise -5,00
+    TOTAL EUR 994,00
+  `;
+
+  const fields = ReceiptOcrService.extractReceiptFields(text);
+
+  assert.equal(fields.merchant, 'WELDOM');
+  assert.equal(fields.total, 994);
+});
+
 test('keeps merchant selection near the top when no known brand is found', () => {
   const text = `
     Boulangerie Dupont

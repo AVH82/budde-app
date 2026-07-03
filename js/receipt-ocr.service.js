@@ -25,7 +25,7 @@
 
   const TOTAL_KEYWORD_PATTERN = /\b(total(?:\s+(?:eur|ttc))?|net\s+[àa]\s+payer|[àa]\s+payer)\b/i;
   const FINAL_TOTAL_PATTERN = /\b(total\s+(?:eur|ttc)|net\s+[àa]\s+payer|[àa]\s+payer)\b/i;
-  const AMOUNT_EXCLUSION_PATTERN = /\b(tva|cb|carte\s+bleue|carte\s+bancaire|dont\s+deee|deee|remise|fid[eé]lit[eé]|avoir|rendu|monnaie|acompte|sous[-\s]?total)\b/i;
+  const AMOUNT_EXCLUSION_PATTERN = /\b(article|tva|cb|carte\s+bleue|carte\s+bancaire|dont\s+deee|deee|remise|fid[eé]lit[eé]|avoir|rendu|monnaie|acompte|sous[-\s]?total)\b/i;
 
   const state = {
     initialized: false,
@@ -163,19 +163,19 @@
         const amount = parseAmount(match[1]);
         if (!Number.isFinite(amount) || amount <= 0) continue;
 
-        const hasTotalKeyword = TOTAL_KEYWORD_PATTERN.test(line);
-        if (!hasTotalKeyword && candidates.length) continue;
-
         candidates.push({
           amount,
+          hasTotalKeyword: TOTAL_KEYWORD_PATTERN.test(line),
           score: totalLineScore(line, index, lines.length, amount)
         });
       }
     });
 
-    if (!candidates.length) return null;
-    candidates.sort((a, b) => b.score - a.score || b.amount - a.amount);
-    return Math.round(candidates[0].amount * 100) / 100;
+    const totalCandidates = candidates.filter(candidate => candidate.hasTotalKeyword);
+    const eligibleCandidates = totalCandidates.length ? totalCandidates : candidates;
+    if (!eligibleCandidates.length) return null;
+    eligibleCandidates.sort((a, b) => b.score - a.score || b.amount - a.amount);
+    return Math.round(eligibleCandidates[0].amount * 100) / 100;
   }
 
   function totalLineScore(line, index, lineCount, amount) {
@@ -183,11 +183,11 @@
     let score = amount / 1000 + index / Math.max(1, lineCount);
     if (TOTAL_KEYWORD_PATTERN.test(line)) score += 100;
     if (FINAL_TOTAL_PATTERN.test(line)) score += 60;
-    if (/total\s+eur/i.test(normalized)) score += 50;
-    if (/total\s+ttc/i.test(normalized)) score += 45;
-    if (/net\s+a\s+payer/i.test(normalized)) score += 55;
-    if (/\ba\s+payer\b/i.test(normalized)) score += 45;
-    if (/\btotal\b/i.test(normalized)) score += 25;
+    if (/net\s+a\s+payer/i.test(normalized)) score += 80;
+    if (/total\s+eur/i.test(normalized)) score += 75;
+    if (/total\s+ttc/i.test(normalized)) score += 70;
+    if (/\ba\s+payer\b/i.test(normalized)) score += 65;
+    if (/\btotal\b/i.test(normalized)) score += 50;
     return score;
   }
 
