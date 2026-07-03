@@ -187,3 +187,31 @@ test('does not use NET A PAYER or CB when an exploitable TOTAL line exists', () 
   assert.equal(fields.total, 994);
   assert.notEqual(fields.total, 934);
 });
+
+test('recalculates amount from TOTAL before CB and fallback totals block', () => {
+  const totalResult = ReceiptOcrService.recalculateTotal([
+    'Magasin Test',
+    'Article Qté Prix Total',
+    'Produit 1 12,00 12,00',
+    'TOTAL EUR 42,50',
+    'CB 40,00'
+  ]);
+  assert.equal(totalResult.amount, 42.5);
+
+  const cardResult = ReceiptOcrService.recalculateTotal([
+    'Magasin Test',
+    'Article Qté Prix Total',
+    'Produit 1 12,00 12,00',
+    'Carte Bleue 40,00'
+  ]);
+  assert.equal(cardResult.amount, 40);
+});
+
+test('recalculates merchant with an alternative candidate', () => {
+  const merchant = ReceiptOcrService.recalculateMerchant([
+    'CARREFOUR',
+    'BOULANGERIE DUPONT',
+    'TOTAL EUR 12,00'
+  ], 'CARREFOUR');
+  assert.equal(merchant, 'BOULANGERIE DUPONT');
+});
