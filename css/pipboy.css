@@ -415,3 +415,11 @@
 .diagnosticStatus dt{color:#79a929;text-transform:uppercase;font-size:clamp(10px,2.9vw,12px)}
 .diagnosticStatus dd{color:#a4dc56;font-size:clamp(10px,2.9vw,12px);font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,"Liberation Mono",monospace}
 @media(max-width:360px){.diagnosticStatus div{grid-template-columns:1fr}}
+
+
+/* OCR compact mobile layout — v1.0.49 */
+.scannerSteps li.compact{grid-template-columns:24px minmax(0,1fr);gap:6px;padding:7px 8px;border:1px solid rgba(157,255,69,.34);border-radius:9px;background:rgba(3,8,3,.86);font-size:13px;line-height:1.1}
+.scannerFieldRow,.scannerFields dd{min-width:0;max-width:100%;overflow:hidden}
+.scannerFieldInput{max-width:100%;font-size:16px;line-height:1.15}
+.scannerFieldInput[type=date]{appearance:none;-webkit-appearance:none;min-width:0;width:100%;font-size:clamp(13px,3.7vw,16px);padding-left:8px;padding-right:6px;letter-spacing:0}
+@media(max-width:720px){.scannerTerminal{padding:10px}.scannerGrid{gap:8px}.scannerPanel{padding:9px}.scannerSteps{gap:5px}.scannerSteps li:not(.compact){grid-template-columns:22px minmax(0,1fr);gap:5px;font-size:12px;line-height:1.1}.scannerSteps .glyph{font-size:15px}.scannerStatus{margin-top:7px;font-size:12px;min-height:16px}.scannerFields h3{margin-bottom:7px}.scannerFields dl{gap:7px}.scannerFields dt{font-size:11px}.scannerFieldInput{padding:7px 8px}.scannerDiagnostic{margin-top:8px;padding:8px;font-size:12px}.scannerActions{margin-top:8px}}
