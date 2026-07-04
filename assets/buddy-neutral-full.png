@@ -1,0 +1,57 @@
+# Catalogue visuel Budd€ — Buddy Unité B-82
+
+## Mascotte officielle
+Buddy est un robot terminal/caisse enregistreuse bricolé, inspiré de l'univers post-apocalyptique rétro-futuriste, sans référence directe à Vault Boy/Vault-Tec.
+
+## Assets prêts pour GitHub
+
+À déposer dans `assets/buddy/` :
+
+- `buddy-neutral.png` — état neutre / accueil
+- `buddy-happy.png` — message positif / encouragement
+- `buddy-thinking.png` — analyse / calcul / chargement
+- `buddy-warning.png` — doute / vérification recommandée
+- `buddy-success.png` — succès / dépense enregistrée / synchro OK
+
+Versions corps complet disponibles dans `assets/buddy/full/` pour de futurs écrans ou animations.
+
+## Détails visuels retenus
+
+- Tête : ancien terminal CRT avec visage vert géométrique.
+- Corps : caisse enregistreuse usée avec touches 1–9, 0 et €.
+- Reçu : discret, sort d'une petite pochette/imprimante latérale.
+- Style : métal usé, rivets, scotch, ventilateur, antenne tordue.
+- Identité : unité `B-82`, logo Budd€ uniquement, pas de Vault Boy.
+
+## Catalogue d'éléments futurs
+
+Ces éléments pourront être utilisés pour rendre l'application plus vivante :
+
+### Messages et états
+- neutral : accueil, état normal
+- happy : conseil positif, budget sain
+- thinking : scan, calcul, synchronisation en cours
+- warning : anomalie, champ à vérifier, budget tendu
+- success : enregistrement, import, synchronisation réussie
+
+### Accessoires utilisables dans l'UI
+- Ticket thermique discret
+- Capsule / caps
+- Touche € usée
+- Ventilateur de récupération
+- Antenne tordue
+- Ruban adhésif
+- Plaque `B-82`
+- Engrenage / maintenance
+- Terminal CRT
+- Pochette à reçus
+
+### Idées d'animations futures
+- Clignement de l'écran CRT
+- Petite sortie de ticket lors d'un succès
+- Rotation légère du ventilateur en thinking
+- Flash triangle d'alerte en warning
+- Étincelles vertes très discrètes en success
+
+## Règle de cohérence
+Buddy doit rester utile, court, bienveillant et non culpabilisant.

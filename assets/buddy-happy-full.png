@@ -1,0 +1,17 @@
+{
+  "buddyVersion": "B-82-v1",
+  "states": {
+    "neutral": "assets/buddy/buddy-neutral.png",
+    "happy": "assets/buddy/buddy-happy.png",
+    "thinking": "assets/buddy/buddy-thinking.png",
+    "warning": "assets/buddy/buddy-warning.png",
+    "success": "assets/buddy/buddy-success.png"
+  },
+  "fullBody": {
+    "neutral": "assets/buddy/full/buddy-neutral-full.png",
+    "happy": "assets/buddy/full/buddy-happy-full.png",
+    "thinking": "assets/buddy/full/buddy-thinking-full.png",
+    "warning": "assets/buddy/full/buddy-warning-full.png",
+    "success": "assets/buddy/full/buddy-success-full.png"
+  }
+}
