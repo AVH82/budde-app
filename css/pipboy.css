@@ -721,3 +721,48 @@ input,select,textarea,.form input,.form select,.form textarea,.scannerFieldInput
 .currencyRateRow label{display:block}
 .currencyRateRow select,.currencyRateRow input{min-width:0}
 @media(max-width:340px){.currencyRateRow{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:6px}.currencyRateRow select,.currencyRateRow input{padding-left:8px;padding-right:8px}}
+
+/* Sprint 3.1.0 — modes immersion scanner et ajout manuel */
+body.immersionMode .pipDock{
+  opacity:0!important;
+  transform:translate(-50%,100%)!important;
+  pointer-events:none!important;
+  visibility:hidden!important;
+  transition:opacity .15s ease,transform .15s ease,visibility 0s linear .15s!important;
+}
+body:not(.immersionMode) .pipDock{
+  transition:opacity .15s ease,transform .15s ease!important;
+}
+body.immersionMode .app{
+  padding-bottom:calc(10px + env(safe-area-inset-bottom))!important;
+}
+body.scannerFullscreen .pipDock{
+  display:grid!important;
+  opacity:0!important;
+  transform:translate(-50%,100%)!important;
+  pointer-events:none!important;
+  visibility:hidden!important;
+}
+body.scannerFullscreen main{
+  min-height:calc(100dvh - var(--top-h) - env(safe-area-inset-top))!important;
+}
+body.scannerFullscreen #receiptScanner,
+body.scannerFullscreen .scannerTerminal{
+  min-height:calc(100dvh - var(--top-h) - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 18px)!important;
+}
+body.manualImmersion .monthbar,
+body.manualImmersion main{
+  pointer-events:none;
+}
+body.manualImmersion #expenseModal{
+  z-index:65;
+}
+body.manualImmersion #expenseModal .sheet{
+  max-height:calc(100dvh - var(--top-h) - 24px - env(safe-area-inset-top) - env(safe-area-inset-bottom))!important;
+}
+body.manualImmersion #expenseModal{
+  top:calc(var(--top-h) + env(safe-area-inset-top))!important;
+  background:rgba(0,0,0,.72)!important;
+  align-items:flex-start!important;
+  padding-top:12px!important;
+}
