@@ -1,11 +1,11 @@
-const CACHE_NAME = 'budde-3-0-4';
+const CACHE_NAME = 'budde-3-0-5';
 const ASSETS = [
   './',
   './index.html',
   './manifest.webmanifest',
-  './css/pipboy.css?v=303',
-  './js/app.js?v=303',
-  './js/buddy.js?v=303',
+  './css/pipboy.css?v=305',
+  './js/app.js?v=305',
+  './js/buddy.js?v=305',
   './js/storage.local.js',
   './js/storage.service.js',
   './js/storage.google-drive.js',

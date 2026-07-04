@@ -714,3 +714,10 @@ body.scannerFullscreen .app{padding-bottom:calc(var(--nav-h) + 18px + env(safe-a
 
 /* Sprint 3.0.4 — évite le zoom iOS sur les champs interactifs */
 input,select,textarea,.form input,.form select,.form textarea,.scannerFieldInput,#mDate,#mAmount,#mMerchant,#mCategory,#budgetModalInput,#budgetCard{font-size:16px!important}
+
+/* Sprint 3.0.5 — Devise et taux sur une ligne en saisie manuelle */
+.currencyRateRow{display:grid;grid-template-columns:minmax(0,.95fr) minmax(0,1.05fr);gap:8px;align-items:end}
+.currencyRateRow>div{min-width:0;display:grid;gap:5px}
+.currencyRateRow label{display:block}
+.currencyRateRow select,.currencyRateRow input{min-width:0}
+@media(max-width:340px){.currencyRateRow{grid-template-columns:minmax(0,.9fr) minmax(0,1.1fr);gap:6px}.currencyRateRow select,.currencyRateRow input{padding-left:8px;padding-right:8px}}
