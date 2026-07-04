@@ -878,3 +878,5 @@ body.manualImmersion #expenseModal .form textarea{
 .deleteExpenseMerchant{margin:0 0 16px;color:#cfff85;text-transform:uppercase;font-weight:700;word-break:break-word;}
 .deleteExpenseActions{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
 .deleteExpenseActions .dangerBtn{color:#ffb08a!important;border-color:rgba(255,123,61,.75)!important;box-shadow:0 0 14px rgba(255,123,61,.25),inset 0 0 14px rgba(0,0,0,.92)!important;}
+
+.initialLoading{position:fixed;inset:0;z-index:115;display:grid;place-items:center;background:rgba(1,2,1,.92);color:var(--green);font-size:18px;text-transform:uppercase;text-shadow:0 0 10px var(--green)}.initialLoading[hidden]{display:none!important}
