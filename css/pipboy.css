@@ -621,3 +621,44 @@ body.scannerFullscreen .top{position:fixed!important;top:0!important;left:50%!im
   filter:brightness(1.06)!important;
 }
 @media(max-width:380px){.settingsHotspot::before{font-size:27px!important}}
+
+/* Budd€ 3.0.0 — Refonte graphique Pip-Terminal UI */
+:root{
+  --terminal-bg:#020403;
+  --terminal-glass:#061006;
+  --terminal-glass-dark:#020602;
+  --terminal-green:#9dff45;
+  --terminal-green-soft:rgba(157,255,69,.46);
+  --metal-graphite:#171a16;
+  --metal-dark:#090b09;
+  --metal-mid:#35372f;
+  --metal-edge:#686653;
+  --metal-worn:#a38d50;
+  --crt-lines:repeating-linear-gradient(0deg,rgba(157,255,69,.042) 0 1px,transparent 2px 4px);
+  --crt-glass:linear-gradient(180deg,rgba(157,255,69,.06),rgba(157,255,69,.018) 46%,rgba(0,0,0,.22));
+  --metal-frame:linear-gradient(145deg,#0d0f0d 0%,#303229 24%,#11140f 48%,#4b493b 72%,#12140f 100%);
+  --metal-inset:inset 0 1px 0 rgba(255,240,180,.1),inset 0 -1px 0 rgba(0,0,0,.85),0 10px 24px rgba(0,0,0,.42);
+  --terminal-ease:180ms ease;
+  --top-h:112px;
+}
+html,body{background:radial-gradient(circle at 50% -10%,rgba(76,88,49,.22),transparent 42%),#010201!important}
+body:before{background:var(--crt-lines),radial-gradient(circle at 50% 0,rgba(150,255,60,.09),transparent 34%)!important;opacity:.82!important}
+.app{background:linear-gradient(180deg,#0a0d0a,#030503 34%,#080907)!important;border-left:1px solid rgba(104,102,83,.5)!important;border-right:1px solid rgba(104,102,83,.5)!important;box-shadow:0 0 0 1px rgba(0,0,0,.9),0 0 50px rgba(0,0,0,.65)!important;padding-top:calc(var(--top-h) + env(safe-area-inset-top))!important}
+.top{grid-template-columns:minmax(0,1fr) 50px!important;gap:9px!important;padding:calc(8px + env(safe-area-inset-top)) 10px 9px!important;background:linear-gradient(180deg,#191b16,#0b0d0a 56%,#050604)!important;border:1px solid rgba(104,102,83,.66)!important;border-top:0!important;border-radius:0 0 18px 18px!important;box-shadow:var(--metal-inset),0 12px 24px rgba(0,0,0,.66)!important}
+.top:before,.card:before,.sheet:before{content:'';position:absolute;pointer-events:none;inset:4px;border-radius:inherit;border:1px solid rgba(255,238,164,.06);box-shadow:inset 0 0 0 1px rgba(0,0,0,.6)}
+.top:after{content:'';position:absolute;pointer-events:none;inset:0;background:linear-gradient(90deg,transparent 10px,rgba(255,255,255,.045) 11px,transparent 12px),linear-gradient(0deg,rgba(0,0,0,.32),transparent 28%);border-radius:0 0 18px 18px}
+.buddyMount--header{position:relative;padding:6px;border:1px solid rgba(104,102,83,.8);border-radius:16px;background:var(--metal-frame);box-shadow:inset 0 0 16px rgba(0,0,0,.95),0 1px 0 rgba(255,235,170,.08)!important}
+.buddyMount--header:before,.buddyMount--header:after{content:'';position:absolute;top:8px;width:6px;height:6px;border-radius:50%;background:radial-gradient(circle at 35% 35%,#8b815d,#24251f 58%,#050505);box-shadow:0 0 0 1px rgba(0,0,0,.75),inset 0 1px 1px rgba(255,255,255,.14)}
+.buddyMount--header:before{left:8px}.buddyMount--header:after{right:8px}
+.buddy{min-height:74px!important;border:1px solid rgba(157,255,69,.28)!important;border-radius:12px!important;background:radial-gradient(circle at 18% 28%,rgba(157,255,69,.12),transparent 31%),var(--crt-glass),linear-gradient(180deg,#071207,#020602)!important;box-shadow:inset 0 0 26px rgba(0,0,0,.95),inset 0 0 16px rgba(157,255,69,.07)!important;overflow:hidden!important}
+.buddy:after,.card:after,.sheet:after,.monthbar:after{background:var(--crt-lines),radial-gradient(circle at 50% 10%,rgba(157,255,69,.08),transparent 45%)!important;opacity:.72!important}
+.buddyAvatar{background:radial-gradient(circle at 45% 40%,rgba(157,255,69,.18),rgba(2,7,2,.96) 60%)!important;border-color:rgba(157,255,69,.38)!important;box-shadow:inset 0 0 15px rgba(0,0,0,.9),0 0 10px rgba(157,255,69,.14)!important}
+.buddyBubble{border:0!important;background:transparent!important;box-shadow:none!important}.buddyBubble:before{display:none!important}
+.card,.sheet,.monthbar,.entryPanel{position:relative;border:1px solid rgba(104,102,83,.72)!important;border-radius:16px!important;background:linear-gradient(145deg,#151713,#2a2c25 18%,#090c08 32%,#24261f 100%)!important;box-shadow:var(--metal-inset)!important;padding:15px!important;overflow:hidden!important}
+.card>* , .sheet>* , .monthbar>*{position:relative;z-index:1}.card{margin:12px 0!important}.card:after,.sheet:after,.monthbar:after{content:'';position:absolute;pointer-events:none;inset:6px;border:1px solid rgba(157,255,69,.18);border-radius:11px;background:var(--crt-glass),var(--crt-lines),linear-gradient(180deg,rgba(3,9,3,.78),rgba(1,3,1,.9))!important;box-shadow:inset 0 0 22px rgba(0,0,0,.95);z-index:0!important}
+.budgetCard,.list,.settingsTerminal,.scannerTerminal{background:var(--metal-frame)!important}.split{background:linear-gradient(180deg,transparent,rgba(157,255,69,.34),transparent)!important}.monthbar{display:grid!important;padding:8px 10px!important}.monthbar button,.monthLabel{z-index:1;text-shadow:0 0 8px rgba(157,255,69,.5)!important}
+.actions button,.card button,.fileBtn,.inputBtn,.settingsActions button,.localArchiveActions button,.modalActions button{border:1px solid rgba(104,102,83,.78)!important;border-radius:11px!important;background:linear-gradient(145deg,#1a1c17,#080a08 54%,#2d2e27)!important;color:#b9ff55!important;box-shadow:inset 0 0 14px rgba(0,0,0,.92),0 1px 0 rgba(255,238,164,.08)!important;text-shadow:0 0 7px rgba(157,255,69,.35)!important;transition:border-color var(--terminal-ease),box-shadow var(--terminal-ease),filter var(--terminal-ease),background-color var(--terminal-ease)!important}.primaryBtn,#saveExpense,#confirmBudgetEdit,.scannerActions button:last-child{border-color:rgba(185,255,85,.72)!important;box-shadow:0 0 12px rgba(157,255,69,.24),inset 0 0 14px rgba(0,0,0,.9)!important}
+.form input,.form select,.form textarea,.scannerFieldInput{background:linear-gradient(180deg,#020602,#050b05)!important;border:1px solid rgba(157,255,69,.24)!important;border-radius:9px!important;box-shadow:inset 0 0 14px rgba(0,0,0,.9)!important;color:#b9ff55!important}.stat,.budgetSummary,.budgetChoices label,.scannerPanel,.settingsSection{border-color:rgba(104,102,83,.7)!important;background:linear-gradient(180deg,rgba(5,11,5,.9),rgba(2,5,2,.94))!important;box-shadow:inset 0 0 18px rgba(0,0,0,.88)!important}
+.nav{background:linear-gradient(180deg,#191b16,#070807)!important;border:1px solid rgba(104,102,83,.76)!important;border-bottom:0!important;border-radius:18px 18px 0 0!important;box-shadow:0 -12px 28px rgba(0,0,0,.72),inset 0 1px 0 rgba(255,238,164,.08)!important}.nav button{border-color:rgba(104,102,83,.88)!important;border-radius:12px!important;background-color:#050704!important;box-shadow:inset 0 0 0 2px rgba(0,0,0,.45),inset 0 0 24px rgba(0,0,0,.98),0 1px 0 rgba(255,238,164,.08)!important;filter:brightness(.62) saturate(.75)!important;transition:filter var(--terminal-ease),border-color var(--terminal-ease),box-shadow var(--terminal-ease),background-color var(--terminal-ease)!important}.nav button:before{inset:6px!important;border-radius:8px!important;background:var(--crt-glass),var(--crt-lines)!important;border:1px solid rgba(157,255,69,.12)!important}.nav button.active{background-color:#092006!important;border-color:rgba(185,255,85,.72)!important;box-shadow:inset 0 0 0 2px rgba(0,0,0,.45),inset 0 0 18px rgba(157,255,69,.16),0 0 14px rgba(157,255,69,.22)!important;filter:brightness(1.18) saturate(1.2) drop-shadow(0 0 8px rgba(157,255,69,.62))!important}
+.settingsHotspot{min-height:80px!important;border-color:rgba(104,102,83,.82)!important;border-radius:14px!important;background:linear-gradient(145deg,#1a1c17,#070807 54%,#303127)!important;box-shadow:inset 0 0 18px rgba(0,0,0,.96),0 1px 0 rgba(255,238,164,.08)!important;filter:brightness(.82)!important}.settingsHotspot::before{color:#223519!important;font-size:32px!important;filter:drop-shadow(0 1px 0 #000) drop-shadow(0 -1px 0 rgba(255,238,164,.05))!important}.settingsHotspot.active,.settingsHotspot:hover,.settingsHotspot:focus-visible{border-color:rgba(185,255,85,.78)!important;box-shadow:0 0 11px rgba(157,255,69,.22),inset 0 0 16px rgba(157,255,69,.11),inset 0 0 20px rgba(0,0,0,.9)!important;filter:brightness(1.08)!important}.settingsHotspot.active::before,.settingsHotspot:hover::before,.settingsHotspot:focus-visible::before{color:var(--terminal-green)!important;filter:drop-shadow(0 0 7px rgba(157,255,69,.72))!important}
+@media(max-width:380px){:root{--top-h:100px}.top{grid-template-columns:minmax(0,1fr) 42px!important}.buddy{grid-template-columns:48px minmax(0,1fr)!important;min-height:64px!important}.buddyAvatar{width:48px!important;height:48px!important}.settingsHotspot{min-height:68px!important}.card,.sheet,.monthbar{padding:12px!important}.nav{--nav-h:90px!important}}
