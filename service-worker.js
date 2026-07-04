@@ -1,11 +1,11 @@
-const CACHE_NAME = 'budde-2-0-0';
+const CACHE_NAME = 'budde-2-0-3';
 const ASSETS = [
   './',
   './index.html',
   './manifest.webmanifest',
-  './css/pipboy.css?v=200',
-  './js/app.js?v=200',
-  './js/buddy.js?v=200',
+  './css/pipboy.css?v=203',
+  './js/app.js?v=203',
+  './js/buddy.js?v=203',
   './js/storage.local.js',
   './js/storage.service.js',
   './js/storage.google-drive.js',
@@ -17,8 +17,8 @@ const ASSETS = [
   './assets/nav/budget.png',
   './assets/nav/stats.png',
   './assets/nav/merchants.png',
-  './assets/icon-192.png',
-  './assets/icon-512.png'
+  './assets/icons/icon-192.png',
+  './assets/icons/icon-512.png'
 ];
 
 self.addEventListener('install', event => {
