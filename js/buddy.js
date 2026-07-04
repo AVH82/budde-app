@@ -34,7 +34,7 @@
     const avatar=states[state].avatar
       ? `<img src="${states[state].avatar}" alt="" onerror="this.replaceWith(document.createTextNode('B'))">`
       : 'B';
-    target.innerHTML=`<section class="buddy buddy--${state}" aria-label="Buddy"><div class="buddyAvatar" data-state="${state}" aria-hidden="true">${avatar}</div><div class="buddyBubble"><p>${message}</p><span>${states[state].label}</span></div></section>`;
+    target.innerHTML=`<section class="buddy buddy--${state}" aria-label="Buddy"><div class="buddyAvatar" data-state="${state}" aria-hidden="true">${avatar}</div><div class="buddyBubble"><p>${message}</p></div></section>`;
   }
   window.Buddy={show:render,states,messages};
 })();
