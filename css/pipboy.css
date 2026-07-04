@@ -708,3 +708,6 @@ main{position:relative;z-index:1;background:radial-gradient(circle at 50% 8%,rgb
 body.scannerFullscreen .pipDock{display:grid!important}
 body.scannerFullscreen .app{padding-bottom:calc(var(--nav-h) + 18px + env(safe-area-inset-bottom))!important}
 @media(max-width:380px){:root{--nav-h:136px;--dock-action-h:52px}.pipDock{gap:6px;padding-left:6px;padding-right:6px}.dockActions{gap:7px}.dockAction{gap:7px}.dockAction span{font-size:21px}.dockAction small{font-size:10px}.pipDock .nav{gap:5px!important}}
+
+/* Sprint 3.0.3 — masque le bandeau mois sur les écrans sans filtre mensuel */
+.monthbar[hidden]{display:none!important}
