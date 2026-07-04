@@ -446,16 +446,16 @@ body.scannerFullscreen .scannerStatus{margin-top:6px;min-height:auto;font-size:1
 body.scannerFullscreen .scannerFields h3{margin-bottom:6px;font-size:13px}
 body.scannerFullscreen .scannerFields dl{gap:6px}
 body.scannerFullscreen .scannerFields dt{font-size:10px}
-body.scannerFullscreen .scannerFieldInput{height:38px;font-size:15px;padding:7px 9px;text-transform:none}
-body.scannerFullscreen .scannerFieldInput[type=date]{font-size:14px;padding:6px 4px;letter-spacing:-.03em;line-height:1;min-inline-size:0}
+body.scannerFullscreen .scannerFieldInput{height:38px;font-size:16px;padding:7px 9px;text-transform:none}
+body.scannerFullscreen .scannerFieldInput[type=date]{font-size:16px;padding:6px 4px;letter-spacing:-.03em;line-height:1;min-inline-size:0}
 body.scannerFullscreen .scannerDiagnostic{margin-top:8px;padding:8px;font-size:11px;line-height:1.25}
 body.scannerFullscreen .scannerActions{position:static;margin-top:8px;flex-shrink:0}
 .scannerTechDiagnostic{margin-top:8px;border-top:1px dashed rgba(157,255,69,.28);padding-top:8px;text-shadow:none}
 .scannerTechDiagnostic summary{cursor:pointer;text-transform:uppercase;color:#d7ff7a}
 .scannerTechDiagnostic h4{margin:8px 0 4px;font-size:11px;text-transform:uppercase;color:#90c84a}
 .scannerTechDiagnostic pre{max-height:140px;overflow:auto;margin:0;padding:6px;border:1px solid rgba(157,255,69,.22);border-radius:6px;background:#010301;color:#a4dc56;font-size:10px;white-space:pre-wrap;word-break:break-word}
-@media(max-width:720px){body.scannerFullscreen .scannerGrid{grid-template-columns:1fr}body.scannerFullscreen .scannerTerminal{overflow:auto}body.scannerFullscreen .scannerPanel:first-child{padding-bottom:7px}body.scannerFullscreen .scannerSteps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}body.scannerFullscreen .scannerSteps li{font-size:10px}body.scannerFullscreen .scannerFields dl{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 7px}body.scannerFullscreen .scannerFieldRow{min-width:0}body.scannerFullscreen .scannerFieldRow:first-child,body.scannerFullscreen .scannerFieldRow:nth-child(4){grid-column:1/-1}body.scannerFullscreen .scannerFieldInput[type=date]{font-size:12px;padding-left:2px;padding-right:2px}}
-@media(max-width:360px){body.scannerFullscreen .scannerFields dl{grid-template-columns:1fr}body.scannerFullscreen .scannerFieldRow:first-child,body.scannerFullscreen .scannerFieldRow:nth-child(4){grid-column:auto}body.scannerFullscreen .scannerSteps{grid-template-columns:1fr}body.scannerFullscreen .scannerFieldInput[type=date]{font-size:13px}}
+@media(max-width:720px){body.scannerFullscreen .scannerGrid{grid-template-columns:1fr}body.scannerFullscreen .scannerTerminal{overflow:auto}body.scannerFullscreen .scannerPanel:first-child{padding-bottom:7px}body.scannerFullscreen .scannerSteps{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}body.scannerFullscreen .scannerSteps li{font-size:10px}body.scannerFullscreen .scannerFields dl{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 7px}body.scannerFullscreen .scannerFieldRow{min-width:0}body.scannerFullscreen .scannerFieldRow:first-child,body.scannerFullscreen .scannerFieldRow:nth-child(4){grid-column:1/-1}body.scannerFullscreen .scannerFieldInput[type=date]{font-size:16px;padding-left:2px;padding-right:2px}}
+@media(max-width:360px){body.scannerFullscreen .scannerFields dl{grid-template-columns:1fr}body.scannerFullscreen .scannerFieldRow:first-child,body.scannerFullscreen .scannerFieldRow:nth-child(4){grid-column:auto}body.scannerFullscreen .scannerSteps{grid-template-columns:1fr}body.scannerFullscreen .scannerFieldInput[type=date]{font-size:16px}}
 
 /* Budd€ 2.0.1 — Buddy, compagnon d'accueil autonome */
 .buddyMount{margin:10px 0}
@@ -711,3 +711,6 @@ body.scannerFullscreen .app{padding-bottom:calc(var(--nav-h) + 18px + env(safe-a
 
 /* Sprint 3.0.3 — masque le bandeau mois sur les écrans sans filtre mensuel */
 .monthbar[hidden]{display:none!important}
+
+/* Sprint 3.0.4 — évite le zoom iOS sur les champs interactifs */
+input,select,textarea,.form input,.form select,.form textarea,.scannerFieldInput,#mDate,#mAmount,#mMerchant,#mCategory,#budgetModalInput,#budgetCard{font-size:16px!important}
