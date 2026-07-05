@@ -249,55 +249,62 @@
 
   function analyzeFrame(video) {
     if (!hasCanvas() || !video?.videoWidth || !video?.videoHeight) return null;
-    const scale = Math.min(1, 360 / Math.max(video.videoWidth, video.videoHeight));
+    const scale = Math.min(1, 240 / Math.max(video.videoWidth, video.videoHeight));
     const source = canvas(video.videoWidth * scale, video.videoHeight * scale);
     const ctx = source.getContext('2d', { willReadFrequently: true });
     ctx.drawImage(video, 0, 0, source.width, source.height);
     const data = ctx.getImageData(0, 0, source.width, source.height).data;
     const map = luminanceMap(data, source.width, source.height);
     const stats = imageStats(map);
-    const receipt = detectReceipt(source, map, stats);
+    const width = source.width;
+    const height = source.height;
+    const threshold = clamp(stats.mean + Math.max(8, stats.contrast * 0.06), 70, 235);
+    let minX = width, minY = height, maxX = 0, maxY = 0, hits = 0;
+    for (let y = 0; y < height; y += 4) {
+      for (let x = 0; x < width; x += 4) {
+        const value = map[y * width + x];
+        if (value >= threshold) {
+          hits += 1;
+          minX = Math.min(minX, x); maxX = Math.max(maxX, x);
+          minY = Math.min(minY, y); maxY = Math.max(maxY, y);
+        }
+      }
+    }
+    const area = Math.max(0, (maxX - minX) * (maxY - minY));
+    const imageArea = width * height;
+    const areaRatio = area / Math.max(1, imageArea);
+    const contrastEnough = stats.contrast >= 28;
+    const largeEnough = areaRatio >= 0.18;
+    const hasReceipt = hits > 24 && largeEnough && contrastEnough;
     const luminosity = 100 - Math.abs(stats.mean - 178) / 1.78;
-    const sharpness = clamp(stats.sharpness * 8, 0, 100);
-    const framing = clamp(receipt.areaRatio * 120, 0, 100);
-    const perspective = receipt.aspect > 1.15 && receipt.aspect < 4.8 ? receipt.score : receipt.score * 0.75;
-    const glare = clamp(100 - Math.max(0, stats.max - 246) * 2.6, 0, 100);
-    const cornerBonus = receipt.quad?.length === 4 ? 8 : 0;
-    const perspectiveBonus = Math.max(0, 10 - (receipt.perspectiveDelta || 0) * 18);
-    const score = Math.round(clamp(sharpness * 0.2 + framing * 0.22 + perspective * 0.22 + luminosity * 0.18 + glare * 0.1 + cornerBonus + perspectiveBonus, 0, 100));
-    const upscaleX = video.videoWidth / Math.max(1, source.width);
-    const upscaleY = video.videoHeight / Math.max(1, source.height);
-    const bounds = receipt.bounds;
-    const scaledReceipt = {
-      ...receipt,
-      bounds: { x: bounds.x * upscaleX, y: bounds.y * upscaleY, width: bounds.width * upscaleX, height: bounds.height * upscaleY },
-      quad: receipt.quad.map(point => ({ x: point.x * upscaleX, y: point.y * upscaleY }))
-    };
+    const score = Math.round(clamp(areaRatio * 58 + clamp(stats.contrast / 2.2, 0, 30) + clamp(luminosity / 6, 0, 12), 0, 100));
+    const upscaleX = video.videoWidth / Math.max(1, width);
+    const upscaleY = video.videoHeight / Math.max(1, height);
+    const bounds = hasReceipt
+      ? { x: minX * upscaleX, y: minY * upscaleY, width: (maxX - minX) * upscaleX, height: (maxY - minY) * upscaleY }
+      : { x: video.videoWidth * 0.12, y: video.videoHeight * 0.1, width: video.videoWidth * 0.76, height: video.videoHeight * 0.8 };
     return {
       score,
-      components: { sharpness: Math.round(sharpness), framing: Math.round(framing), perspective: Math.round(perspective), luminosity: Math.round(luminosity), glare: Math.round(glare) },
-      receipt: scaledReceipt,
+      components: { contrast: Math.round(stats.contrast), luminosity: Math.round(luminosity), framing: Math.round(clamp(areaRatio * 120, 0, 100)) },
+      receipt: { bounds, quad: [] },
       source: { width: video.videoWidth, height: video.videoHeight },
-      hasReceipt: receipt.areaRatio >= 0.2 && score >= 42,
-      hasFourCorners: receipt.quad.length === 4 && receipt.areaRatio >= 0.2,
-      perspectiveOk: perspective >= 45,
-      largeEnough: receipt.areaRatio >= 0.24,
-      brightEnough: luminosity >= 45,
-      sharpEnough: sharpness >= 24
+      hasReceipt,
+      largeEnough,
+      contrastEnough
     };
   }
 
   async function prepareImage(fileOrBlob, options = {}) {
     if (!hasCanvas()) return { file: fileOrBlob, blob: fileOrBlob, report: { score: 0, unavailable: true, reason: 'Canvas indisponible' } };
     const image = await loadImage(fileOrBlob);
-    options.onProgress?.({ step: 'prepare', percent: 8, message: 'Je prépare une lecture optimale.' });
+    options.onProgress?.({ step: 'prepare', percent: 8, message: 'Je redresse le reçu.' });
     const source = drawSource(image);
     const sourceData = source.getContext('2d', { willReadFrequently: true }).getImageData(0, 0, source.width, source.height).data;
     const map = luminanceMap(sourceData, source.width, source.height);
     const receipt = detectReceipt(source, map, imageStats(map));
     options.onProgress?.({ step: 'deskew', percent: 16, message: 'Je redresse le reçu.' });
     const flattened = cropAndFlatten(source, receipt);
-    options.onProgress?.({ step: 'enhance', percent: 24, message: 'Je prépare une lecture optimale.' });
+    options.onProgress?.({ step: 'enhance', percent: 24, message: 'J’optimise la lecture.' });
     const enhanced = enhance(flattened);
     const blob = await toBlob(enhanced);
     if (!blob) throw new Error('Buddy Vision n’a pas pu exporter l’image optimisée.');
