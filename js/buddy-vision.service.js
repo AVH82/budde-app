@@ -2,7 +2,7 @@
   'use strict';
 
   const FUTURE_FEATURES = Object.freeze(['qr-code', 'barcode', 'ai-ocr', 'merchant-logo', 'receipt-type']);
-  const MAX_WORK_SIZE = 1400;
+  const MAX_WORK_SIZE = 1600;
   const OUTPUT_MIME = 'image/jpeg';
   const OUTPUT_QUALITY = 0.94;
 
@@ -69,6 +69,51 @@
     return { min, max, mean, contrast: max - min, sharpness: edgeSum / Math.max(1, map.length - 1) };
   }
 
+  function pointDistance(a, b) {
+    return Math.hypot((a?.x || 0) - (b?.x || 0), (a?.y || 0) - (b?.y || 0));
+  }
+
+  function orderQuad(points) {
+    const sorted = [...points].sort((a, b) => (a.x + a.y) - (b.x + b.y));
+    const tl = sorted[0];
+    const br = sorted[sorted.length - 1];
+    const middle = sorted.slice(1, -1).sort((a, b) => (a.y - a.x) - (b.y - b.x));
+    return [tl, middle[0], br, middle[1]];
+  }
+
+  function boundsFromQuad(quad) {
+    const xs = quad.map(point => point.x);
+    const ys = quad.map(point => point.y);
+    const minX = Math.min(...xs), maxX = Math.max(...xs), minY = Math.min(...ys), maxY = Math.max(...ys);
+    return { x: minX, y: minY, width: maxX - minX, height: maxY - minY };
+  }
+
+  function findEdgePoint(map, width, height, startX, startY, dirX, dirY, limit, threshold) {
+    let best = { x: startX, y: startY, energy: -1 };
+    for (let step = 0; step < limit; step += 1) {
+      const x = Math.round(startX + dirX * step);
+      const y = Math.round(startY + dirY * step);
+      if (x < 2 || y < 2 || x >= width - 2 || y >= height - 2) break;
+      const i = y * width + x;
+      const gx = Math.abs(map[i + 1] - map[i - 1]);
+      const gy = Math.abs(map[i + width] - map[i - width]);
+      const energy = gx + gy + (map[i] >= threshold ? 16 : 0);
+      if (energy > best.energy) best = { x, y, energy };
+    }
+    return best;
+  }
+
+  function refineQuadFromEdges(map, width, height, roughBounds, threshold) {
+    const cx = roughBounds.x + roughBounds.width / 2;
+    const cy = roughBounds.y + roughBounds.height / 2;
+    const limit = Math.round(Math.max(roughBounds.width, roughBounds.height) * 0.65);
+    const tl = findEdgePoint(map, width, height, cx, cy, -1, -1, limit, threshold);
+    const tr = findEdgePoint(map, width, height, cx, cy, 1, -1, limit, threshold);
+    const br = findEdgePoint(map, width, height, cx, cy, 1, 1, limit, threshold);
+    const bl = findEdgePoint(map, width, height, cx, cy, -1, 1, limit, threshold);
+    return orderQuad([tl, tr, br, bl].map(point => ({ x: point.x, y: point.y })));
+  }
+
   function detectReceipt(canvasElement, map, stats) {
     const width = canvasElement.width;
     const height = canvasElement.height;
@@ -96,24 +141,68 @@
     }
     const padX = Math.round((maxX - minX) * 0.025);
     const padY = Math.round((maxY - minY) * 0.025);
-    const quad = [
-      { x: clamp(minX - padX, 0, width), y: clamp(minY - padY, 0, height) },
-      { x: clamp(maxX + padX, 0, width), y: clamp(minY - padY, 0, height) },
-      { x: clamp(maxX + padX, 0, width), y: clamp(maxY + padY, 0, height) },
-      { x: clamp(minX - padX, 0, width), y: clamp(maxY + padY, 0, height) }
-    ];
-    const rectArea = (quad[1].x - quad[0].x) * (quad[2].y - quad[1].y);
-    const aspect = (quad[2].y - quad[1].y) / Math.max(1, quad[1].x - quad[0].x);
+    const roughBounds = { x: clamp(minX - padX, 0, width), y: clamp(minY - padY, 0, height), width: clamp(maxX + padX, 0, width) - clamp(minX - padX, 0, width), height: clamp(maxY + padY, 0, height) - clamp(minY - padY, 0, height) };
+    const quad = refineQuadFromEdges(map, width, height, roughBounds, threshold);
+    const refinedBounds = boundsFromQuad(quad);
+    const rectArea = refinedBounds.width * refinedBounds.height;
+    const topWidth = pointDistance(quad[0], quad[1]);
+    const bottomWidth = pointDistance(quad[3], quad[2]);
+    const leftHeight = pointDistance(quad[0], quad[3]);
+    const rightHeight = pointDistance(quad[1], quad[2]);
+    const aspect = ((leftHeight + rightHeight) / 2) / Math.max(1, (topWidth + bottomWidth) / 2);
+    const perspectiveDelta = Math.abs(topWidth - bottomWidth) / Math.max(topWidth, bottomWidth, 1) + Math.abs(leftHeight - rightHeight) / Math.max(leftHeight, rightHeight, 1);
     const score = Math.round(clamp((rectArea / imageArea) * 42 + (aspect > 1.15 && aspect < 4.8 ? 28 : 14) + clamp(stats.contrast / 3, 0, 30), 0, 100));
-    return { quad, bounds: { x: quad[0].x, y: quad[0].y, width: quad[1].x - quad[0].x, height: quad[2].y - quad[1].y }, score, aspect, areaRatio: rectArea / imageArea };
+    return { quad, bounds: refinedBounds, score, aspect, areaRatio: rectArea / imageArea, perspectiveDelta };
+  }
+
+  function perspectiveCoefficients(src, width, height) {
+    const dst = [{ x: 0, y: 0 }, { x: width, y: 0 }, { x: width, y: height }, { x: 0, y: height }];
+    const matrix = [];
+    const values = [];
+    for (let i = 0; i < 4; i += 1) {
+      const x = dst[i].x, y = dst[i].y, u = src[i].x, v = src[i].y;
+      matrix.push([x, y, 1, 0, 0, 0, -u * x, -u * y]); values.push(u);
+      matrix.push([0, 0, 0, x, y, 1, -v * x, -v * y]); values.push(v);
+    }
+    for (let col = 0; col < 8; col += 1) {
+      let pivot = col;
+      for (let row = col + 1; row < 8; row += 1) if (Math.abs(matrix[row][col]) > Math.abs(matrix[pivot][col])) pivot = row;
+      [matrix[col], matrix[pivot]] = [matrix[pivot], matrix[col]]; [values[col], values[pivot]] = [values[pivot], values[col]];
+      const div = matrix[col][col] || 1;
+      for (let c = col; c < 8; c += 1) matrix[col][c] /= div;
+      values[col] /= div;
+      for (let row = 0; row < 8; row += 1) {
+        if (row === col) continue;
+        const factor = matrix[row][col];
+        for (let c = col; c < 8; c += 1) matrix[row][c] -= factor * matrix[col][c];
+        values[row] -= factor * values[col];
+      }
+    }
+    return values;
   }
 
   function cropAndFlatten(source, receipt) {
-    const { x, y, width, height } = receipt.bounds;
-    const targetWidth = clamp(width, 640, 1400);
-    const targetHeight = clamp(height, 900, 2200);
+    const width = Math.max(pointDistance(receipt.quad[0], receipt.quad[1]), pointDistance(receipt.quad[3], receipt.quad[2]));
+    const height = Math.max(pointDistance(receipt.quad[0], receipt.quad[3]), pointDistance(receipt.quad[1], receipt.quad[2]));
+    const targetWidth = Math.round(clamp(width, 720, 1500));
+    const targetHeight = Math.round(clamp(height, 1000, 2600));
     const out = canvas(targetWidth, targetHeight);
-    out.getContext('2d', { willReadFrequently: true }).drawImage(source, x, y, width, height, 0, 0, out.width, out.height);
+    const ctx = out.getContext('2d', { willReadFrequently: true });
+    const srcCtx = source.getContext('2d', { willReadFrequently: true });
+    const srcData = srcCtx.getImageData(0, 0, source.width, source.height);
+    const outData = ctx.createImageData(targetWidth, targetHeight);
+    const coeff = perspectiveCoefficients(receipt.quad, targetWidth - 1, targetHeight - 1);
+    for (let y = 0; y < targetHeight; y += 1) {
+      for (let x = 0; x < targetWidth; x += 1) {
+        const den = coeff[6] * x + coeff[7] * y + 1;
+        const sx = clamp((coeff[0] * x + coeff[1] * y + coeff[2]) / den, 0, source.width - 1);
+        const sy = clamp((coeff[3] * x + coeff[4] * y + coeff[5]) / den, 0, source.height - 1);
+        const si = (Math.round(sy) * source.width + Math.round(sx)) * 4;
+        const di = (y * targetWidth + x) * 4;
+        outData.data[di] = srcData.data[si]; outData.data[di + 1] = srcData.data[si + 1]; outData.data[di + 2] = srcData.data[si + 2]; outData.data[di + 3] = 255;
+      }
+    }
+    ctx.putImageData(outData, 0, 0);
     return out;
   }
 
@@ -151,7 +240,9 @@
     const framing = clamp(receipt.areaRatio * 120, 0, 100);
     const perspective = receipt.aspect > 1.1 && receipt.aspect < 5 ? receipt.score : receipt.score * 0.75;
     const glare = clamp(100 - Math.max(0, stats.max - 246) * 2.6, 0, 100);
-    const score = Math.round(clamp(sharpness * 0.22 + framing * 0.24 + perspective * 0.22 + luminosity * 0.2 + glare * 0.12, 0, 100));
+    const cornerBonus = receipt.quad?.length === 4 ? 8 : 0;
+    const perspectiveBonus = Math.max(0, 10 - (receipt.perspectiveDelta || 0) * 18);
+    const score = Math.round(clamp(sharpness * 0.2 + framing * 0.22 + perspective * 0.22 + luminosity * 0.18 + glare * 0.1 + cornerBonus + perspectiveBonus, 0, 100));
     return { score, components: { sharpness: Math.round(sharpness), framing: Math.round(framing), perspective: Math.round(perspective), luminosity: Math.round(luminosity), glare: Math.round(glare) }, receipt, source: { width: source.width, height: source.height }, output: { width: enhancedCanvas.width, height: enhancedCanvas.height }, futureFeatures: FUTURE_FEATURES };
   }
 
@@ -171,7 +262,9 @@
     const framing = clamp(receipt.areaRatio * 120, 0, 100);
     const perspective = receipt.aspect > 1.15 && receipt.aspect < 4.8 ? receipt.score : receipt.score * 0.75;
     const glare = clamp(100 - Math.max(0, stats.max - 246) * 2.6, 0, 100);
-    const score = Math.round(clamp(sharpness * 0.22 + framing * 0.24 + perspective * 0.22 + luminosity * 0.2 + glare * 0.12, 0, 100));
+    const cornerBonus = receipt.quad?.length === 4 ? 8 : 0;
+    const perspectiveBonus = Math.max(0, 10 - (receipt.perspectiveDelta || 0) * 18);
+    const score = Math.round(clamp(sharpness * 0.2 + framing * 0.22 + perspective * 0.22 + luminosity * 0.18 + glare * 0.1 + cornerBonus + perspectiveBonus, 0, 100));
     const upscaleX = video.videoWidth / Math.max(1, source.width);
     const upscaleY = video.videoHeight / Math.max(1, source.height);
     const bounds = receipt.bounds;
@@ -197,14 +290,14 @@
   async function prepareImage(fileOrBlob, options = {}) {
     if (!hasCanvas()) return { file: fileOrBlob, blob: fileOrBlob, report: { score: 0, unavailable: true, reason: 'Canvas indisponible' } };
     const image = await loadImage(fileOrBlob);
-    options.onProgress?.({ step: 'prepare', percent: 8, message: 'Je prépare le ticket…' });
+    options.onProgress?.({ step: 'prepare', percent: 8, message: 'Je prépare une lecture optimale.' });
     const source = drawSource(image);
     const sourceData = source.getContext('2d', { willReadFrequently: true }).getImageData(0, 0, source.width, source.height).data;
     const map = luminanceMap(sourceData, source.width, source.height);
     const receipt = detectReceipt(source, map, imageStats(map));
     options.onProgress?.({ step: 'deskew', percent: 16, message: 'Je redresse le reçu.' });
     const flattened = cropAndFlatten(source, receipt);
-    options.onProgress?.({ step: 'enhance', percent: 24, message: 'Lecture optimisée.' });
+    options.onProgress?.({ step: 'enhance', percent: 24, message: 'Je prépare une lecture optimale.' });
     const enhanced = enhance(flattened);
     const blob = await toBlob(enhanced);
     if (!blob) throw new Error('Buddy Vision n’a pas pu exporter l’image optimisée.');
