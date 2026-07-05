@@ -155,54 +155,25 @@
     return { quad, bounds: refinedBounds, score, aspect, areaRatio: rectArea / imageArea, perspectiveDelta };
   }
 
-  function perspectiveCoefficients(src, width, height) {
-    const dst = [{ x: 0, y: 0 }, { x: width, y: 0 }, { x: width, y: height }, { x: 0, y: height }];
-    const matrix = [];
-    const values = [];
-    for (let i = 0; i < 4; i += 1) {
-      const x = dst[i].x, y = dst[i].y, u = src[i].x, v = src[i].y;
-      matrix.push([x, y, 1, 0, 0, 0, -u * x, -u * y]); values.push(u);
-      matrix.push([0, 0, 0, x, y, 1, -v * x, -v * y]); values.push(v);
-    }
-    for (let col = 0; col < 8; col += 1) {
-      let pivot = col;
-      for (let row = col + 1; row < 8; row += 1) if (Math.abs(matrix[row][col]) > Math.abs(matrix[pivot][col])) pivot = row;
-      [matrix[col], matrix[pivot]] = [matrix[pivot], matrix[col]]; [values[col], values[pivot]] = [values[pivot], values[col]];
-      const div = matrix[col][col] || 1;
-      for (let c = col; c < 8; c += 1) matrix[col][c] /= div;
-      values[col] /= div;
-      for (let row = 0; row < 8; row += 1) {
-        if (row === col) continue;
-        const factor = matrix[row][col];
-        for (let c = col; c < 8; c += 1) matrix[row][c] -= factor * matrix[col][c];
-        values[row] -= factor * values[col];
-      }
-    }
-    return values;
-  }
-
-  function cropAndFlatten(source, receipt) {
-    const width = Math.max(pointDistance(receipt.quad[0], receipt.quad[1]), pointDistance(receipt.quad[3], receipt.quad[2]));
-    const height = Math.max(pointDistance(receipt.quad[0], receipt.quad[3]), pointDistance(receipt.quad[1], receipt.quad[2]));
-    const targetWidth = Math.round(clamp(width, 720, 1500));
-    const targetHeight = Math.round(clamp(height, 1000, 2600));
-    const out = canvas(targetWidth, targetHeight);
-    const ctx = out.getContext('2d', { willReadFrequently: true });
-    const srcCtx = source.getContext('2d', { willReadFrequently: true });
-    const srcData = srcCtx.getImageData(0, 0, source.width, source.height);
-    const outData = ctx.createImageData(targetWidth, targetHeight);
-    const coeff = perspectiveCoefficients(receipt.quad, targetWidth - 1, targetHeight - 1);
-    for (let y = 0; y < targetHeight; y += 1) {
-      for (let x = 0; x < targetWidth; x += 1) {
-        const den = coeff[6] * x + coeff[7] * y + 1;
-        const sx = clamp((coeff[0] * x + coeff[1] * y + coeff[2]) / den, 0, source.width - 1);
-        const sy = clamp((coeff[3] * x + coeff[4] * y + coeff[5]) / den, 0, source.height - 1);
-        const si = (Math.round(sy) * source.width + Math.round(sx)) * 4;
-        const di = (y * targetWidth + x) * 4;
-        outData.data[di] = srcData.data[si]; outData.data[di + 1] = srcData.data[si + 1]; outData.data[di + 2] = srcData.data[si + 2]; outData.data[di + 3] = 255;
-      }
-    }
-    ctx.putImageData(outData, 0, 0);
+  function safeCrop(source, receipt) {
+    const bounds = receipt?.bounds || { x: 0, y: 0, width: source.width, height: source.height };
+    const areaRatio = Number(receipt?.areaRatio) || 0;
+    const riskyCrop = areaRatio < 0.28 || bounds.width < source.width * 0.35 || bounds.height < source.height * 0.35;
+    const crop = riskyCrop
+      ? { x: 0, y: 0, width: source.width, height: source.height, fallback: true }
+      : {
+          x: clamp(bounds.x, 0, source.width - 1),
+          y: clamp(bounds.y, 0, source.height - 1),
+          width: clamp(bounds.width, 1, source.width),
+          height: clamp(bounds.height, 1, source.height),
+          fallback: false
+        };
+    if (crop.x + crop.width > source.width) crop.width = source.width - crop.x;
+    if (crop.y + crop.height > source.height) crop.height = source.height - crop.y;
+    const out = canvas(crop.width, crop.height);
+    out.getContext('2d', { willReadFrequently: true }).drawImage(source, crop.x, crop.y, crop.width, crop.height, 0, 0, out.width, out.height);
+    receipt.crop = crop;
+    receipt.usedRawFrame = !!crop.fallback;
     return out;
   }
 
@@ -238,12 +209,12 @@
     const luminosity = 100 - Math.abs(stats.mean - 178) / 1.78;
     const sharpness = clamp(stats.sharpness * 8, 0, 100);
     const framing = clamp(receipt.areaRatio * 120, 0, 100);
-    const perspective = receipt.aspect > 1.1 && receipt.aspect < 5 ? receipt.score : receipt.score * 0.75;
+    const geometry = receipt.aspect > 1.1 && receipt.aspect < 5 ? receipt.score : receipt.score * 0.75;
     const glare = clamp(100 - Math.max(0, stats.max - 246) * 2.6, 0, 100);
     const cornerBonus = receipt.quad?.length === 4 ? 8 : 0;
-    const perspectiveBonus = Math.max(0, 10 - (receipt.perspectiveDelta || 0) * 18);
-    const score = Math.round(clamp(sharpness * 0.2 + framing * 0.22 + perspective * 0.22 + luminosity * 0.18 + glare * 0.1 + cornerBonus + perspectiveBonus, 0, 100));
-    return { score, components: { sharpness: Math.round(sharpness), framing: Math.round(framing), perspective: Math.round(perspective), luminosity: Math.round(luminosity), glare: Math.round(glare) }, receipt, source: { width: source.width, height: source.height }, output: { width: enhancedCanvas.width, height: enhancedCanvas.height }, futureFeatures: FUTURE_FEATURES };
+    const cropBonus = receipt.usedRawFrame ? 0 : 6;
+    const score = Math.round(clamp(sharpness * 0.2 + framing * 0.22 + geometry * 0.22 + luminosity * 0.18 + glare * 0.1 + cornerBonus + cropBonus, 0, 100));
+    return { score, components: { sharpness: Math.round(sharpness), framing: Math.round(framing), geometry: Math.round(geometry), luminosity: Math.round(luminosity), glare: Math.round(glare) }, receipt, source: { width: source.width, height: source.height }, output: { width: enhancedCanvas.width, height: enhancedCanvas.height }, futureFeatures: FUTURE_FEATURES };
   }
 
 
@@ -255,10 +226,10 @@
     const sourceData = source.getContext('2d', { willReadFrequently: true }).getImageData(0, 0, source.width, source.height).data;
     const map = luminanceMap(sourceData, source.width, source.height);
     const receipt = detectReceipt(source, map, imageStats(map));
-    options.onProgress?.({ step: 'deskew', percent: 16, message: 'Je redresse le reçu.' });
-    const flattened = cropAndFlatten(source, receipt);
+    options.onProgress?.({ step: 'crop', percent: 16, message: 'J’améliore la lecture.' });
+    const cropped = safeCrop(source, receipt);
     options.onProgress?.({ step: 'enhance', percent: 24, message: 'J’améliore la lecture.' });
-    const enhanced = enhance(flattened);
+    const enhanced = enhance(cropped);
     const blob = await toBlob(enhanced);
     if (!blob) throw new Error('Buddy Vision n’a pas pu exporter l’image optimisée.');
     const name = String(fileOrBlob.name || 'receipt.jpg').replace(/(\.[a-z0-9]+)?$/i, '-buddy-vision.jpg');
