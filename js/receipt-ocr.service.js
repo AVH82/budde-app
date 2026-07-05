@@ -23,14 +23,14 @@
     { name: 'LEROY MERLIN', aliases: ['leroy merlin', 'ler0y merlin', 'leroy mer1in'] }
   ];
 
-  const TOTAL_KEYWORD_PATTERN = /\b(total(?:\s+(?:eur|ttc))?|net\s+[àa]\s+payer|[àa]\s+payer|carte\s+bleue|cb)\b/i;
+  const TOTAL_KEYWORD_PATTERN = /\b(total(?:\s+(?:eur|ttc|carte|cb))?|net\s+[àa]\s+payer|[àa]\s+payer|montant\s+pay[eé]|carte\s+bleue|cb|visa|mastercard|amex)\b/i;
   const STRICT_TOTAL_PATTERN = /\btotal(?:\s+(?:eur|ttc))?\b/i;
   const PAYABLE_TOTAL_PATTERN = /\b(net\s+[àa]\s+payer|[àa]\s+payer)\b/i;
-  const CARD_TOTAL_PATTERN = /\b(carte\s+bleue|cb)\b/i;
-  const FINAL_TOTAL_PATTERN = /\b(total\s+(?:eur|ttc)|net\s+[àa]\s+payer|[àa]\s+payer|carte\s+bleue|cb|total)\b/i;
+  const CARD_TOTAL_PATTERN = /\b(carte\s+bleue|cb|visa|mastercard|amex)\b/i;
+  const FINAL_TOTAL_PATTERN = /\b(total\s+(?:eur|ttc|carte|cb)|net\s+[àa]\s+payer|[àa]\s+payer|montant\s+pay[eé]|carte\s+bleue|cb|visa|mastercard|amex|total)\b/i;
   const ARTICLE_ZONE_MARKER_PATTERN = /\b(article|qt[eé]|prix|désignation|designation|libell[eé])\b/i;
-  const TOTAL_ZONE_MARKER_PATTERN = /\b(total(?:\s+(?:eur|ttc))?|net\s+[àa]\s+payer|[àa]\s+payer|carte\s+bleue|cb|mode\s+de\s+paiement|paiement)\b/i;
-  const AMOUNT_EXCLUSION_PATTERN = /\b(tva|dont\s+deee|deee|remise|r[eé]duction|promo|fid[eé]lit[eé]|avoir|rendu|monnaie|acompte|sous[-\s]?total)\b/i;
+  const TOTAL_ZONE_MARKER_PATTERN = /\b(total(?:\s+(?:eur|ttc|carte|cb))?|net\s+[àa]\s+payer|[àa]\s+payer|montant\s+pay[eé]|carte\s+bleue|cb|visa|mastercard|amex|mode\s+de\s+paiement|paiement)\b/i;
+  const AMOUNT_EXCLUSION_PATTERN = /\b(tva|dont\s+deee|deee|remise|r[eé]duction|promo|fid[eé]lit[eé]|avoir|rendu|monnaie|acompte|sous[-\s]?total|technique)\b/i;
 
   const state = {
     initialized: false,
@@ -149,7 +149,8 @@
       diagnostic: {
         rawText: String(text || ''),
         structuredLines,
-        amount: totalResult.diagnostic
+        amount: totalResult.diagnostic,
+        trust: calculateTrustScore({ merchant: extractMerchant(lines), date: extractDate(lines), amountDiagnostic: totalResult.diagnostic, ocrData, structuredLines })
       }
     };
   }
@@ -278,6 +279,18 @@
     if (totalZoneLines.length) collectFallbackAmountCandidates(totalZoneLines, diagnostic, 'candidat zone totaux');
     collectKeywordFallbackCandidates(lines, diagnostic, 'candidat libellé total/paiement');
     collectLastPositiveAmountCandidates(totalZoneLines.length ? totalZoneLines : lines, diagnostic, 'candidat derniers montants positifs plausibles');
+    collectTechnicalAmountCandidates(lines, diagnostic);
+  }
+
+  function collectTechnicalAmountCandidates(lines, diagnostic) {
+    lines.forEach((line, index) => {
+      if (!AMOUNT_EXCLUSION_PATTERN.test(line.text)) return;
+      extractLineAmounts(line).forEach(amountInfo => addAmountCandidate(diagnostic, {
+        amount: roundAmount(amountInfo.amount),
+        score: 5 + rightnessScore(amountInfo, line) - index / Math.max(1, lines.length),
+        reason: `dernier recours technique: ${line.text}`
+      }));
+    });
   }
 
   function collectLastPositiveAmountCandidate(lines, diagnostic, reason) {
@@ -371,8 +384,14 @@
     if (!Number.isFinite(candidate?.amount) || candidate.amount <= 0) return;
     if (AMOUNT_EXCLUSION_PATTERN.test(candidate.reason || '')) return;
     const key = amountKey(candidate.amount);
-    if ((diagnostic.candidates || []).some(existing => amountKey(existing.amount) === key)) return;
-    diagnostic.candidates.push(candidate);
+    const existing = (diagnostic.candidates || []).find(item => amountKey(item.amount) === key);
+    if (existing) {
+      existing.score += Math.max(90, Number(candidate.score) * 0.35 || 90);
+      existing.confirmations = (existing.confirmations || 1) + 1;
+      existing.reason = `${existing.reason} | confirmation: ${candidate.reason}`;
+      return;
+    }
+    diagnostic.candidates.push({ confirmations: 1, ...candidate });
     diagnostic.candidates.sort((a, b) => b.score - a.score || b.amount - a.amount);
     diagnostic.candidates = diagnostic.candidates.slice(0, 8);
   }
@@ -389,7 +408,8 @@
     const candidates = (diagnostic.candidates || []).map(candidate => ({
       amount: candidate.amount,
       score: Math.round((Number(candidate.score) || 0) * 100) / 100,
-      reason: candidate.reason || 'raison indisponible'
+      reason: candidate.reason || 'raison indisponible',
+      confirmations: candidate.confirmations || 1
     }));
     return {
       structuredLines: (lines || []).map(line => ({ index: line.index, zone: line.zone, text: line.text })),
@@ -398,7 +418,8 @@
       chosen: diagnostic.chosen ? {
         amount: diagnostic.chosen.amount,
         score: Math.round((Number(diagnostic.chosen.score) || 0) * 100) / 100,
-        reason: diagnostic.chosen.reason || 'raison indisponible'
+        reason: diagnostic.chosen.reason || 'raison indisponible',
+        confirmations: diagnostic.chosen.confirmations || 1
       } : null
     };
   }
@@ -533,12 +554,35 @@
   function totalLabelScore(line, index, lineCount) {
     const normalized = normalizeForMatching(line);
     let score = index / Math.max(1, lineCount);
-    if (/net\s+a\s+payer/i.test(normalized)) score += 80;
-    if (/total\s+eur/i.test(normalized)) score += 75;
-    if (/total\s+ttc/i.test(normalized)) score += 70;
-    if (/\ba\s+payer\b/i.test(normalized)) score += 65;
-    if (/\btotal\b/i.test(normalized)) score += 50;
+    if (/total\s+eur/i.test(normalized)) score += 2200;
+    if (/total\s+ttc/i.test(normalized)) score += 2100;
+    if (/net\s+a\s+payer/i.test(normalized)) score += 480;
+    if (/\ba\s+payer\b/i.test(normalized)) score += 470;
+    if (/montant\s+paye/i.test(normalized)) score += 465;
+    if (/carte\s+bleue|\bcb\b|visa|mastercard|amex/i.test(normalized)) score += 400;
+    if (/total\s+(carte|cb)/i.test(normalized)) score += 350;
+    if (/\btotal\b/i.test(normalized)) score += 330;
     return score;
+  }
+
+  function calculateTrustScore({ merchant, date, amountDiagnostic, ocrData, structuredLines }) {
+    let score = 20;
+    const chosen = amountDiagnostic?.chosen;
+    const candidates = amountDiagnostic?.candidates || [];
+    if (merchant) score += 16; else score -= 8;
+    if (date) score += 10;
+    if (chosen) score += Math.min(28, Math.max(0, Number(chosen.score) / 55));
+    if ((chosen?.confirmations || 1) > 1) score += 22;
+    if (/total\s+eur|total\s+ttc|net.*payer|montant.*pay|carte\s+bleue|\bcb\b|visa|mastercard|amex/i.test(chosen?.reason || '')) score += 16;
+    if (/article|prix|ligne|dernier recours technique|tva|deee|remise|fid/i.test(chosen?.reason || '')) score -= 18;
+    const different = new Set(candidates.map(candidate => amountKey(candidate.amount)));
+    if (different.size > 3) score -= 12;
+    const confidences = [];
+    (ocrData?.words || []).forEach(word => { if (Number.isFinite(Number(word.confidence))) confidences.push(Number(word.confidence)); });
+    const average = confidences.length ? confidences.reduce((sum, value) => sum + value, 0) / confidences.length : null;
+    if (average != null) score += average >= 82 ? 8 : average < 58 ? -14 : 0;
+    if ((structuredLines || []).length < 3) score -= 8;
+    return Math.max(0, Math.min(100, Math.round(score)));
   }
 
   function roundAmount(amount) {

@@ -884,3 +884,12 @@ body.manualImmersion #expenseModal .form textarea{
 .scannerFieldControl{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px;align-items:center}
 .scannerRecycleBtn{min-width:38px;height:38px;border:1px solid rgba(185,255,85,.68);border-radius:9px;background:linear-gradient(145deg,#182014,#050805 58%,#28331c);color:#d7ff7a;font:700 19px/1 inherit;box-shadow:inset 0 0 12px rgba(0,0,0,.86),0 0 9px rgba(157,255,69,.22);text-shadow:0 0 7px rgba(157,255,69,.65);cursor:pointer}
 .scannerRecycleBtn:disabled{opacity:.45;cursor:not-allowed;filter:grayscale(.3)}
+
+/* Budd€ 3.3.0 — TRUST Gauge officielle Buddy */
+.buddy{grid-template-columns:62px minmax(0,1fr) 82px!important}
+.trustGauge{position:relative;z-index:1;align-self:center;justify-self:end;width:78px;min-height:58px;border-left:1px solid rgba(157,255,69,.22);padding-left:7px;color:var(--green);text-align:center;text-shadow:0 0 7px rgba(157,255,69,.45)}
+.trustGauge svg{display:block;width:76px;height:45px;overflow:visible;filter:drop-shadow(0 0 4px rgba(157,255,69,.22))}
+.trustGauge .trustArc{fill:none;stroke:rgba(157,255,69,.48);stroke-linecap:round}.trustGauge .trustArcLow{stroke-width:1.6}.trustGauge .trustArcHigh{stroke-width:4.2;stroke:rgba(185,255,85,.72)}
+.trustGauge .trustNeedle{stroke:var(--green);stroke-width:1.7;stroke-linecap:round;transform-origin:48px 48px;transform:rotate(var(--trust-angle));transition:transform 250ms cubic-bezier(.2,.8,.25,1)}
+.trustGauge circle{fill:var(--green)}.trustGauge b{display:block;margin-top:-2px;font-size:9px;line-height:1;letter-spacing:.14em}.trustGauge span{display:block;margin-top:2px;font-size:7px;line-height:1;letter-spacing:.02em;color:#9ed64d;white-space:nowrap}
+@media(max-width:380px){.buddy{grid-template-columns:48px minmax(0,1fr) 62px!important}.trustGauge{width:60px;padding-left:4px}.trustGauge svg{width:58px}.trustGauge span{font-size:6px}.trustGauge b{font-size:8px}}
