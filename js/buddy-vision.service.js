@@ -177,12 +177,19 @@
     return out;
   }
 
-  function enhance(input) {
+  function applyTone(input) {
     const out = canvas(input.width, input.height);
     const ctx = out.getContext('2d', { willReadFrequently: true });
     ctx.filter = 'contrast(1.12) saturate(1.03) brightness(1.03)';
     ctx.drawImage(input, 0, 0);
     ctx.filter = 'none';
+    return out;
+  }
+
+  function applySharpness(input) {
+    const out = canvas(input.width, input.height);
+    const ctx = out.getContext('2d', { willReadFrequently: true });
+    ctx.drawImage(input, 0, 0);
     const img = ctx.getImageData(0, 0, out.width, out.height);
     const src = new Uint8ClampedArray(img.data);
     for (let y = 1; y < out.height - 1; y += 1) {
@@ -197,6 +204,10 @@
     }
     ctx.putImageData(img, 0, 0);
     return out;
+  }
+
+  function enhance(input) {
+    return applySharpness(applyTone(input));
   }
 
   function toBlob(canvasElement) {
@@ -228,13 +239,23 @@
     const receipt = detectReceipt(source, map, imageStats(map));
     options.onProgress?.({ step: 'crop', percent: 16, message: 'J’améliore la lecture.' });
     const cropped = safeCrop(source, receipt);
+    const toned = applyTone(cropped);
     options.onProgress?.({ step: 'enhance', percent: 24, message: 'J’améliore la lecture.' });
-    const enhanced = enhance(cropped);
+    const enhanced = applySharpness(toned);
     const blob = await toBlob(enhanced);
     if (!blob) throw new Error('Buddy Vision n’a pas pu exporter l’image optimisée.');
     const name = String(fileOrBlob.name || 'receipt.jpg').replace(/(\.[a-z0-9]+)?$/i, '-buddy-vision.jpg');
     const file = typeof File !== 'undefined' ? new File([blob], name, { type: OUTPUT_MIME, lastModified: Date.now() }) : blob;
-    return { file, blob, report: qualityReport(source, receipt, enhanced), previewCanvas: enhanced };
+    const report = qualityReport(source, receipt, enhanced);
+    report.original = { width: image.naturalWidth || image.width, height: image.naturalHeight || image.height };
+    report.debug = {
+      crop: receipt.crop?.fallback ? 'ignoré' : 'appliqué',
+      cropReason: receipt.crop?.fallback ? 'zone détectée trop petite ou incertaine : image brute conservée' : 'zone de ticket détectée',
+      contrast: 'contrast(1.12) saturate(1.03) brightness(1.03)',
+      sharpness: 'unsharp mask centre 1.55 / voisins 0.1375',
+      perspective: 'désactivée'
+    };
+    return { file, blob, report, previewCanvas: enhanced, debugStages: { cropped, toned, enhanced } };
   }
 
   global.BuddyVisionService = { prepareImage, capabilities: { futureFeatures: FUTURE_FEATURES } };
