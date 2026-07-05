@@ -31,6 +31,8 @@
   const ARTICLE_ZONE_MARKER_PATTERN = /\b(article|qt[eé]|prix|désignation|designation|libell[eé])\b/i;
   const TOTAL_ZONE_MARKER_PATTERN = /\b(total(?:\s+(?:eur|ttc|carte|cb))?|net\s+[àa]\s+payer|[àa]\s+payer|montant\s+pay[eé]|carte\s+bleue|cb|visa|mastercard|amex|mode\s+de\s+paiement|paiement)\b/i;
   const AMOUNT_EXCLUSION_PATTERN = /\b(tva|dont\s+deee|deee|remise|r[eé]duction|promo|fid[eé]lit[eé]|avoir|rendu|monnaie|acompte|sous[-\s]?total|technique)\b/i;
+  const AMOUNT_LEARNING_KEYWORDS = ['TOTAL', 'TOTAL EUR', 'TOTAL TTC', 'À PAYER', 'NET À PAYER', 'CARTE', 'CB', 'VISA', 'MASTERCARD'];
+  let amountLearningEntries = [];
 
   const state = {
     initialized: false,
@@ -236,6 +238,7 @@
     const diagnostic = { candidates: [], chosen: null };
 
     collectOrderedAmountCandidates(zonedLines, diagnostic);
+    applyAmountLearningBoosts(zonedLines, diagnostic);
 
     const totalZoneLines = zonedLines.filter(line => line.zone === 'totals');
 
@@ -264,6 +267,7 @@
     const diagnostic = { candidates: [], chosen: null, rejected: Array.from(rejected) };
 
     collectOrderedAmountCandidates(zonedLines, diagnostic);
+    applyAmountLearningBoosts(zonedLines, diagnostic);
 
     if (!diagnostic.candidates.length) return { amount: null, diagnostic: buildAmountDiagnosticPayload(diagnostic, zonedLines) };
     diagnostic.candidates.sort((a, b) => b.score - a.score || b.amount - a.amount);
@@ -424,6 +428,81 @@
     };
   }
 
+
+  function setAmountLearning(entries) {
+    amountLearningEntries = Array.isArray(entries) ? entries.slice(-80).filter(Boolean) : [];
+  }
+
+  function buildAmountLearningContext(lines, chosen) {
+    const zonedLines = assignReceiptZones(normalizeStructuredLines(lines));
+    const chosenLineIndex = findCandidateLineIndex(zonedLines, chosen);
+    const lineCount = Math.max(1, zonedLines.length);
+    const contextLines = zonedLines.slice(Math.max(0, chosenLineIndex - 1), Math.min(zonedLines.length, chosenLineIndex + 2));
+    const keywordPresence = {};
+    const allText = zonedLines.map(line => line.text).join(' ').toUpperCase();
+    AMOUNT_LEARNING_KEYWORDS.forEach(keyword => { keywordPresence[keyword] = allText.includes(keyword); });
+    return {
+      createdAt: new Date().toISOString(),
+      lineCount,
+      amountLineIndex: chosenLineIndex,
+      amountPosition: lineCount ? Math.round((chosenLineIndex / lineCount) * 100) / 100 : 0,
+      amountZone: zonedLines[chosenLineIndex]?.zone || null,
+      amountFormat: detectAmountFormat(chosen?.amount),
+      ocrScore: Math.round(Number(chosen?.score) || 0),
+      keywords: keywordPresence,
+      words: contextLines.flatMap(line => line.words?.map(word => normalizeLearningToken(word.text)) || []).filter(Boolean).slice(0, 40),
+      neighborLines: contextLines.map(line => sanitizeLearningLine(line.text))
+    };
+  }
+
+  function applyAmountLearningBoosts(lines, diagnostic) {
+    if (!amountLearningEntries.length || !diagnostic.candidates?.length) return;
+    diagnostic.candidates.forEach(candidate => {
+      const context = buildAmountLearningContext(lines, candidate);
+      const bestSimilarity = amountLearningEntries.reduce((best, entry) => Math.max(best, amountLearningSimilarity(context, entry.context || entry)), 0);
+      if (bestSimilarity < 0.35) return;
+      const boost = Math.round(bestSimilarity * 220);
+      candidate.score += boost;
+      candidate.learningSimilarity = Math.round(bestSimilarity * 100);
+      candidate.reason = `${candidate.reason} | apprentissage OCR: contexte similaire ${candidate.learningSimilarity}%`;
+    });
+  }
+
+  function amountLearningSimilarity(a, b) {
+    if (!a || !b) return 0;
+    let score = 0;
+    if (a.amountZone && a.amountZone === b.amountZone) score += 0.2;
+    score += Math.max(0, 0.25 - Math.abs((a.amountPosition || 0) - (b.amountPosition || 0)) * 0.5);
+    const keywords = AMOUNT_LEARNING_KEYWORDS.filter(keyword => a.keywords?.[keyword] && b.keywords?.[keyword]);
+    score += Math.min(0.3, keywords.length * 0.06);
+    const aw = new Set(a.words || []), bw = new Set(b.words || []);
+    const intersection = [...aw].filter(word => bw.has(word)).length;
+    const union = new Set([...aw, ...bw]).size || 1;
+    score += Math.min(0.25, intersection / union);
+    return Math.max(0, Math.min(1, score));
+  }
+
+  function findCandidateLineIndex(lines, candidate) {
+    const needle = amountKey(candidate?.amount);
+    const found = lines.find(line => extractLineAmounts(line).some(amountInfo => amountKey(amountInfo.amount) === needle));
+    return found ? found.index : Math.max(0, Math.floor(lines.length * 0.75));
+  }
+
+  function sanitizeLearningLine(text) {
+    return normalizeForMatching(String(text || '')).replace(/\b\d+(?:[,.]\d+)?\b/g, '#').slice(0, 80);
+  }
+
+  function normalizeLearningToken(text) {
+    const token = normalizeForMatching(text).replace(/[^a-z0-9]+/g, '');
+    if (!token || /^\d+$/.test(token) || token.length < 2) return '';
+    return token.slice(0, 24);
+  }
+
+  function detectAmountFormat(amount) {
+    const value = String(amount || '');
+    return value.includes('.') ? 'decimal-dot' : value.includes(',') ? 'decimal-comma' : 'numeric';
+  }
+
   function logAmountDiagnostic(diagnostic) {
     if (!isDevelopmentMode() || typeof console === 'undefined' || typeof console.debug !== 'function') return;
     console.debug('[ReceiptOcrService] Diagnostic montant OCR', diagnostic);
@@ -456,6 +535,17 @@
           reason: `${source}: libellé et montant sur la même ligne visuelle (${line.text})`
         });
         return;
+      }
+
+      const previousLine = lines[index - 1];
+      const previousLineAmounts = previousLine ? extractLineAmounts(previousLine).filter(amountInfo => !looksLikeMergedQuantityAndPrice(previousLine, amountInfo)) : [];
+      if (previousLineAmounts.length) {
+        const amountInfo = previousLineAmounts.sort((a, b) => b.right - a.right || b.start - a.start)[0];
+        candidates.push({
+          amount: roundAmount(amountInfo.amount),
+          score: totalLabelScore(line.text, index, lines.length) + 30 + rightnessScore(amountInfo, previousLine),
+          reason: `${source}: libellé seul puis montant ligne précédente (${previousLine.text} <- ${line.text})`
+        });
       }
 
       const nextLine = lines[index + 1];
