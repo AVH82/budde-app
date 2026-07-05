@@ -155,6 +155,45 @@
     return { score, components: { sharpness: Math.round(sharpness), framing: Math.round(framing), perspective: Math.round(perspective), luminosity: Math.round(luminosity), glare: Math.round(glare) }, receipt, source: { width: source.width, height: source.height }, output: { width: enhancedCanvas.width, height: enhancedCanvas.height }, futureFeatures: FUTURE_FEATURES };
   }
 
+
+  function analyzeFrame(video) {
+    if (!hasCanvas() || !video?.videoWidth || !video?.videoHeight) return null;
+    const scale = Math.min(1, 360 / Math.max(video.videoWidth, video.videoHeight));
+    const source = canvas(video.videoWidth * scale, video.videoHeight * scale);
+    const ctx = source.getContext('2d', { willReadFrequently: true });
+    ctx.drawImage(video, 0, 0, source.width, source.height);
+    const data = ctx.getImageData(0, 0, source.width, source.height).data;
+    const map = luminanceMap(data, source.width, source.height);
+    const stats = imageStats(map);
+    const receipt = detectReceipt(source, map, stats);
+    const luminosity = 100 - Math.abs(stats.mean - 178) / 1.78;
+    const sharpness = clamp(stats.sharpness * 8, 0, 100);
+    const framing = clamp(receipt.areaRatio * 120, 0, 100);
+    const perspective = receipt.aspect > 1.15 && receipt.aspect < 4.8 ? receipt.score : receipt.score * 0.75;
+    const glare = clamp(100 - Math.max(0, stats.max - 246) * 2.6, 0, 100);
+    const score = Math.round(clamp(sharpness * 0.22 + framing * 0.24 + perspective * 0.22 + luminosity * 0.2 + glare * 0.12, 0, 100));
+    const upscaleX = video.videoWidth / Math.max(1, source.width);
+    const upscaleY = video.videoHeight / Math.max(1, source.height);
+    const bounds = receipt.bounds;
+    const scaledReceipt = {
+      ...receipt,
+      bounds: { x: bounds.x * upscaleX, y: bounds.y * upscaleY, width: bounds.width * upscaleX, height: bounds.height * upscaleY },
+      quad: receipt.quad.map(point => ({ x: point.x * upscaleX, y: point.y * upscaleY }))
+    };
+    return {
+      score,
+      components: { sharpness: Math.round(sharpness), framing: Math.round(framing), perspective: Math.round(perspective), luminosity: Math.round(luminosity), glare: Math.round(glare) },
+      receipt: scaledReceipt,
+      source: { width: video.videoWidth, height: video.videoHeight },
+      hasReceipt: receipt.areaRatio >= 0.2 && score >= 42,
+      hasFourCorners: receipt.quad.length === 4 && receipt.areaRatio >= 0.2,
+      perspectiveOk: perspective >= 45,
+      largeEnough: receipt.areaRatio >= 0.24,
+      brightEnough: luminosity >= 45,
+      sharpEnough: sharpness >= 24
+    };
+  }
+
   async function prepareImage(fileOrBlob, options = {}) {
     if (!hasCanvas()) return { file: fileOrBlob, blob: fileOrBlob, report: { score: 0, unavailable: true, reason: 'Canvas indisponible' } };
     const image = await loadImage(fileOrBlob);
@@ -174,5 +213,5 @@
     return { file, blob, report: qualityReport(source, receipt, enhanced), previewCanvas: enhanced };
   }
 
-  global.BuddyVisionService = { prepareImage, capabilities: { futureFeatures: FUTURE_FEATURES } };
+  global.BuddyVisionService = { prepareImage, analyzeFrame, capabilities: { futureFeatures: FUTURE_FEATURES } };
 })(typeof window !== 'undefined' ? window : globalThis);
