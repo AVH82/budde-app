@@ -26,7 +26,6 @@
     lastMessage=next;
     return next;
   }
-  function receiptThumb(url){return url?`<button class="buddyReceiptThumb" type="button" data-receipt-preview-toggle="1" aria-label="Voir le ticket capturé"><img src="${escapeHtml(url)}" alt="Ticket en analyse"></button>`:''}
   function trustGauge(value=0){const score=Math.max(0,Math.min(100,Math.round(Number(value)||0)));const angle=-62+(score/100)*124;return `<aside class="trustGauge" aria-label="TRUST ${score}%"><svg viewBox="0 0 96 58" role="img" aria-hidden="true"><path class="trustArc trustArcLow" d="M14 48 A34 34 0 0 1 82 48"/><path class="trustArc trustArcHigh" d="M48 14 A34 34 0 0 1 82 48"/><line class="trustNeedle" x1="48" y1="48" x2="48" y2="19" style="--trust-angle:${angle}deg"/><circle cx="48" cy="48" r="3"/></svg><b>TRUST</b><span>LOW ─ HIGH</span></aside>`}
   function render(stateName='neutral',options={}){
     const state=states[stateName]?stateName:'neutral';
@@ -36,7 +35,8 @@
     const avatar=states[state].avatar
       ? `<img src="${states[state].avatar}" alt="" onerror="this.replaceWith(document.createTextNode('B'))">`
       : 'B';
-    target.innerHTML=`<section class="buddy buddy--${state}" aria-label="Buddy"><div class="buddyAvatar" data-state="${state}" aria-hidden="true">${avatar}</div><div class="buddyBubble"><p>${message}</p></div>${receiptThumb(options.receiptUrl)}${trustGauge(options.trust)}</section>`;
+    const trust=options.showTrust?trustGauge(options.trust):'';
+    target.innerHTML=`<section class="buddy buddy--${state}${trust?' buddy--trust':''}" aria-label="Buddy"><div class="buddyAvatar" data-state="${state}" aria-hidden="true">${avatar}</div><div class="buddyBubble"><p>${message}</p></div>${trust}</section>`;
   }
   window.Buddy={show:render,states,messages};
 })();
