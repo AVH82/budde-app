@@ -38,5 +38,5 @@
     const trust=options.showTrust?trustGauge(options.trust):'';
     target.innerHTML=`<section class="buddy buddy--${state}${trust?' buddy--trust':''}" aria-label="Buddy"><div class="buddyAvatar" data-state="${state}" aria-hidden="true">${avatar}</div><div class="buddyBubble"><p>${message}</p></div>${trust}</section>`;
   }
-  window.Buddy={show:render,states,messages};
+  window.Buddy={show:render,states,messages,trustGauge};
 })();
