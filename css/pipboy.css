@@ -973,3 +973,11 @@ body.scannerFullscreen .scannerSteps{grid-template-columns:1fr!important;gap:3px
 /* Sprint 3.4.6 — capture épurée */
 .cameraBuddyMessage:empty{display:none!important}
 .cameraActions .secondaryCapture:hover,.cameraActions .secondaryCapture:focus-visible{opacity:.68!important;border-color:rgba(157,255,69,.38)!important;box-shadow:inset 0 0 12px #000!important}
+
+/* Sprint 3.4.7 — polissage scanner et actions dépenses */
+.cameraActions{grid-template-columns:minmax(0,1fr)!important;justify-items:center!important;width:100%!important}
+.cameraActions #cameraCancelButton{width:100%!important;max-width:none!important;justify-self:stretch!important}
+.rowBtns,.rowBtns .icon{position:relative!important;z-index:6!important;pointer-events:auto!important}
+.expense{isolation:isolate}.expense .rowBtns{touch-action:manipulation}
+.modal.open{pointer-events:auto!important}.deleteExpenseDialog.open{z-index:95!important}.deleteExpenseDialog .sheet,.deleteExpenseDialog button{pointer-events:auto!important}
+.view:not(.active){pointer-events:none!important}
