@@ -876,8 +876,9 @@ body.manualImmersion #expenseModal .form textarea{
 .deleteExpenseSheet{width:min(390px,calc(100vw - 36px))!important;border-radius:18px!important;text-align:center;background:linear-gradient(180deg,rgba(7,16,8,.99),rgba(2,6,2,.99))!important;border:1px solid rgba(185,255,85,.68)!important;box-shadow:0 0 24px rgba(157,255,69,.28),inset 0 0 24px rgba(0,0,0,.95)!important;}
 .deleteExpenseSheet h2{text-transform:uppercase;letter-spacing:.09em;text-shadow:0 0 10px rgba(157,255,69,.55);margin-bottom:10px;}
 .deleteExpenseMerchant{margin:0 0 16px;color:#cfff85;text-transform:uppercase;font-weight:700;word-break:break-word;}
-.deleteExpenseActions{display:grid;grid-template-columns:1fr 1fr;gap:10px;}
-.deleteExpenseActions .dangerBtn{color:#ffb08a!important;border-color:rgba(255,123,61,.75)!important;box-shadow:0 0 14px rgba(255,123,61,.25),inset 0 0 14px rgba(0,0,0,.92)!important;}
+.deleteExpenseActions{display:flex!important;justify-content:space-between;gap:12px;margin-top:18px;}
+.deleteExpenseActions button{flex:1 1 46%;min-width:0;min-height:48px;padding-inline:12px!important;font-size:13px!important;font-weight:800!important;letter-spacing:.08em!important;}
+.deleteExpenseActions .dangerBtn{flex-basis:48%;color:#ffb08a!important;border-color:rgba(255,123,61,.82)!important;box-shadow:0 0 18px rgba(255,123,61,.32),inset 0 0 14px rgba(0,0,0,.92)!important;}
 
 .initialLoading{position:fixed;inset:0;z-index:115;display:grid;place-items:center;background:rgba(1,2,1,.92);color:var(--green);font-size:18px;text-transform:uppercase;text-shadow:0 0 10px var(--green)}.initialLoading[hidden]{display:none!important}
 /* Sprint OCR interactif — v3.2.1 */
