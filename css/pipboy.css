@@ -947,7 +947,7 @@ body.scannerFullscreen #receiptScanner.active{display:block!important}
 .buddy.buddy--trust{grid-template-columns:62px minmax(0,1fr) 82px!important}
 @media(max-width:380px){.buddy{grid-template-columns:48px minmax(0,1fr)!important}.buddy.buddy--trust{grid-template-columns:48px minmax(0,1fr) 62px!important}}
 
-/* Budd€ 3.4.5 — OCR checkpoints + Settings/TRUST header module */
+/* Budd€ 3.4.6 — OCR checkpoints + Settings/TRUST header module */
 .settingsTrustModule{position:relative;align-self:center;width:48px;min-height:72px;perspective:260px;transform-style:preserve-3d}
 .settingsTrustFace{position:absolute!important;inset:0!important;backface-visibility:hidden;transform-style:preserve-3d;transition:transform 400ms ease-in-out,opacity 400ms ease-in-out,filter 400ms ease-in-out!important}
 .settingsTrustFace--settings{transform:rotateY(0deg);opacity:1}
@@ -970,6 +970,6 @@ body.scannerFullscreen #receiptScanner.active{display:block!important}
 body.scannerFullscreen .scannerSteps{grid-template-columns:1fr!important;gap:3px!important}
 @media(max-width:380px){.settingsTrustModule,.headerTrustGauge{width:42px!important;min-height:64px!important}.headerTrustGauge .trustGauge{width:40px!important}.headerTrustGauge .trustGauge svg{width:39px!important}.headerTrustGauge .trustGauge span{display:block!important;font-size:5px!important}.scannerSteps li,.scannerSteps li.compact,body.scannerFullscreen .scannerSteps li{font-size:10px!important}}
 
-/* Sprint 3.4.5 — capture épurée */
+/* Sprint 3.4.6 — capture épurée */
 .cameraBuddyMessage:empty{display:none!important}
 .cameraActions .secondaryCapture:hover,.cameraActions .secondaryCapture:focus-visible{opacity:.68!important;border-color:rgba(157,255,69,.38)!important;box-shadow:inset 0 0 12px #000!important}
