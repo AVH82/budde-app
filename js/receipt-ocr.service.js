@@ -30,7 +30,7 @@
   const FINAL_TOTAL_PATTERN = /\b(total\s+(?:eur|ttc)|net\s+[àa]\s+payer|[àa]\s+payer|carte\s+bleue|cb|total)\b/i;
   const ARTICLE_ZONE_MARKER_PATTERN = /\b(article|qt[eé]|prix|désignation|designation|libell[eé])\b/i;
   const TOTAL_ZONE_MARKER_PATTERN = /\b(total(?:\s+(?:eur|ttc))?|net\s+[àa]\s+payer|[àa]\s+payer|carte\s+bleue|cb|mode\s+de\s+paiement|paiement)\b/i;
-  const AMOUNT_EXCLUSION_PATTERN = /\b(tva|dont\s+deee|deee|remise|fid[eé]lit[eé]|avoir|rendu|monnaie|acompte|sous[-\s]?total)\b/i;
+  const AMOUNT_EXCLUSION_PATTERN = /\b(tva|dont\s+deee|deee|remise|r[eé]duction|promo|fid[eé]lit[eé]|avoir|rendu|monnaie|acompte|sous[-\s]?total)\b/i;
 
   const state = {
     initialized: false,
@@ -234,29 +234,9 @@
     const zonedLines = assignReceiptZones(structuredLines);
     const diagnostic = { candidates: [], chosen: null };
 
-    findPriorityAmountCandidates(zonedLines, STRICT_TOTAL_PATTERN, diagnostic, 'priorité TOTAL');
-
-    if (!diagnostic.candidates.length) {
-      findPriorityAmountCandidates(zonedLines, PAYABLE_TOTAL_PATTERN, diagnostic, 'fallback NET A PAYER / A PAYER');
-    }
-
-    if (!diagnostic.candidates.length) {
-      findPriorityAmountCandidates(zonedLines, CARD_TOTAL_PATTERN, diagnostic, 'fallback Carte Bleue / CB');
-    }
+    collectOrderedAmountCandidates(zonedLines, diagnostic);
 
     const totalZoneLines = zonedLines.filter(line => line.zone === 'totals');
-
-    if (!diagnostic.candidates.length && totalZoneLines.length) {
-      collectFallbackAmountCandidates(totalZoneLines, diagnostic, 'montant dans la zone totaux');
-    }
-
-    if (!diagnostic.candidates.length) {
-      collectKeywordFallbackCandidates(zonedLines, diagnostic, 'fallback libellé total/paiement');
-    }
-
-    if (!diagnostic.candidates.length) {
-      collectFallbackAmountCandidates(zonedLines.filter(line => line.zone !== 'items'), diagnostic, 'montant hors zone articles');
-    }
 
     if (!diagnostic.candidates.length) {
       if (options.includeDiagnostic) return { amount: null, diagnostic: buildAmountDiagnosticPayload(diagnostic, zonedLines) };
@@ -279,40 +259,46 @@
   function recalculateTotal(lines, rejectedAmounts = []) {
     const structuredLines = normalizeStructuredLines(lines);
     const zonedLines = assignReceiptZones(structuredLines);
-    const diagnostic = { candidates: [], chosen: null };
+    const rejected = normalizeRejectedAmounts(rejectedAmounts);
+    const diagnostic = { candidates: [], chosen: null, rejected: Array.from(rejected) };
 
-    findPriorityAmountCandidates(zonedLines, STRICT_TOTAL_PATTERN, diagnostic, 'recalcul TOTAL / TOTAL EUR / TOTAL TTC');
-
-    if (!diagnostic.candidates.length) {
-      findPriorityAmountCandidates(zonedLines, CARD_TOTAL_PATTERN, diagnostic, 'recalcul Carte Bleue / CB');
-    }
-
-    if (!diagnostic.candidates.length) {
-      const totalZoneLines = zonedLines.filter(line => line.zone === 'totals');
-      collectLastPositiveAmountCandidate(totalZoneLines.length ? totalZoneLines : zonedLines, diagnostic, 'recalcul dernier montant positif du bloc totaux');
-    }
+    collectOrderedAmountCandidates(zonedLines, diagnostic);
 
     if (!diagnostic.candidates.length) return { amount: null, diagnostic: buildAmountDiagnosticPayload(diagnostic, zonedLines) };
     diagnostic.candidates.sort((a, b) => b.score - a.score || b.amount - a.amount);
-    const rejected = new Set((rejectedAmounts || []).map(value => String(roundAmount(Number(value))).replace(',', '.')));
-    diagnostic.chosen = diagnostic.candidates.find(candidate => !rejected.has(String(roundAmount(candidate.amount)))) || null;
+    diagnostic.chosen = diagnostic.candidates.find(candidate => !rejected.has(amountKey(candidate.amount))) || null;
     return { amount: diagnostic.chosen ? roundAmount(diagnostic.chosen.amount) : null, diagnostic: buildAmountDiagnosticPayload(diagnostic, zonedLines) };
   }
 
+  function collectOrderedAmountCandidates(lines, diagnostic) {
+    findPriorityAmountCandidates(lines, STRICT_TOTAL_PATTERN, diagnostic, 'candidat TOTAL / TOTAL EUR / TOTAL TTC');
+    findPriorityAmountCandidates(lines, CARD_TOTAL_PATTERN, diagnostic, 'candidat Carte Bleue / CB');
+    findPriorityAmountCandidates(lines, PAYABLE_TOTAL_PATTERN, diagnostic, 'candidat NET A PAYER / A PAYER');
+    const totalZoneLines = lines.filter(line => line.zone === 'totals');
+    if (totalZoneLines.length) collectFallbackAmountCandidates(totalZoneLines, diagnostic, 'candidat zone totaux');
+    collectKeywordFallbackCandidates(lines, diagnostic, 'candidat libellé total/paiement');
+    collectLastPositiveAmountCandidates(totalZoneLines.length ? totalZoneLines : lines, diagnostic, 'candidat derniers montants positifs plausibles');
+  }
+
   function collectLastPositiveAmountCandidate(lines, diagnostic, reason) {
+    collectLastPositiveAmountCandidates(lines, diagnostic, reason, 1);
+  }
+
+  function collectLastPositiveAmountCandidates(lines, diagnostic, reason, limit = 5) {
     const candidates = [];
     lines.forEach((line, index) => {
       if (AMOUNT_EXCLUSION_PATTERN.test(line.text)) return;
       extractLineAmounts(line).forEach(amountInfo => {
+        if (looksLikeMergedQuantityAndPrice(line, amountInfo)) return;
         candidates.push({ line, index, amountInfo });
       });
     });
-    const last = candidates.filter(candidate => candidate.amountInfo.amount > 0).at(-1);
-    if (!last) return;
-    addAmountCandidate(diagnostic, {
-      amount: roundAmount(last.amountInfo.amount),
-      score: 700 + last.index + rightnessScore(last.amountInfo, last.line),
-      reason: `${reason}: ${last.line.text}`
+    candidates.filter(candidate => candidate.amountInfo.amount > 0).slice(-limit).reverse().forEach((candidate, offset) => {
+      addAmountCandidate(diagnostic, {
+        amount: roundAmount(candidate.amountInfo.amount),
+        score: 700 + candidate.index - offset + rightnessScore(candidate.amountInfo, candidate.line),
+        reason: `${reason}: ${candidate.line.text}`
+      });
     });
   }
 
@@ -383,9 +369,20 @@
 
   function addAmountCandidate(diagnostic, candidate) {
     if (!Number.isFinite(candidate?.amount) || candidate.amount <= 0) return;
+    if (AMOUNT_EXCLUSION_PATTERN.test(candidate.reason || '')) return;
+    const key = amountKey(candidate.amount);
+    if ((diagnostic.candidates || []).some(existing => amountKey(existing.amount) === key)) return;
     diagnostic.candidates.push(candidate);
     diagnostic.candidates.sort((a, b) => b.score - a.score || b.amount - a.amount);
-    diagnostic.candidates = diagnostic.candidates.slice(0, 3);
+    diagnostic.candidates = diagnostic.candidates.slice(0, 8);
+  }
+
+  function amountKey(amount) {
+    return String(roundAmount(Number(amount)));
+  }
+
+  function normalizeRejectedAmounts(rejectedAmounts) {
+    return new Set((rejectedAmounts || []).map(value => amountKey(parseAmount(String(value).replace(/[^0-9,.-]/g, '').replace(',', '.')))).filter(value => value !== 'NaN'));
   }
 
   function buildAmountDiagnosticPayload(diagnostic, lines) {
@@ -397,6 +394,7 @@
     return {
       structuredLines: (lines || []).map(line => ({ index: line.index, zone: line.zone, text: line.text })),
       candidates,
+      rejected: diagnostic.rejected || [],
       chosen: diagnostic.chosen ? {
         amount: diagnostic.chosen.amount,
         score: Math.round((Number(diagnostic.chosen.score) || 0) * 100) / 100,

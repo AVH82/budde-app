@@ -207,6 +207,45 @@ test('recalculates amount from TOTAL before CB and fallback totals block', () =>
   assert.equal(cardResult.amount, 40);
 });
 
+test('recalculates amount through ordered plausible candidates without repeating rejected totals', () => {
+  const lines = [
+    'WELDOM',
+    'Article Qté Prix Total',
+    'Produit 2 12,00 24,00',
+    'TVA 20,00 4,00',
+    'Dont DEEE 1,20',
+    'Remise fidélité 5,00',
+    'TOTAL EUR 94,00',
+    'Carte Bleue 94,00',
+    'NET A PAYER 90,00',
+    'Autre paiement 4,00'
+  ];
+
+  const first = ReceiptOcrService.recalculateTotal(lines, []);
+  assert.equal(first.amount, 90);
+  assert.ok(first.diagnostic.candidates.length >= 3);
+  assert.ok(first.diagnostic.candidates.every(candidate => ![1.2, 5].includes(candidate.amount)));
+
+  const second = ReceiptOcrService.recalculateTotal(lines, ['90']);
+  assert.equal(second.amount, 94);
+  assert.notEqual(second.amount, first.amount);
+  assert.deepEqual(second.diagnostic.rejected, ['90']);
+});
+
+test('returns manual-entry state only after amount candidates are exhausted', () => {
+  const lines = [
+    'Magasin Test',
+    'TOTAL TTC 12,50',
+    'CB 12,50',
+    'A PAYER 10,00'
+  ];
+
+  assert.equal(ReceiptOcrService.recalculateTotal(lines, ['12.50']).amount, 10);
+  const exhausted = ReceiptOcrService.recalculateTotal(lines, ['12.50', '10.00']);
+  assert.equal(exhausted.amount, null);
+  assert.equal(exhausted.diagnostic.chosen, null);
+});
+
 test('recalculates merchant with an alternative candidate', () => {
   const merchant = ReceiptOcrService.recalculateMerchant([
     'CARREFOUR',
