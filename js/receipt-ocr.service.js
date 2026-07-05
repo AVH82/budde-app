@@ -276,7 +276,7 @@
   }
 
 
-  function recalculateTotal(lines) {
+  function recalculateTotal(lines, rejectedAmounts = []) {
     const structuredLines = normalizeStructuredLines(lines);
     const zonedLines = assignReceiptZones(structuredLines);
     const diagnostic = { candidates: [], chosen: null };
@@ -294,8 +294,9 @@
 
     if (!diagnostic.candidates.length) return { amount: null, diagnostic: buildAmountDiagnosticPayload(diagnostic, zonedLines) };
     diagnostic.candidates.sort((a, b) => b.score - a.score || b.amount - a.amount);
-    diagnostic.chosen = diagnostic.candidates[0];
-    return { amount: roundAmount(diagnostic.chosen.amount), diagnostic: buildAmountDiagnosticPayload(diagnostic, zonedLines) };
+    const rejected = new Set((rejectedAmounts || []).map(value => String(roundAmount(Number(value))).replace(',', '.')));
+    diagnostic.chosen = diagnostic.candidates.find(candidate => !rejected.has(String(roundAmount(candidate.amount)))) || null;
+    return { amount: diagnostic.chosen ? roundAmount(diagnostic.chosen.amount) : null, diagnostic: buildAmountDiagnosticPayload(diagnostic, zonedLines) };
   }
 
   function collectLastPositiveAmountCandidate(lines, diagnostic, reason) {
@@ -315,11 +316,11 @@
     });
   }
 
-  function recalculateMerchant(lines, currentMerchant) {
+  function recalculateMerchant(lines, currentMerchant, rejectedMerchants = []) {
     const normalizedLines = normalizeStructuredLines(lines).map(line => line.text);
     const candidates = extractMerchantCandidates(normalizedLines);
-    const current = normalizeForMatching(currentMerchant || '');
-    const alternative = candidates.find(candidate => normalizeForMatching(candidate.name) !== current) || candidates[0];
+    const rejected = new Set([currentMerchant, ...(rejectedMerchants || [])].map(value => normalizeForMatching(value || '')).filter(Boolean));
+    const alternative = candidates.find(candidate => !rejected.has(normalizeForMatching(candidate.name)));
     return alternative ? alternative.name : null;
   }
 
