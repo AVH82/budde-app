@@ -207,7 +207,7 @@ test('recalculates amount from TOTAL before CB and fallback totals block', () =>
   assert.equal(cardResult.amount, 40);
 });
 
-test('recalculates amount through ordered plausible candidates without repeating rejected totals', () => {
+test('recalculates amount through TRUST-ordered hypotheses without repeating rejected totals', () => {
   const lines = [
     'WELDOM',
     'Article Qté Prix Total',
@@ -222,14 +222,14 @@ test('recalculates amount through ordered plausible candidates without repeating
   ];
 
   const first = ReceiptOcrService.recalculateTotal(lines, []);
-  assert.equal(first.amount, 90);
+  assert.equal(first.amount, 94);
   assert.ok(first.diagnostic.candidates.length >= 3);
   assert.ok(first.diagnostic.candidates.every(candidate => ![1.2, 5].includes(candidate.amount)));
 
-  const second = ReceiptOcrService.recalculateTotal(lines, ['90']);
-  assert.equal(second.amount, 94);
+  const second = ReceiptOcrService.recalculateTotal(lines, ['94']);
+  assert.equal(second.amount, 90);
   assert.notEqual(second.amount, first.amount);
-  assert.deepEqual(second.diagnostic.rejected, ['90']);
+  assert.deepEqual(second.diagnostic.rejected, ['94']);
 });
 
 test('returns manual-entry state only after amount candidates are exhausted', () => {
