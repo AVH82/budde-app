@@ -28,3 +28,10 @@ Chaque entrée doit suivre ce modèle :
 - Portée : architecture JavaScript préparatoire et dossiers d’assets `assets/budde/`, `assets/frame/`, `assets/pivot/`, `assets/nav-new/`.
 - Raison : permettre une migration progressive vers la nouvelle identité Budd€ en gardant le rendu actuel strictement inchangé.
 - Documents mis à jour : `CHANGELOG_DESIGN.md`.
+
+## 2026-07-06 — Création de la zone d'entrée des assets validés
+
+- Décision : création de `assets/_incoming/` comme espace tampon officiel pour les assets graphiques déjà validés visuellement avant leur rangement définitif.
+- Portée : flux d'intégration des assets graphiques, documentation d'assets et règles de contribution IA.
+- Raison : éviter la création directe d'assets finaux par une IA de développement et garantir que la zone d'entrée reste temporaire, vide après traitement sauf `.keep`.
+- Documents mis à jour : `ASSET_LIBRARY.md`, `CODING_GUIDELINES.md`, `CHANGELOG_DESIGN.md`.
