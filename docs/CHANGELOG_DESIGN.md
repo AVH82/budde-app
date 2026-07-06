@@ -21,3 +21,10 @@ Chaque entrée doit suivre ce modèle :
 - Portée : design, terminologie, composants, animations, personnage Budd€, conventions techniques et historique des validations.
 - Raison : permettre à toute IA ou tout développeur d'intervenir sans diluer l'identité graphique, ergonomique et technique du terminal.
 - Documents mis à jour : `START_HERE.md`, `DESIGN_BIBLE.md`, `TERMINOLOGY.md`, `COMPONENT_LIBRARY.md`, `ANIMATION_GUIDE.md`, `BUDDE_CHARACTER_BIBLE.md`, `CODING_GUIDELINES.md`, `CHANGELOG_DESIGN.md`.
+
+## 2026-07-06 — Préparation architecturale Frame System et module pivotant
+
+- Décision : création de points d’ancrage techniques inertes pour le futur Frame System et le futur module pivotant, sans branchement dans l’interface actuelle.
+- Portée : architecture JavaScript préparatoire et dossiers d’assets `assets/budde/`, `assets/frame/`, `assets/pivot/`, `assets/nav-new/`.
+- Raison : permettre une migration progressive vers la nouvelle identité Budd€ en gardant le rendu actuel strictement inchangé.
+- Documents mis à jour : `CHANGELOG_DESIGN.md`.
