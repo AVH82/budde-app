@@ -38,6 +38,8 @@ Avant toute modification, lire `docs/START_HERE.md` puis les documents applicabl
 - Conserver des noms descriptifs et versionnés si le visuel est une validation graphique.
 - Optimiser les images destinées au mobile.
 - Ne pas remplacer un asset validé sans mettre à jour `CHANGELOG_DESIGN.md`.
+- Une IA de développement ne crée pas d'asset graphique final.
+- Elle intègre uniquement des assets validés déposés dans `assets/_incoming/`.
 
 ## CSS et responsive
 
