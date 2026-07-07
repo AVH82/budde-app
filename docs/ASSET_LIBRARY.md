@@ -117,6 +117,21 @@ Règles :
 - `assets/nav-new/` — nouvelle génération d'icônes ou boutons de navigation terminal avant remplacement de `assets/nav/`.
 - `assets/_incoming/` — zone temporaire de dépôt, jamais destination finale.
 
+
+## Assets intégrés validés
+
+### AST-001.1 — Frame Core
+
+- Statut : intégré au repository.
+- Version : 1.0.
+- Destination : `assets/frame/`.
+- Fichiers :
+  - `assets/frame/FRM-001_frame-top.png` — bande structurelle supérieure du Frame System.
+  - `assets/frame/FRM-002_frame-bottom.png` — bande structurelle inférieure / dock du Frame System.
+  - `assets/frame/FRM-003_frame-left.png` — bande structurelle latérale gauche compacte.
+  - `assets/frame/FRM-004_frame-right.png` — bande structurelle latérale droite compacte.
+- Notes : pack validé graphiquement et rangé sans branchement UI, CSS ou JavaScript. `assets/_incoming/` est nettoyé après intégration et ne conserve que `.keep`.
+
 ## Cycle de vie d'un asset
 
 1. Conception graphique hors repository.
