@@ -16,6 +16,13 @@ Chaque entrée doit suivre ce modèle :
 ```
 
 
+## 2026-07-07 — Branchement visuel AST-002 Frame Core
+
+- Décision : activation visuelle progressive des assets AST-001.1 Frame Core comme cadre périphérique du terminal.
+- Portée : couche CSS `css/frame-core.css`, Service Worker et assets `FRM-001` à `FRM-004`.
+- Raison : rendre le Frame System visible dans la PWA mobile-first sans modifier la structure HTML ni les données applicatives.
+- Documents mis à jour : `CHANGELOG_DESIGN.md`.
+
 ## 2026-07-07 — Intégration AST-001.1 Frame Core
 
 - Décision : intégration du pack validé AST-001.1 Frame Core dans la destination officielle du Frame System.
