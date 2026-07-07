@@ -4,6 +4,7 @@ const ASSETS = [
   './index.html',
   './manifest.webmanifest',
   './css/pipboy.css?v=363',
+  './css/frame-core.css?v=ast002',
   './js/app.js?v=363',
   './js/buddy.js?v=363',
   './js/storage.local.js',
@@ -19,6 +20,10 @@ const ASSETS = [
   './assets/nav/budget.png',
   './assets/nav/stats.png',
   './assets/nav/merchants.png',
+  './assets/frame/FRM-001_frame-top.png',
+  './assets/frame/FRM-002_frame-bottom.png',
+  './assets/frame/FRM-003_frame-left.png',
+  './assets/frame/FRM-004_frame-right.png',
   './assets/icon-192.png',
   './assets/icon-512.png',
   './assets/buddy-thinking.png',
@@ -74,12 +79,34 @@ async function cacheFirst(request) {
   }
 }
 
+async function appendFrameCoreStyles(response) {
+  try {
+    const baseCss = await response.clone().text();
+    const frameResponse = await caches.match('./css/frame-core.css?v=ast002') || await fetch('./css/frame-core.css?v=ast002');
+    const frameCss = await frameResponse.text();
+    const headers = new Headers(response.headers);
+    headers.set('content-type', 'text/css; charset=utf-8');
+    return new Response(`${baseCss}\n\n${frameCss}`, {
+      status: response.status,
+      statusText: response.statusText,
+      headers
+    });
+  } catch (error) {
+    return response;
+  }
+}
+
 async function networkFirst(request) {
   try {
     const response = await fetch(request);
     const copy = response.clone();
     const cache = await caches.open(CACHE_NAME);
     await cache.put(request, copy);
+
+    if (normalizeAssetPath(request.url) === '/css/pipboy.css') {
+      return appendFrameCoreStyles(response);
+    }
+
     return response;
   } catch (error) {
     return caches.match(request, { ignoreSearch: true }).then(cached => cached || caches.match('./index.html'));
