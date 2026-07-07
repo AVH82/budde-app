@@ -15,7 +15,8 @@ Ce document est le point d'entrée obligatoire avant toute modification de Budd�
 9. `docs/BUDDE_CHARACTER_BIBLE.md` — si Budd€ est concerné, appliquer strictement sa bible personnage.
 10. `docs/CODING_GUIDELINES.md` — appliquer les conventions techniques du projet.
 11. `docs/AI_COLLABORATION_GUIDE.md` — appliquer la méthode de collaboration IA, d'audit et de PR.
-12. `docs/CHANGELOG_DESIGN.md` — vérifier l'historique des validations et y ajouter toute décision graphique validée.
+12. `docs/ASSET_LIBRARY.md` — appliquer le cycle de vie officiel des assets graphiques validés.
+13. `docs/CHANGELOG_DESIGN.md` — vérifier l'historique des validations et y ajouter toute décision graphique validée.
 
 ## Règles obligatoires
 
@@ -24,6 +25,7 @@ Ce document est le point d'entrée obligatoire avant toute modification de Budd�
 - La documentation de `docs/` prime sur les préférences ponctuelles non validées dans le code existant.
 - Un nouveau composant, une nouvelle animation, un nouveau terme ou un nouveau comportement de Budd€ doit être documenté dans le fichier de référence correspondant.
 - Toute validation graphique durable doit être ajoutée à `docs/CHANGELOG_DESIGN.md`.
+- Tout asset graphique validé doit suivre le cycle de vie décrit dans `docs/ASSET_LIBRARY.md`.
 - Les données personnelles de l'opérateur ne doivent jamais être ajoutées au dépôt.
 
 ## En cas de doute
@@ -42,5 +44,6 @@ Une modification est conforme si elle :
 - reste lisible et ergonomique sur mobile ;
 - utilise les termes officiels ;
 - réutilise les composants et tokens visuels existants ;
+- respecte le cycle de vie officiel des assets lorsqu'un fichier graphique est concerné ;
 - n'introduit aucune rupture gratuite de style, de rythme ou de comportement ;
 - préserve le fonctionnement hors ligne et la simplicité de l'application.
