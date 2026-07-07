@@ -16,6 +16,13 @@ Chaque entrée doit suivre ce modèle :
 ```
 
 
+## 2026-07-08 — AST-004.1 Correction d'affichage Frame Core
+
+- Décision : ajustement de la couche `frame-core.css` pour afficher les assets Frame Core comme des éléments visuels complets plutôt que comme de simples textures répétées.
+- Portée : `css/frame-core.css`, clé de cache Service Worker `budde-3-6-4` et paramètre de cache `frame-core.css?v=ast0041`.
+- Raison : rendre visibles les nouveaux assets de production `FRM-001` à `FRM-004` dans la PWA et forcer le rafraîchissement du cache.
+- Documents mis à jour : `CHANGELOG_DESIGN.md`.
+
 ## 2026-07-08 — AST-004 Frame Core Production Assets
 
 - Décision : validation et dépôt direct des quatre assets de production du Frame Core dans `assets/frame/`.
