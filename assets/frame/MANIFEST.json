@@ -1,0 +1,28 @@
+{
+  "assetSprint": "AST-003",
+  "name": "Frame Core Production Replacement",
+  "version": "1.0",
+  "status": "production-ready",
+  "replaces": [
+    "AST-001.1 demo assets"
+  ],
+  "destination": "assets/frame/",
+  "files": [
+    {
+      "path": "FRM-001_frame-top.png",
+      "destination": "assets/frame/FRM-001_frame-top.png"
+    },
+    {
+      "path": "FRM-002_frame-bottom.png",
+      "destination": "assets/frame/FRM-002_frame-bottom.png"
+    },
+    {
+      "path": "FRM-003_frame-left.png",
+      "destination": "assets/frame/FRM-003_frame-left.png"
+    },
+    {
+      "path": "FRM-004_frame-right.png",
+      "destination": "assets/frame/FRM-004_frame-right.png"
+    }
+  ]
+}
