@@ -15,6 +15,14 @@ Chaque entrée doit suivre ce modèle :
 - Documents mis à jour : fichiers `docs/` concernés.
 ```
 
+
+## 2026-07-07 — Intégration AST-001.1 Frame Core
+
+- Décision : intégration du pack validé AST-001.1 Frame Core dans la destination officielle du Frame System.
+- Portée : assets structurels `FRM-001_frame-top.png`, `FRM-002_frame-bottom.png`, `FRM-003_frame-left.png` et `FRM-004_frame-right.png` rangés dans `assets/frame/`.
+- Raison : transférer les éléments de cadre validés depuis la zone temporaire `assets/_incoming/` vers leur emplacement durable, sans impact UI ni branchement fonctionnel.
+- Documents mis à jour : `ASSET_LIBRARY.md`, `CHANGELOG_DESIGN.md`.
+
 ## 2026-07-06 — Création de la Constitution du projet
 
 - Décision : création du dossier `docs/` comme référentiel officiel de Budd€.
