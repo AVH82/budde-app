@@ -1,0 +1,29 @@
+{
+  "assetSprint": "AST-001.1",
+  "name": "Frame Core",
+  "version": "1.0",
+  "status": "production-ready",
+  "destination": "assets/frame/",
+  "files": [
+    {
+      "path": "FRM-001_frame-top.png",
+      "role": "Top frame strip",
+      "destination": "assets/frame/FRM-001_frame-top.png"
+    },
+    {
+      "path": "FRM-002_frame-bottom.png",
+      "role": "Bottom dock frame strip",
+      "destination": "assets/frame/FRM-002_frame-bottom.png"
+    },
+    {
+      "path": "FRM-003_frame-left.png",
+      "role": "Left compact side frame strip",
+      "destination": "assets/frame/FRM-003_frame-left.png"
+    },
+    {
+      "path": "FRM-004_frame-right.png",
+      "role": "Right compact side frame strip",
+      "destination": "assets/frame/FRM-004_frame-right.png"
+    }
+  ]
+}
