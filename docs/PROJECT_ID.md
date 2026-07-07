@@ -5,7 +5,7 @@ Ce document identifie le projet et fixe les repères stables à vérifier avant 
 ## Identité
 
 - **Nom officiel** : Budd€
-- **Nom technique** : Budde / budde-app
+- **Nom technique** : budde / budde-app
 - **Objectif** : fournir un terminal personnel de gestion de budget, lisible, robuste et orienté confidentialité.
 - **Type d'application** : PWA mobile-first de gestion budgétaire personnelle.
 - **Plateformes cibles** : navigateur web moderne et installation PWA, avec priorité mobile.
@@ -13,12 +13,12 @@ Ce document identifie le projet et fixe les repères stables à vérifier avant 
 
 ## Repository
 
-- **Repository Git** : À compléter.
-- **Remote Git** : À compléter.
-- **Branche principale** : À compléter.
-- **Branche de travail constatée lors de la création de ce document** : `work`.
+- **Repository Git** : `AVH82/budde-app`
+- **Remote Git** : `https://github.com/AVH82/budde-app.git`
+- **Branche principale** : `main`
+- **Branche de travail constatée lors de la création initiale de ce document** : `work`
 
-L'absence de remote Git ou d'information de branche principale ne doit pas conduire à inventer une valeur. Ces champs doivent rester `À compléter` tant que l'information n'est pas vérifiable.
+Si une information administrative ne peut pas être vérifiée dans un environnement donné, elle doit rester `À compléter` dans le rapport de tâche plutôt que d'être inventée. Les informations ci-dessus sont celles vérifiées depuis GitHub pour le repository actuel.
 
 ## Périmètre produit
 
@@ -34,13 +34,15 @@ Les documents suivants constituent le socle de référence du projet :
 2. `docs/PROJECT_ID.md`
 3. `docs/PROJECT_VISION.md`
 4. `docs/DESIGN_BIBLE.md`
-5. `docs/TERMINOLOGY.md`
-6. `docs/COMPONENT_LIBRARY.md`
-7. `docs/ANIMATION_GUIDE.md`
-8. `docs/BUDDE_CHARACTER_BIBLE.md`
-9. `docs/CODING_GUIDELINES.md`
-10. `docs/AI_COLLABORATION_GUIDE.md`
-11. `docs/CHANGELOG_DESIGN.md`
+5. `docs/DESIGN_TOKENS.md`
+6. `docs/TERMINOLOGY.md`
+7. `docs/COMPONENT_LIBRARY.md`
+8. `docs/ANIMATION_GUIDE.md`
+9. `docs/BUDDE_CHARACTER_BIBLE.md`
+10. `docs/CODING_GUIDELINES.md`
+11. `docs/AI_COLLABORATION_GUIDE.md`
+12. `docs/ASSET_LIBRARY.md`
+13. `docs/CHANGELOG_DESIGN.md`
 
 ## Contraintes fondamentales
 

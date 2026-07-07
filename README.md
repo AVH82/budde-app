@@ -1,6 +1,6 @@
 # Budd€
 
-Application personnelle de gestion de budget.
+Terminal personnel de gestion de budget, conçu comme une PWA mobile-first.
 
 ## Architecture
 
@@ -13,8 +13,27 @@ Le dépôt GitHub contient uniquement le code de l'application :
 - `manifest.webmanifest`
 - `service-worker.js`
 - `data/Budde.data.template.json`
+- `docs/`
 
 Les données personnelles ne doivent pas être publiées dans GitHub.
+
+## Documentation de référence
+
+Le dossier `docs/` constitue le référentiel officiel du projet. Avant toute évolution durable, consulter en priorité :
+
+- `docs/START_HERE.md`
+- `docs/PROJECT_ID.md`
+- `docs/PROJECT_VISION.md`
+- `docs/DESIGN_BIBLE.md`
+- `docs/DESIGN_TOKENS.md`
+- `docs/TERMINOLOGY.md`
+- `docs/COMPONENT_LIBRARY.md`
+- `docs/ANIMATION_GUIDE.md`
+- `docs/BUDDE_CHARACTER_BIBLE.md`
+- `docs/CODING_GUIDELINES.md`
+- `docs/AI_COLLABORATION_GUIDE.md`
+- `docs/ASSET_LIBRARY.md`
+- `docs/CHANGELOG_DESIGN.md`
 
 ## Données privées
 
@@ -31,7 +50,7 @@ Il contient notamment :
 - reports ;
 - commerçants ;
 - catégories ;
-- paramètres ;
+- configuration ;
 - apprentissage OCR.
 
 Ce fichier devra être stocké hors GitHub, par exemple dans Google Drive.
@@ -45,14 +64,13 @@ Cette séparation prépare l'ajout futur d'un adaptateur Google Drive sans modif
 
 `GoogleDriveAdapter` est préparé dans `js/storage.google-drive.js` pour la sauvegarde manuelle Google Drive. Le stockage réel reste local via `localStorage`, orchestré par `StorageService` avec `LocalStorageAdapter` comme backend par défaut.
 
-
 ## Sauvegarde locale JSON
 
-L'écran **Paramètres** contient une section **Sauvegarde locale** avec les actions **Exporter Budde.data.json** et **Importer Budde.data.json**. Ces contrôles utilisent le même format JSON `Budde.data.json` que précédemment : l'export télécharge l'état courant de l'application, et l'import remplace le stockage local après normalisation des données.
+Le module **Configuration** contient une section **Sauvegarde locale** avec les actions **Exporter Budde.data.json** et **Importer Budde.data.json**. Ces contrôles utilisent le même format JSON `Budde.data.json` que précédemment : l'export télécharge l'état courant du terminal, et l'import remplace le stockage local après normalisation des données.
 
 ## Sauvegarde manuelle Google Drive appDataFolder
 
-L'écran **Paramètres**, accessible depuis la roue dentée en haut à droite de la bannière, propose désormais le bouton **Sauvegarder sur Google Drive** lorsque l'utilisateur est connecté avec Google. Cette action conserve `LocalStorageAdapter` comme source principale : elle copie seulement l'état JSON courant de Budd€ vers Google Drive en sauvegarde supplémentaire.
+Le module **Configuration** propose le bouton **Sauvegarder sur Google Drive** lorsque l'opérateur est connecté avec Google. Cette action conserve `LocalStorageAdapter` comme source principale : elle copie seulement l'état JSON courant de Budd€ vers Google Drive en sauvegarde supplémentaire.
 
 La sauvegarde utilise l'API Google Drive v3 avec le scope OAuth suivant :
 
@@ -72,10 +90,9 @@ budde-data.json
 - s'il n'existe pas, il est créé dans `appDataFolder` ;
 - aucun doublon n'est volontairement créé, car la recherche précède toujours la création.
 
-Après succès, l'interface affiche la date et l'heure de la dernière sauvegarde. En cas d'erreur Google Auth ou Drive, un message clair est affiché dans l'écran **Paramètres**.
+Après succès, l'interface affiche la date et l'heure de la dernière sauvegarde. En cas d'erreur Google Auth ou Drive, un message clair est affiché dans le module **Configuration**.
 
 La restauration depuis Google Drive n'est pas encore implémentée. Le démarrage de l'application continue de charger uniquement le stockage local via `StorageService` et `LocalStorageAdapter`. La synchronisation automatique n'est pas encore implémentée non plus.
-
 
 Les fichiers applicatifs critiques sont chargés en network-first pour éviter les anciennes versions PWA en cache.
 
@@ -89,7 +106,7 @@ Une fois le dépôt publié via GitHub Pages :
 
 ## Authentification Google active
 
-La connexion Google est active dans l'écran **Paramètres** via `js/google-auth.service.js` et Google Identity Services pour navigateur/PWA. Le bouton **Connexion Google** lance le consentement OAuth, puis affiche l'état connecté ainsi que l'e-mail et le nom du compte lorsque Google les fournit. Une action **Déconnexion Google** révoque le jeton en mémoire.
+La connexion Google est active dans le module **Configuration** via `js/google-auth.service.js` et Google Identity Services pour navigateur/PWA. Le bouton **Connexion Google** lance le consentement OAuth, puis affiche l'état connecté ainsi que l'e-mail et le nom du compte lorsque Google les fournit. Une action **Déconnexion Google** révoque le jeton en mémoire.
 
 L'identifiant client OAuth Web public est renseigné dans `js/google-auth.service.js`. Aucun secret client et aucune clé API ne sont nécessaires ni stockés dans le dépôt.
 
@@ -107,4 +124,10 @@ Le module `js/receipt-ocr.service.js` prépare l'analyse locale de reçus dans l
 
 L'OCR s'appuie sur Tesseract.js chargé depuis un CDN navigateur lorsque la bibliothèque est disponible. Aucun moteur OCR lourd n'est ajouté au dépôt. Si Tesseract.js ne peut pas être chargé, le service retourne un statut d'indisponibilité propre au lieu de bloquer l'application.
 
-L'analyse est prévue pour rester locale : les images de reçus sont traitées côté navigateur et aucune donnée de reçu n'est envoyée à un serveur par ce socle. Cette première PR n'ajoute pas encore d'interface Scanner complète et ne crée aucune dépense automatiquement ; l'intégration UI et la validation d'une dépense préremplie sont prévues dans la PR suivante.
+L'analyse est prévue pour rester locale : les images de reçus sont traitées côté navigateur et aucune donnée de reçu n'est envoyée à un serveur par ce socle. Cette première PR n'ajoute pas encore d'interface Scanner complète et ne crée aucune dépense automatiquement ; l'intégration UI et la validation d'une dépense préremplie sont prévues dans une PR dédiée.
+
+## Assets graphiques validés
+
+Les assets graphiques validés doivent être déposés temporairement dans `assets/_incoming/`, puis rangés par une tâche dédiée selon les règles de `docs/ASSET_LIBRARY.md`.
+
+Une IA de développement ne crée pas d'asset graphique final pour Budd€. Elle intègre uniquement les assets validés, met à jour la documentation si la validation devient durable, puis nettoie `assets/_incoming/` en conservant `.keep`.
