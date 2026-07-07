@@ -16,6 +16,13 @@ Chaque entrée doit suivre ce modèle :
 ```
 
 
+## 2026-07-08 — AST-004 Frame Core Production Assets
+
+- Décision : validation et dépôt direct des quatre assets de production du Frame Core dans `assets/frame/`.
+- Portée : `FRM-001_frame-top.png`, `FRM-002_frame-bottom.png`, `FRM-003_frame-left.png` et `FRM-004_frame-right.png`.
+- Raison : remplacer les assets techniques/provisoires par les visuels de production validés au fil de l'eau, sans repasser par `assets/_incoming/`.
+- Documents mis à jour : `CHANGELOG_DESIGN.md`.
+
 ## 2026-07-07 — Branchement visuel AST-002 Frame Core
 
 - Décision : activation visuelle progressive des assets AST-001.1 Frame Core comme cadre périphérique du terminal.
