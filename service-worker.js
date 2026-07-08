@@ -1,10 +1,10 @@
-const CACHE_NAME = 'budde-3-6-5';
+const CACHE_NAME = 'budde-3-6-6';
 const ASSETS = [
   './',
   './index.html',
   './manifest.webmanifest',
-  './css/pipboy.css?v=364',
-  './css/frame-core.css?v=ast0042',
+  './css/pipboy.css?v=366',
+  './css/frame-core.css?v=ast0043',
   './js/app.js?v=363',
   './js/buddy.js?v=363',
   './js/storage.local.js',
@@ -82,7 +82,7 @@ async function cacheFirst(request) {
 async function appendFrameCoreStyles(response) {
   try {
     const baseCss = await response.clone().text();
-    const frameResponse = await caches.match('./css/frame-core.css?v=ast0042') || await fetch('./css/frame-core.css?v=ast0042');
+    const frameResponse = await caches.match('./css/frame-core.css?v=ast0043') || await fetch('./css/frame-core.css?v=ast0043');
     const frameCss = await frameResponse.text();
     const headers = new Headers(response.headers);
     headers.set('content-type', 'text/css; charset=utf-8');
