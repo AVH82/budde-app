@@ -16,6 +16,14 @@ Chaque entrée doit suivre ce modèle :
 ```
 
 
+
+## 2026-07-08 — AST-004.2 Responsive Frame Fit
+
+- Décision : rendre le Frame Core pleinement responsive avec un cadre décoratif superposé qui ne réduit pas la largeur utile de l'application, en affinant les montants latéraux sur téléphone et en conservant une présence renforcée sur tablette et desktop.
+- Portée : `css/frame-core.css`, clé de cache Service Worker `budde-3-6-5` et paramètre de cache `frame-core.css?v=ast0042`.
+- Raison : préserver les assets PNG de production validés tout en améliorant l'ajustement mobile-first, notamment en portrait iPhone, sans étirement vertical des côtés ni déformation proportionnelle des bandes hautes et basses.
+- Documents mis à jour : `CHANGELOG_DESIGN.md`.
+
 ## 2026-07-08 — AST-004.1 Correction d'affichage Frame Core
 
 - Décision : ajustement de la couche `frame-core.css` pour afficher les assets Frame Core comme des éléments visuels complets plutôt que comme de simples textures répétées.
