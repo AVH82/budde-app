@@ -16,6 +16,12 @@ Chaque entrée doit suivre ce modèle :
 ```
 
 
+## 2026-07-08 — AST-006 CSS Metal Frame Prototype
+
+- Décision : utiliser le DOM réel de la PWA comme gabarit officiel et prototyper un habillage métallique directement en CSS pour le header, les rails et le dock.
+- Portée : `css/frame-core.css`, clé de cache Service Worker `budde-3-6-7`.
+- Raison : valider rapidement l'approche carrossage sur l'interface existante avant toute nouvelle production de PNG, en conservant le header et le dock fonctionnels.
+- Documents mis à jour : `CHANGELOG_DESIGN.md`.
 
 ## 2026-07-08 — AST-005 Frame Shell DOM
 
