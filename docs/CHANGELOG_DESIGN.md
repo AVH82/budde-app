@@ -16,6 +16,14 @@ Chaque entrée doit suivre ce modèle :
 ```
 
 
+
+## 2026-07-08 — AST-005 Frame Shell DOM
+
+- Décision : remplacer le Frame Core piloté par pseudo-éléments par un Frame Shell réel dans le DOM, où l’en-tête supérieur contient Budd€ et le bouton configuration/Trustomètre, et où le dock inférieur contient la navigation et les actions globales.
+- Portée : `index.html`, `css/frame-core.css`, version applicative `3.6.6`, cache Service Worker `budde-3-6-6` et paramètre de cache `frame-core.css?v=ast005`.
+- Raison : faire du cadre supérieur et du dock inférieur des structures fonctionnelles du terminal plutôt qu’une couche décorative, supprimer l’espace vertical artificiel et conserver le contenu central scrollable avec dock fixe et zones sûres mobile.
+- Documents mis à jour : `CHANGELOG_DESIGN.md`.
+
 ## 2026-07-08 — AST-004.3 Stabilisation dock et cache
 
 - Décision : restaurer le comportement fixe du dock inférieur après l’intégration responsive du Frame Core et forcer un rafraîchissement de cache.

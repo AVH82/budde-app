@@ -4,16 +4,16 @@ const ASSETS = [
   './index.html',
   './manifest.webmanifest',
   './css/pipboy.css?v=366',
-  './css/frame-core.css?v=ast0043',
-  './js/app.js?v=363',
-  './js/buddy.js?v=363',
+  './css/frame-core.css?v=ast005',
+  './js/app.js?v=366',
+  './js/buddy.js?v=366',
   './js/storage.local.js',
   './js/storage.service.js',
   './js/storage.google-drive.js',
   './js/google-auth.service.js',
-  './js/buddy-vision.service.js?v=363',
-  './js/receipt-ocr.service.js?v=363',
-  './js/ocr-diagnostic.service.js?v=363',
+  './js/buddy-vision.service.js?v=366',
+  './js/receipt-ocr.service.js?v=366',
+  './js/ocr-diagnostic.service.js?v=366',
   './assets/logo/budde_logo.png',
   './assets/nav/home.png',
   './assets/nav/expenses.png',
@@ -79,33 +79,12 @@ async function cacheFirst(request) {
   }
 }
 
-async function appendFrameCoreStyles(response) {
-  try {
-    const baseCss = await response.clone().text();
-    const frameResponse = await caches.match('./css/frame-core.css?v=ast0043') || await fetch('./css/frame-core.css?v=ast0043');
-    const frameCss = await frameResponse.text();
-    const headers = new Headers(response.headers);
-    headers.set('content-type', 'text/css; charset=utf-8');
-    return new Response(`${baseCss}\n\n${frameCss}`, {
-      status: response.status,
-      statusText: response.statusText,
-      headers
-    });
-  } catch (error) {
-    return response;
-  }
-}
-
 async function networkFirst(request) {
   try {
     const response = await fetch(request);
     const copy = response.clone();
     const cache = await caches.open(CACHE_NAME);
     await cache.put(request, copy);
-
-    if (normalizeAssetPath(request.url) === '/css/pipboy.css') {
-      return appendFrameCoreStyles(response);
-    }
 
     return response;
   } catch (error) {
