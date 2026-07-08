@@ -1,4 +1,4 @@
-/* AST-004.2 — Responsive Frame Core fit */
+/* AST-004.3 — Responsive Frame Core fit + dock stabilization */
 :root{
   --frame-shell-w:min(430px,100vw);
   --frame-top-h:clamp(62px,17vw,112px);
@@ -60,8 +60,15 @@ body::after{
   background-size:var(--frame-side-w) auto,var(--frame-side-w) auto;
   filter:drop-shadow(0 0 10px rgba(157,255,69,.14));
 }
-.top,.monthbar,main,.pipDock{position:relative;z-index:25;}
-.pipDock{bottom:calc(var(--frame-bottom-h) - 18px);}
+.top,.monthbar,main{position:relative;z-index:25;}
+.nav,
+.pipDock{
+  position:fixed!important;
+  left:50%!important;
+  transform:translateX(-50%)!important;
+  bottom:0!important;
+  z-index:32!important;
+}
 @media(max-width:380px){
   :root{
     --frame-top-h:clamp(58px,16vw,70px);
