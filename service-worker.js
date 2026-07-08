@@ -1,4 +1,4 @@
-const CACHE_NAME = 'budde-3-6-7';
+const CACHE_NAME = 'budde-3-6-8';
 const ASSETS = [
   './',
   './index.html',
@@ -47,6 +47,7 @@ const NETWORK_FIRST_ASSETS = new Set([
   '/',
   '/index.html',
   '/css/pipboy.css',
+  '/css/frame-core.css',
   '/js/app.js'
 ]);
 
