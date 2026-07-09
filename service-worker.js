@@ -62,6 +62,20 @@ const ENTRY_PANEL_FIX_CSS = `
 .entryGate[hidden] .entryDoor>button,.entryGate[hidden] .entryActions button:last-child{animation:none!important;transform:none!important;opacity:1!important;}
 @keyframes entryRightDoorSlide{0%{transform:translateX(0)}14%{transform:translateX(4%)}18%{transform:translateX(2%)}40%{transform:translateX(42%)}47%{transform:translateX(35%)}72%{transform:translateX(82%)}100%{transform:translateX(115%)}}
 @media(max-width:380px){.entryPanel--doors .entryActions{gap:0!important}.entryPanel--doors .entryDoor{padding-left:10px!important;padding-right:10px!important}.entryPanel--doors .entryDoor>button{min-height:58px!important;font-size:12px!important}}
+
+
+/* AST-010 — simplified startup panels and dock layering */
+.entryGate{z-index:auto!important;pointer-events:none!important;}
+.entryGate::before,.entryGate::after{z-index:80!important;}
+.entryPanel.entryPanel--doors,.entryPanel{z-index:130!important;pointer-events:auto!important;overflow:visible!important;}
+.entryPanel.entryPanel--doors::before,.entryPanel.entryPanel--doors::after,.entryPanel::before,.entryPanel::after{content:none!important;display:none!important;animation:none!important;}
+.entryPanel--doors .entryActions.entryActions--doors,.entryActions,.entryActions--doors{height:100%!important;overflow:visible!important;}
+.entryDoor,.entryDoor--left,.entryDoor--right{transform:translateX(0)!important;opacity:1!important;}
+.entryGate[hidden] .entryDoor--left{animation:slideLeftPanel var(--gate-speed,2.45s) steps(7,end) forwards!important;}
+.entryGate[hidden] .entryDoor--right{animation:slideRightPanel var(--gate-speed,2.45s) steps(7,end) forwards!important;}
+.entryGate[hidden] .entryDoor>button,.entryGate[hidden] .entryActions button:last-child{animation:none!important;transform:none!important;opacity:1!important;display:block!important;}
+@keyframes slideLeftPanel{to{transform:translateX(-115%);}}
+@keyframes slideRightPanel{to{transform:translateX(115%);}}
 `;
 const ASSETS = [
   './','./index.html','./manifest.webmanifest','./css/pipboy.css?v=366','./css/frame-core.css?v=ast010','./js/app.js?v=366','./js/buddy.js?v=366','./js/storage.local.js','./js/storage.service.js','./js/storage.google-drive.js','./js/google-auth.service.js','./js/buddy-vision.service.js?v=366','./js/receipt-ocr.service.js?v=366','./js/ocr-diagnostic.service.js?v=366','./assets/logo/budde_logo.png','./assets/nav/home.png','./assets/nav/expenses.png','./assets/nav/budget.png','./assets/nav/stats.png','./assets/nav/merchants.png','./assets/frame/FRM-001_frame-top.png','./assets/frame/FRM-002_frame-bottom.png','./assets/frame/FRM-003_frame-left.png','./assets/frame/FRM-004_frame-right.png','./assets/icon-192.png','./assets/icon-512.png','./assets/buddy-thinking.png','./assets/buddy-success.png','./assets/buddy-warning.png'
