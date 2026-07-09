@@ -13,7 +13,7 @@
     if(offline)offline.addEventListener('click',()=>markOpening('offline'),{capture:true});
     if(google)google.addEventListener('click',()=>{
       const status=document.getElementById('entryGateStatus');
-      if(status)status.textContent='ACCÈS ESPACE SÉCURISÉ.';
+      if(status){status.textContent='ACCÈS ESPACE SÉCURISÉ.';status.dataset.entryStatus='ACCÈS ESPACE SÉCURISÉ.';}
       markOpening('google');
     },{capture:true});
   }
