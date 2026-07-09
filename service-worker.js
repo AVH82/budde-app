@@ -1,6 +1,6 @@
-const CACHE_NAME = 'budde-3-6-14';
+const CACHE_NAME = 'budde-3-6-15';
 const ENTRY_PANEL_FIX_CSS = `
-/* AST-007.4 — masque inférieur centré + demi-coques synchronisées */
+/* AST-007.5 — demi-coques synchronisées via transform iOS */
 .entryPanel{
   left:50%!important;
   right:auto!important;
@@ -17,37 +17,45 @@ const ENTRY_PANEL_FIX_CSS = `
   left:0!important;
   right:50%!important;
   width:auto!important;
-  transform:none!important;
-  translate:0 0;
+  transform:translateX(0)!important;
+  will-change:transform!important;
 }
 .entryPanel::after{
   left:50%!important;
   right:0!important;
   width:auto!important;
-  transform:none!important;
-  translate:0 0;
+  transform:translateX(0)!important;
+  will-change:transform!important;
 }
 .entryGate[hidden] .entryPanel::before{
-  animation:entryMaskLeftSync var(--gate-speed,2.45s) steps(7,end) forwards!important;
+  animation:entryMaskLeftTransform var(--gate-speed,2.45s) steps(7,end) forwards!important;
 }
 .entryGate[hidden] .entryPanel::after{
-  animation:entryMaskRightSync var(--gate-speed,2.45s) steps(7,end) forwards!important;
+  animation:entryMaskRightTransform var(--gate-speed,2.45s) steps(7,end) forwards!important;
 }
-@keyframes entryMaskLeftSync{
-  0%{translate:0 0;}
-  14%{translate:-4% 0;}
-  18%{translate:-2% 0;}
-  40%{translate:-42% 0;}
-  47%{translate:-35% 0;}
-  100%{translate:-115% 0;}
+@keyframes entryMaskLeftTransform{
+  0%{transform:translateX(0);}
+  14%{transform:translateX(-4%);}
+  18%{transform:translateX(-2%);}
+  40%{transform:translateX(-42%);}
+  47%{transform:translateX(-35%);}
+  72%{transform:translateX(-82%);}
+  100%{transform:translateX(-115%);}
 }
-@keyframes entryMaskRightSync{
-  0%{translate:0 0;}
-  14%{translate:4% 0;}
-  18%{translate:2% 0;}
-  40%{translate:42% 0;}
-  47%{translate:35% 0;}
-  100%{translate:115% 0;}
+@keyframes entryMaskRightTransform{
+  0%{transform:translateX(0);}
+  14%{transform:translateX(4%);}
+  18%{transform:translateX(2%);}
+  40%{transform:translateX(42%);}
+  47%{transform:translateX(35%);}
+  72%{transform:translateX(82%);}
+  100%{transform:translateX(115%);}
+}
+.entryGate[hidden] .entryActions button:first-child{
+  animation:entryButtonLeft var(--gate-speed,2.45s) steps(7,end) forwards!important;
+}
+.entryGate[hidden] .entryActions button:last-child{
+  animation:entryButtonRight var(--gate-speed,2.45s) steps(7,end) forwards!important;
 }
 .entryActions{
   width:100%!important;
