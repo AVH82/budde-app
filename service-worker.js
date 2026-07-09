@@ -1,6 +1,6 @@
-const CACHE_NAME = 'budde-3-6-20';
+const CACHE_NAME = 'budde-3-6-21';
 const ENTRY_GATE_OLD = `<div class="entryPanel"><img class="entryLogo" src="assets/logo/budde_logo.png" alt="Budd€"><h1>Connexion Google</h1><p id="entryAppVersion" class="entryAppVersion">Budd€ v3.6.6</p><p id="entryBuildId" class="entryBuildId">build budde-3-6-6</p><p>Connectez Google pour synchroniser vos données, ou continuez hors ligne.</p><div class="entryActions"><button id="entryGoogleButton" class="primaryBtn">Connexion Google</button><button id="entryOfflineButton">Accéder hors ligne</button></div><p id="entryGateStatus" class="entryStatus"></p></div>`;
-const ENTRY_GATE_NEW = `<div class="entryPanel entryPanel--doors"><img class="entryLogo" src="assets/logo/budde_logo.png" alt="Budd€"><h1>Connexion Google</h1><p id="entryAppVersion" class="entryAppVersion">Budd€ v3.6.20</p><p id="entryBuildId" class="entryBuildId">build budde-3-6-20</p><p>Connectez Google pour synchroniser vos données, ou continuez hors ligne.</p><div class="entryActions entryActions--doors"><div class="entryDoor entryDoor--left"><button id="entryGoogleButton" class="primaryBtn">Connexion Google</button></div><div class="entryDoor entryDoor--right"><button id="entryOfflineButton">Accéder hors ligne</button></div></div><p id="entryGateStatus" class="entryStatus"></p></div>`;
+const ENTRY_GATE_NEW = `<div class="entryPanel entryPanel--doors"><img class="entryLogo" src="assets/logo/budde_logo.png" alt="Budd€"><h1>Connexion Google</h1><p id="entryAppVersion" class="entryAppVersion">Budd€ v3.6.21</p><p id="entryBuildId" class="entryBuildId">build budde-3-6-21</p><p>Connectez Google pour synchroniser vos données, ou continuez hors ligne.</p><div class="entryActions entryActions--doors"><div class="entryDoor entryDoor--left"><button id="entryGoogleButton" class="primaryBtn">Connexion Google</button></div><button id="entryOfflineButton">Accéder hors ligne</button></div><p id="entryGateStatus" class="entryStatus"></p></div>`;
 const ENTRY_PANEL_FIX_CSS = `
 /* AST-008.5 — accès restauré : boutons au-dessus du dock, header au-dessus du volet */
 .app.frameShell{isolation:auto!important;}
@@ -15,20 +15,20 @@ const ENTRY_PANEL_FIX_CSS = `
   height:calc((100dvh - var(--frame-top-h) - var(--nav-h) - env(safe-area-inset-top) - env(safe-area-inset-bottom)) / 2 - 8px)!important;
 }
 .entryPanel.entryPanel--doors{z-index:280!important;pointer-events:auto!important;}
-.frameShellTop .settingsTrustModule::before{content:'v3.6.20'!important;}
-#systemAppVersion::after,#diagnosticAppVersion::after,#entryAppVersion::after{content:'3.6.20'!important;}
-#systemBuildId::after,#diagnosticBuildId::after,#diagnosticExpectedCache::after,#entryBuildId::after{content:'budde-3-6-20'!important;}
+.frameShellTop .settingsTrustModule::before{content:'v3.6.21'!important;}
+#systemAppVersion::after,#diagnosticAppVersion::after,#entryAppVersion::after{content:'3.6.21'!important;}
+#systemBuildId::after,#diagnosticBuildId::after,#diagnosticExpectedCache::after,#entryBuildId::after{content:'budde-3-6-21'!important;}
 .entryPanel.entryPanel--doors{
   left:50%!important;right:auto!important;width:var(--frame-shell-w)!important;max-width:100vw!important;
   transform:translateX(-50%)!important;box-sizing:border-box!important;overflow:visible!important;
   padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important;
 }
-.entryPanel.entryPanel--doors::before,.entryPanel.entryPanel--doors::after{content:none!important;display:none!important;animation:none!important;}
+.entryPanel.entryPanel--doors::before{content:none!important;display:none!important;animation:none!important;}
 .entryPanel--doors .entryActions.entryActions--doors{
   position:absolute!important;left:0!important;right:0!important;bottom:0!important;height:calc(var(--nav-h,104px) + env(safe-area-inset-bottom))!important;
   display:grid!important;grid-template-columns:1fr 1fr!important;gap:0!important;width:100%!important;overflow:hidden!important;box-sizing:border-box!important;
 }
-.entryDoor{
+.entryDoor--left{
   position:relative!important;display:grid!important;place-items:center!important;min-width:0!important;height:100%!important;
   padding:10px clamp(10px,3vw,18px) calc(9px + env(safe-area-inset-bottom))!important;box-sizing:border-box!important;
   will-change:transform!important;transform:translateX(0)!important;
@@ -36,22 +36,19 @@ const ENTRY_PANEL_FIX_CSS = `
   border:1px solid rgba(154,131,82,.74)!important;box-shadow:inset 0 0 0 2px rgba(0,0,0,.62),inset 0 12px 22px rgba(0,0,0,.55),0 -10px 30px rgba(0,0,0,.72)!important;
 }
 .entryDoor--left{border-right:0!important;border-radius:var(--frame-radius) 0 0 0!important;}
-.entryDoor--right{border-left:0!important;border-radius:0 var(--frame-radius) 0 0!important;}
-.entryDoor button{
+.entryDoor--left button{
   position:relative!important;width:100%!important;max-width:100%!important;min-height:64px!important;z-index:2!important;pointer-events:auto!important;
   border:1px solid rgba(199,160,68,.65)!important;border-radius:12px!important;
   background:radial-gradient(circle at 50% 35%,rgba(157,255,69,.12),transparent 48%),linear-gradient(180deg,rgba(12,18,12,.95),rgba(2,6,2,.98))!important;
   color:var(--terminal-green)!important;font-family:inherit!important;font-weight:800!important;text-transform:uppercase!important;letter-spacing:.08em!important;
   text-shadow:0 0 10px rgba(157,255,69,.7)!important;box-shadow:inset 0 0 22px rgba(0,0,0,.95),0 0 10px rgba(157,255,69,.12)!important;
 }
-.entryGate[hidden] .entryDoor--left{animation:entryDoorLeftMechanical var(--gate-speed,2.45s) steps(7,end) forwards!important;}
-.entryGate[hidden] .entryDoor--right{animation:entryDoorRightMechanical var(--gate-speed,2.45s) steps(7,end) forwards!important;}
-.entryGate[hidden] .entryDoor button{animation:none!important;transform:none!important;opacity:1!important;}
-@keyframes entryDoorLeftMechanical{0%{transform:translateX(0)}14%{transform:translateX(-4%)}18%{transform:translateX(-2%)}40%{transform:translateX(-42%)}47%{transform:translateX(-35%)}72%{transform:translateX(-82%)}100%{transform:translateX(-115%)}}
-@keyframes entryDoorRightMechanical{0%{transform:translateX(0)}14%{transform:translateX(4%)}18%{transform:translateX(2%)}40%{transform:translateX(42%)}47%{transform:translateX(35%)}72%{transform:translateX(82%)}100%{transform:translateX(115%)}}
+.entryGate[hidden] .entryDoor--left{animation:entryLeftDoorSlide var(--gate-speed,2.45s) steps(7,end) forwards!important;}
+.entryGate[hidden] .entryDoor--left button{animation:none!important;transform:none!important;opacity:1!important;}
+@keyframes entryLeftDoorSlide{0%{transform:translateX(0)}14%{transform:translateX(-4%)}18%{transform:translateX(-2%)}40%{transform:translateX(-42%)}47%{transform:translateX(-35%)}72%{transform:translateX(-82%)}100%{transform:translateX(-115%)}}
 #entryAppVersion,.entryPanel #entryAppVersion,.entryPanel .entryAppVersion{display:none!important;visibility:hidden!important;}
 #entryAppVersion::before,#entryAppVersion::after,.entryPanel .entryAppVersion::before,.entryPanel .entryAppVersion::after{content:none!important;display:none!important;}
-@media(max-width:380px){.entryDoor{padding-left:10px!important;padding-right:10px!important}.entryDoor button{min-height:58px!important;font-size:12px!important}}
+@media(max-width:380px){.entryDoor--left{padding-left:10px!important;padding-right:10px!important}.entryDoor--left button{min-height:58px!important;font-size:12px!important}}
 `;
 const ASSETS = [
   './','./index.html','./manifest.webmanifest','./css/pipboy.css?v=366','./css/frame-core.css?v=ast005','./js/app.js?v=366','./js/buddy.js?v=366','./js/storage.local.js','./js/storage.service.js','./js/storage.google-drive.js','./js/google-auth.service.js','./js/buddy-vision.service.js?v=366','./js/receipt-ocr.service.js?v=366','./js/ocr-diagnostic.service.js?v=366','./assets/logo/budde_logo.png','./assets/nav/home.png','./assets/nav/expenses.png','./assets/nav/budget.png','./assets/nav/stats.png','./assets/nav/merchants.png','./assets/frame/FRM-001_frame-top.png','./assets/frame/FRM-002_frame-bottom.png','./assets/frame/FRM-003_frame-left.png','./assets/frame/FRM-004_frame-right.png','./assets/icon-192.png','./assets/icon-512.png','./assets/buddy-thinking.png','./assets/buddy-success.png','./assets/buddy-warning.png'
