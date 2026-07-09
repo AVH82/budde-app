@@ -1,23 +1,23 @@
-const CACHE_NAME = 'budde-3-6-19';
+const CACHE_NAME = 'budde-3-6-20';
 const ENTRY_GATE_OLD = `<div class="entryPanel"><img class="entryLogo" src="assets/logo/budde_logo.png" alt="Budd€"><h1>Connexion Google</h1><p id="entryAppVersion" class="entryAppVersion">Budd€ v3.6.6</p><p id="entryBuildId" class="entryBuildId">build budde-3-6-6</p><p>Connectez Google pour synchroniser vos données, ou continuez hors ligne.</p><div class="entryActions"><button id="entryGoogleButton" class="primaryBtn">Connexion Google</button><button id="entryOfflineButton">Accéder hors ligne</button></div><p id="entryGateStatus" class="entryStatus"></p></div>`;
-const ENTRY_GATE_NEW = `<div class="entryPanel entryPanel--doors"><img class="entryLogo" src="assets/logo/budde_logo.png" alt="Budd€"><h1>Connexion Google</h1><p id="entryAppVersion" class="entryAppVersion">Budd€ v3.6.19</p><p id="entryBuildId" class="entryBuildId">build budde-3-6-19</p><p>Connectez Google pour synchroniser vos données, ou continuez hors ligne.</p><div class="entryActions entryActions--doors"><div class="entryDoor entryDoor--left"><button id="entryGoogleButton" class="primaryBtn">Connexion Google</button></div><div class="entryDoor entryDoor--right"><button id="entryOfflineButton">Accéder hors ligne</button></div></div><p id="entryGateStatus" class="entryStatus"></p></div>`;
+const ENTRY_GATE_NEW = `<div class="entryPanel entryPanel--doors"><img class="entryLogo" src="assets/logo/budde_logo.png" alt="Budd€"><h1>Connexion Google</h1><p id="entryAppVersion" class="entryAppVersion">Budd€ v3.6.20</p><p id="entryBuildId" class="entryBuildId">build budde-3-6-20</p><p>Connectez Google pour synchroniser vos données, ou continuez hors ligne.</p><div class="entryActions entryActions--doors"><div class="entryDoor entryDoor--left"><button id="entryGoogleButton" class="primaryBtn">Connexion Google</button></div><div class="entryDoor entryDoor--right"><button id="entryOfflineButton">Accéder hors ligne</button></div></div><p id="entryGateStatus" class="entryStatus"></p></div>`;
 const ENTRY_PANEL_FIX_CSS = `
-/* AST-008.3 — correction stacking context : header/dock au-dessus des volets */
+/* AST-008.4 — restore startup entry buttons above dock */
 .app.frameShell{isolation:auto!important;}
 .app.frameShell main{position:relative!important;z-index:25!important;}
-.frameShellTop{z-index:260!important;}
+.frameShellTop{z-index:340!important;}
 .frameShellTop,.frameShellTop *{visibility:visible!important;}
 .frameShellBottom.pipDock{z-index:260!important;}
-.entryGate{z-index:180!important;pointer-events:auto!important;}
-.entryGate::before,.entryGate::after{z-index:181!important;}
+.entryGate{z-index:300!important;pointer-events:auto!important;}
+.entryGate::before,.entryGate::after{z-index:301!important;}
 .entryGate::before{
   top:calc(var(--frame-top-h) + env(safe-area-inset-top) + 18px)!important;
   height:calc((100dvh - var(--frame-top-h) - var(--nav-h) - env(safe-area-inset-top) - env(safe-area-inset-bottom)) / 2 - 8px)!important;
 }
-.entryPanel.entryPanel--doors{z-index:210!important;}
-.frameShellTop .settingsTrustModule::before{content:'v3.6.19'!important;}
-#systemAppVersion::after,#diagnosticAppVersion::after,#entryAppVersion::after{content:'3.6.19'!important;}
-#systemBuildId::after,#diagnosticBuildId::after,#diagnosticExpectedCache::after,#entryBuildId::after{content:'budde-3-6-19'!important;}
+.entryPanel.entryPanel--doors{z-index:320!important;pointer-events:auto!important;}
+.frameShellTop .settingsTrustModule::before{content:'v3.6.20'!important;}
+#systemAppVersion::after,#diagnosticAppVersion::after,#entryAppVersion::after{content:'3.6.20'!important;}
+#systemBuildId::after,#diagnosticBuildId::after,#diagnosticExpectedCache::after,#entryBuildId::after{content:'budde-3-6-20'!important;}
 .entryPanel.entryPanel--doors{
   left:50%!important;right:auto!important;width:var(--frame-shell-w)!important;max-width:100vw!important;
   transform:translateX(-50%)!important;box-sizing:border-box!important;overflow:visible!important;
@@ -26,19 +26,19 @@ const ENTRY_PANEL_FIX_CSS = `
 .entryPanel.entryPanel--doors::before,.entryPanel.entryPanel--doors::after{content:none!important;display:none!important;animation:none!important;}
 .entryPanel--doors .entryActions.entryActions--doors{
   position:absolute!important;left:0!important;right:0!important;bottom:0!important;height:calc(var(--nav-h,104px) + env(safe-area-inset-bottom))!important;
-  display:grid!important;grid-template-columns:1fr 1fr!important;gap:0!important;width:100%!important;overflow:hidden!important;box-sizing:border-box!important;
+  display:grid!important;grid-template-columns:1fr 1fr!important;gap:0!important;width:100%!important;overflow:hidden!important;box-sizing:border-box!important;pointer-events:auto!important;
 }
 .entryDoor{
   position:relative!important;display:grid!important;place-items:center!important;min-width:0!important;height:100%!important;
   padding:10px clamp(10px,3vw,18px) calc(9px + env(safe-area-inset-bottom))!important;box-sizing:border-box!important;
-  will-change:transform!important;transform:translateX(0)!important;
+  will-change:transform!important;transform:translateX(0)!important;pointer-events:auto!important;
   background:radial-gradient(circle at 22px 22px,#c8b06e 0 4px,#2a2418 5px 9px,transparent 10px),repeating-linear-gradient(90deg,rgba(255,255,255,.05) 0 1px,transparent 1px 9px),linear-gradient(180deg,#6c6144 0%,#27251c 22%,#11150e 58%,#5a5138 100%)!important;
   border:1px solid rgba(154,131,82,.74)!important;box-shadow:inset 0 0 0 2px rgba(0,0,0,.62),inset 0 12px 22px rgba(0,0,0,.55),0 -10px 30px rgba(0,0,0,.72)!important;
 }
 .entryDoor--left{border-right:0!important;border-radius:var(--frame-radius) 0 0 0!important;}
 .entryDoor--right{border-left:0!important;border-radius:0 var(--frame-radius) 0 0!important;}
 .entryDoor button{
-  position:relative!important;width:100%!important;max-width:100%!important;min-height:64px!important;z-index:2!important;
+  position:relative!important;width:100%!important;max-width:100%!important;min-height:64px!important;z-index:2!important;pointer-events:auto!important;
   border:1px solid rgba(199,160,68,.65)!important;border-radius:12px!important;
   background:radial-gradient(circle at 50% 35%,rgba(157,255,69,.12),transparent 48%),linear-gradient(180deg,rgba(12,18,12,.95),rgba(2,6,2,.98))!important;
   color:var(--terminal-green)!important;font-family:inherit!important;font-weight:800!important;text-transform:uppercase!important;letter-spacing:.08em!important;
