@@ -1,6 +1,6 @@
-const CACHE_NAME = 'budde-3-6-29';
+const CACHE_NAME = 'budde-3-6-30';
 const ENTRY_GATE_OLD = `<div class="entryPanel"><img class="entryLogo" src="assets/logo/budde_logo.png" alt="Budd€"><h1>Connexion Google</h1><p id="entryAppVersion" class="entryAppVersion">Budd€ v3.6.6</p><p id="entryBuildId" class="entryBuildId">build budde-3-6-6</p><p>Connectez Google pour synchroniser vos données, ou continuez hors ligne.</p><div class="entryActions"><button id="entryGoogleButton" class="primaryBtn">Connexion Google</button><button id="entryOfflineButton">Accéder hors ligne</button></div><p id="entryGateStatus" class="entryStatus"></p></div>`;
-const ENTRY_GATE_NEW = `<div class="entryPanel entryPanel--doors"><img class="entryLogo" src="assets/logo/budde_logo.png" alt="Budd€"><h1>Connexion Google</h1><p id="entryAppVersion" class="entryAppVersion">Budd€ v3.6.29</p><p id="entryBuildId" class="entryBuildId">build budde-3-6-29</p><p>Connectez Google pour synchroniser vos données, ou continuez hors ligne.</p><div class="entryActions entryActions--doors"><div class="entryDoor entryDoor--left"><button id="entryGoogleButton" class="primaryBtn">Connexion Google</button></div><div class="entryDoor entryDoor--right"><button id="entryOfflineButton">Accéder hors ligne</button></div></div><p id="entryGateStatus" class="entryStatus"></p></div>`;
+const ENTRY_GATE_NEW = `<div class="entryPanel entryPanel--doors"><img class="entryLogo" src="assets/logo/budde_logo.png" alt="Budd€"><h1>Connexion Google</h1><p id="entryAppVersion" class="entryAppVersion">Budd€ v3.6.30</p><p id="entryBuildId" class="entryBuildId">build budde-3-6-30</p><p>Connectez Google pour synchroniser vos données, ou continuez hors ligne.</p><div class="entryActions entryActions--doors"><div class="entryDoor entryDoor--left"><button id="entryGoogleButton" class="primaryBtn">Connexion Google</button></div><div class="entryDoor entryDoor--right"><button id="entryOfflineButton">Accéder hors ligne</button></div></div><p id="entryGateStatus" class="entryStatus"></p></div>`;
 const ENTRY_PANEL_FIX_CSS = `
 /* AST-008.5 — accès restauré : boutons au-dessus du dock, header au-dessus du volet */
 .app.frameShell{isolation:auto!important;}
@@ -15,9 +15,9 @@ const ENTRY_PANEL_FIX_CSS = `
   height:calc((100dvh - var(--frame-top-h) - var(--nav-h) - env(safe-area-inset-top) - env(safe-area-inset-bottom)) / 2 - 8px)!important;
 }
 .entryPanel.entryPanel--doors{z-index:280!important;pointer-events:auto!important;}
-.frameShellTop .settingsTrustModule::before{content:'v3.6.29'!important;}
-#systemAppVersion::after,#diagnosticAppVersion::after,#entryAppVersion::after{content:'3.6.29'!important;}
-#systemBuildId::after,#diagnosticBuildId::after,#diagnosticExpectedCache::after,#entryBuildId::after{content:'budde-3-6-29'!important;}
+.frameShellTop .settingsTrustModule::before{content:'v3.6.30'!important;}
+#systemAppVersion::after,#diagnosticAppVersion::after,#entryAppVersion::after{content:'3.6.30'!important;}
+#systemBuildId::after,#diagnosticBuildId::after,#diagnosticExpectedCache::after,#entryBuildId::after{content:'budde-3-6-30'!important;}
 .entryPanel.entryPanel--doors{
   left:50%!important;right:auto!important;width:var(--frame-shell-w)!important;max-width:100vw!important;
   transform:translateX(-50%)!important;box-sizing:border-box!important;overflow:visible!important;
@@ -77,7 +77,6 @@ const ENTRY_PANEL_FIX_CSS = `
 @keyframes slideLeftPanel{to{transform:translateX(-115%);}}
 @keyframes slideRightPanel{to{transform:translateX(115%);}}
 
-
 /* AST-010.1 — restore startup gate interactivity without redesigning panels */
 .entryGate:not([hidden]){z-index:270!important;pointer-events:auto!important;display:block!important;visibility:visible!important;}
 .entryGate:not([hidden])::before,.entryGate:not([hidden])::after{z-index:271!important;display:block!important;visibility:visible!important;content:''!important;}
@@ -132,6 +131,14 @@ body.scannerFullscreen .frameShellBottom.pipDock{display:grid!important;visibili
 .entryGate.entryGate--opening .entryPanel{z-index:350!important;}
 .frameShellTop{z-index:360!important;}
 .frameShellBottom.pipDock{z-index:360!important;}
+
+/* AST-010.7 — restore visible side button slide without changing shutter layers */
+.entryGate.entryGate--opening .entryPanel,.entryGate.entryGate--opening .entryPanel.entryPanel--doors{z-index:370!important;display:grid!important;visibility:visible!important;opacity:1!important;pointer-events:none!important;overflow:visible!important;}
+.entryGate.entryGate--opening .entryActions,.entryGate.entryGate--opening .entryActions--doors{display:grid!important;visibility:visible!important;opacity:1!important;overflow:visible!important;}
+.entryGate.entryGate--opening .entryDoor,.entryGate.entryGate--opening .entryDoor--left,.entryGate.entryGate--opening .entryDoor--right{display:grid!important;visibility:visible!important;opacity:1!important;will-change:transform!important;}
+.entryGate.entryGate--opening .entryDoor--left{animation:entryLeftDoorSlide var(--gate-speed,2.45s) steps(7,end) forwards!important;}
+.entryGate.entryGate--opening .entryDoor--right{animation:entryRightDoorSlide var(--gate-speed,2.45s) steps(7,end) forwards!important;}
+.entryGate.entryGate--opening .entryDoor>button{display:grid!important;visibility:visible!important;opacity:1!important;transform:none!important;animation:none!important;}
 
 `;
 const ASSETS = [
