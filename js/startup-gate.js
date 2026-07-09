@@ -8,6 +8,8 @@
     setTimeout(()=>document.body.classList.remove('entryGateOpening'),1200);
   }
   function prepare(){
+    const gate=document.getElementById('entryGate');
+    if(gate&&!document.body.dataset.entryOpened)gate.hidden=false;
     const google=document.getElementById('entryGoogleButton');
     const offline=document.getElementById('entryOfflineButton');
     if(offline)offline.addEventListener('click',()=>markOpening('offline'),{capture:true});
