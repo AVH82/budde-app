@@ -69,3 +69,130 @@ body.scannerFullscreen .monthbar{display:none!important;}
 @media(max-width:380px){:root{--frame-top-h:104px;--frame-side-w:9px;--frame-content-pad:8px;}.frameShellTop{grid-template-columns:minmax(0,1fr) 42px;padding-left:14px!important;padding-right:14px!important;gap:6px;}.frameShellTop .buddyMount{margin-left:82px;padding:7px 8px;}.frameShellBottom.pipDock{padding-left:10px!important;padding-right:10px!important;}}
 @media(min-width:700px){:root{--frame-shell-w:430px;--frame-top-h:124px;--frame-side-w:18px;}}
 @supports not (height:100dvh){.app.frameShell{height:100vh;min-height:100vh!important;}}
+
+/* AST-007 — Écran d'ouverture Budde sécurisé */
+.entryGate{
+  position:fixed!important;
+  inset:0!important;
+  z-index:90!important;
+  width:100vw!important;
+  height:100dvh!important;
+  display:block!important;
+  background:transparent!important;
+  pointer-events:auto!important;
+  overflow:hidden!important;
+}
+.entryGate[hidden]{
+  display:block!important;
+  pointer-events:none!important;
+  animation:entryGateFade .95s ease forwards;
+}
+.entryGate::before,.entryGate::after{
+  content:'';
+  position:absolute;
+  left:50%;
+  width:var(--frame-shell-w);
+  transform:translateX(-50%);
+  pointer-events:none;
+  background:
+    repeating-linear-gradient(90deg,rgba(255,255,255,.05) 0 1px,transparent 1px 8px),
+    repeating-linear-gradient(0deg,rgba(199,160,68,.12) 0 1px,transparent 1px 16px),
+    linear-gradient(180deg,#5e573f 0%,#211f18 22%,#0b0e08 56%,#4b442f 100%);
+  border:1px solid rgba(199,160,68,.62);
+  box-shadow:inset 0 0 0 2px rgba(0,0,0,.65),inset 0 0 28px rgba(0,0,0,.9),0 0 22px rgba(157,255,69,.10);
+}
+.entryGate::before{
+  top:calc(var(--frame-top-h) + env(safe-area-inset-top) + 8px);
+  height:calc((100dvh - var(--frame-top-h) - var(--nav-h) - env(safe-area-inset-top) - env(safe-area-inset-bottom)) / 2);
+  border-radius:0 0 14px 14px;
+}
+.entryGate::after{
+  bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 8px);
+  height:calc((100dvh - var(--frame-top-h) - var(--nav-h) - env(safe-area-inset-top) - env(safe-area-inset-bottom)) / 2);
+  border-radius:14px 14px 0 0;
+}
+.entryGate[hidden]::before{animation:entryShutterTop .85s cubic-bezier(.2,.8,.2,1) forwards;}
+.entryGate[hidden]::after{animation:entryShutterBottom .85s cubic-bezier(.2,.8,.2,1) forwards;}
+.entryPanel{
+  position:fixed!important;
+  left:50%!important;
+  bottom:calc(14px + env(safe-area-inset-bottom))!important;
+  transform:translateX(-50%)!important;
+  z-index:94!important;
+  width:var(--frame-shell-w)!important;
+  min-height:calc(var(--nav-h) + 68px)!important;
+  padding:12px clamp(14px,4vw,22px) calc(10px + env(safe-area-inset-bottom))!important;
+  display:grid!important;
+  grid-template-rows:auto auto!important;
+  gap:10px!important;
+  background:repeating-linear-gradient(90deg,rgba(255,255,255,.04) 0 1px,transparent 1px 8px),linear-gradient(180deg,#665d43 0%,#202019 24%,#11150e 58%,#544c37 100%)!important;
+  border:1px solid rgba(199,160,68,.58)!important;
+  border-radius:18px 18px 0 0!important;
+  box-shadow:0 -10px 28px rgba(0,0,0,.92),inset 0 0 0 2px rgba(0,0,0,.55),inset 0 12px 22px rgba(0,0,0,.48),0 0 14px rgba(157,255,69,.10)!important;
+}
+.entryGate[hidden] .entryPanel{animation:entryPanelDrop .55s ease forwards;}
+.entryLogo,.entryPanel h1,.entryPanel>p:not(.entryAppVersion):not(.entryBuildId):not(.entryStatus),.entryBuildId{display:none!important;}
+.entryActions{
+  display:grid!important;
+  grid-template-columns:1fr 1fr!important;
+  gap:14px!important;
+  order:2!important;
+}
+.entryActions button{
+  min-height:72px!important;
+  border:1px solid rgba(199,160,68,.65)!important;
+  border-radius:14px!important;
+  background:radial-gradient(circle at 50% 35%,rgba(157,255,69,.12),transparent 48%),linear-gradient(180deg,rgba(12,18,12,.95),rgba(2,6,2,.98))!important;
+  color:var(--terminal-green)!important;
+  font-family:inherit!important;
+  font-weight:800!important;
+  text-transform:uppercase!important;
+  letter-spacing:.08em!important;
+  text-shadow:0 0 10px rgba(157,255,69,.7)!important;
+  box-shadow:inset 0 0 22px rgba(0,0,0,.95),0 0 10px rgba(157,255,69,.12)!important;
+}
+.entryActions button:active{transform:translateY(1px) scale(.99);}
+#entryGoogleButton::before{content:'🔐 ';}
+#entryOfflineButton::before{content:'▣ ';}
+.entryAppVersion{
+  position:fixed!important;
+  top:calc(env(safe-area-inset-top) + var(--frame-top-h) + 8px)!important;
+  right:calc(50% - (var(--frame-shell-w) / 2) + 16px)!important;
+  z-index:95!important;
+  margin:0!important;
+  padding:7px 10px!important;
+  border:1px solid rgba(199,160,68,.62)!important;
+  border-radius:7px!important;
+  background:linear-gradient(145deg,#5b5239,#171711 55%,#73633d)!important;
+  color:#d8c88a!important;
+  font-size:10px!important;
+  text-transform:uppercase!important;
+  box-shadow:inset 0 0 0 1px rgba(0,0,0,.55),0 0 10px rgba(157,255,69,.12)!important;
+}
+.entryAppVersion::before,.entryAppVersion::after{content:'';display:inline-block;width:5px;height:5px;border-radius:50%;background:#7b6a43;box-shadow:0 0 0 1px #111;margin:0 6px 1px 0;}
+.entryAppVersion::after{margin:0 0 1px 6px;}
+.entryStatus{
+  position:fixed!important;
+  left:50%!important;
+  top:calc(env(safe-area-inset-top) + 44px)!important;
+  transform:translateX(-50%)!important;
+  z-index:96!important;
+  width:min(330px,calc(100vw - 88px))!important;
+  margin:0!important;
+  min-height:28px!important;
+  text-align:center!important;
+  color:transparent!important;
+}
+.entryStatus:not(:empty)::after{
+  content:'ACCÈS ESPACE SÉCURISÉ.';
+  color:var(--terminal-green);
+  text-shadow:0 0 10px rgba(157,255,69,.8);
+  font-size:13px;
+  font-weight:800;
+  letter-spacing:.08em;
+}
+@keyframes entryShutterTop{to{transform:translateX(-50%) translateY(-115%);opacity:.15}}
+@keyframes entryShutterBottom{to{transform:translateX(-50%) translateY(115%);opacity:.15}}
+@keyframes entryPanelDrop{to{transform:translateX(-50%) translateY(110%);opacity:.1}}
+@keyframes entryGateFade{0%{opacity:1}85%{opacity:1}100%{opacity:0;visibility:hidden}}
+@media(max-width:380px){.entryActions{gap:10px!important}.entryActions button{min-height:64px!important;font-size:12px!important}.entryAppVersion{right:14px!important}}
