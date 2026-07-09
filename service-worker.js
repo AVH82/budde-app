@@ -1,6 +1,6 @@
-const CACHE_NAME = 'budde-3-6-13';
+const CACHE_NAME = 'budde-3-6-14';
 const ENTRY_PANEL_FIX_CSS = `
-/* AST-007.3 — correction masque inférieur + suppression version basse */
+/* AST-007.4 — masque inférieur centré + demi-coques synchronisées */
 .entryPanel{
   left:50%!important;
   right:auto!important;
@@ -18,12 +18,36 @@ const ENTRY_PANEL_FIX_CSS = `
   right:50%!important;
   width:auto!important;
   transform:none!important;
+  translate:0 0;
 }
 .entryPanel::after{
   left:50%!important;
   right:0!important;
   width:auto!important;
   transform:none!important;
+  translate:0 0;
+}
+.entryGate[hidden] .entryPanel::before{
+  animation:entryMaskLeftSync var(--gate-speed,2.45s) steps(7,end) forwards!important;
+}
+.entryGate[hidden] .entryPanel::after{
+  animation:entryMaskRightSync var(--gate-speed,2.45s) steps(7,end) forwards!important;
+}
+@keyframes entryMaskLeftSync{
+  0%{translate:0 0;}
+  14%{translate:-4% 0;}
+  18%{translate:-2% 0;}
+  40%{translate:-42% 0;}
+  47%{translate:-35% 0;}
+  100%{translate:-115% 0;}
+}
+@keyframes entryMaskRightSync{
+  0%{translate:0 0;}
+  14%{translate:4% 0;}
+  18%{translate:2% 0;}
+  40%{translate:42% 0;}
+  47%{translate:35% 0;}
+  100%{translate:115% 0;}
 }
 .entryActions{
   width:100%!important;
