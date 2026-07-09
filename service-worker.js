@@ -1,6 +1,6 @@
-const CACHE_NAME = 'budde-3-6-21';
+const CACHE_NAME = 'budde-3-6-22';
 const ENTRY_GATE_OLD = `<div class="entryPanel"><img class="entryLogo" src="assets/logo/budde_logo.png" alt="Budd€"><h1>Connexion Google</h1><p id="entryAppVersion" class="entryAppVersion">Budd€ v3.6.6</p><p id="entryBuildId" class="entryBuildId">build budde-3-6-6</p><p>Connectez Google pour synchroniser vos données, ou continuez hors ligne.</p><div class="entryActions"><button id="entryGoogleButton" class="primaryBtn">Connexion Google</button><button id="entryOfflineButton">Accéder hors ligne</button></div><p id="entryGateStatus" class="entryStatus"></p></div>`;
-const ENTRY_GATE_NEW = `<div class="entryPanel entryPanel--doors"><img class="entryLogo" src="assets/logo/budde_logo.png" alt="Budd€"><h1>Connexion Google</h1><p id="entryAppVersion" class="entryAppVersion">Budd€ v3.6.21</p><p id="entryBuildId" class="entryBuildId">build budde-3-6-21</p><p>Connectez Google pour synchroniser vos données, ou continuez hors ligne.</p><div class="entryActions entryActions--doors"><div class="entryDoor entryDoor--left"><button id="entryGoogleButton" class="primaryBtn">Connexion Google</button></div><button id="entryOfflineButton">Accéder hors ligne</button></div><p id="entryGateStatus" class="entryStatus"></p></div>`;
+const ENTRY_GATE_NEW = `<div class="entryPanel entryPanel--doors"><img class="entryLogo" src="assets/logo/budde_logo.png" alt="Budd€"><h1>Connexion Google</h1><p id="entryAppVersion" class="entryAppVersion">Budd€ v3.6.22</p><p id="entryBuildId" class="entryBuildId">build budde-3-6-22</p><p>Connectez Google pour synchroniser vos données, ou continuez hors ligne.</p><div class="entryActions entryActions--doors"><div class="entryDoor entryDoor--left"><button id="entryGoogleButton" class="primaryBtn">Connexion Google</button></div><button id="entryOfflineButton">Accéder hors ligne</button></div><p id="entryGateStatus" class="entryStatus"></p></div>`;
 const ENTRY_PANEL_FIX_CSS = `
 /* AST-008.5 — accès restauré : boutons au-dessus du dock, header au-dessus du volet */
 .app.frameShell{isolation:auto!important;}
@@ -15,9 +15,9 @@ const ENTRY_PANEL_FIX_CSS = `
   height:calc((100dvh - var(--frame-top-h) - var(--nav-h) - env(safe-area-inset-top) - env(safe-area-inset-bottom)) / 2 - 8px)!important;
 }
 .entryPanel.entryPanel--doors{z-index:280!important;pointer-events:auto!important;}
-.frameShellTop .settingsTrustModule::before{content:'v3.6.21'!important;}
-#systemAppVersion::after,#diagnosticAppVersion::after,#entryAppVersion::after{content:'3.6.21'!important;}
-#systemBuildId::after,#diagnosticBuildId::after,#diagnosticExpectedCache::after,#entryBuildId::after{content:'budde-3-6-21'!important;}
+.frameShellTop .settingsTrustModule::before{content:'v3.6.22'!important;}
+#systemAppVersion::after,#diagnosticAppVersion::after,#entryAppVersion::after{content:'3.6.22'!important;}
+#systemBuildId::after,#diagnosticBuildId::after,#diagnosticExpectedCache::after,#entryBuildId::after{content:'budde-3-6-22'!important;}
 .entryPanel.entryPanel--doors{
   left:50%!important;right:auto!important;width:var(--frame-shell-w)!important;max-width:100vw!important;
   transform:translateX(-50%)!important;box-sizing:border-box!important;overflow:visible!important;
