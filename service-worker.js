@@ -1,11 +1,16 @@
-const CACHE_NAME = 'budde-3-6-16';
+const CACHE_NAME = 'budde-3-6-17';
 const ENTRY_GATE_OLD = `<div class="entryPanel"><img class="entryLogo" src="assets/logo/budde_logo.png" alt="Budd€"><h1>Connexion Google</h1><p id="entryAppVersion" class="entryAppVersion">Budd€ v3.6.6</p><p id="entryBuildId" class="entryBuildId">build budde-3-6-6</p><p>Connectez Google pour synchroniser vos données, ou continuez hors ligne.</p><div class="entryActions"><button id="entryGoogleButton" class="primaryBtn">Connexion Google</button><button id="entryOfflineButton">Accéder hors ligne</button></div><p id="entryGateStatus" class="entryStatus"></p></div>`;
-const ENTRY_GATE_NEW = `<div class="entryPanel entryPanel--doors"><img class="entryLogo" src="assets/logo/budde_logo.png" alt="Budd€"><h1>Connexion Google</h1><p id="entryAppVersion" class="entryAppVersion">Budd€ v3.6.16</p><p id="entryBuildId" class="entryBuildId">build budde-3-6-16</p><p>Connectez Google pour synchroniser vos données, ou continuez hors ligne.</p><div class="entryActions entryActions--doors"><div class="entryDoor entryDoor--left"><button id="entryGoogleButton" class="primaryBtn">Connexion Google</button></div><div class="entryDoor entryDoor--right"><button id="entryOfflineButton">Accéder hors ligne</button></div></div><p id="entryGateStatus" class="entryStatus"></p></div>`;
+const ENTRY_GATE_NEW = `<div class="entryPanel entryPanel--doors"><img class="entryLogo" src="assets/logo/budde_logo.png" alt="Budd€"><h1>Connexion Google</h1><p id="entryAppVersion" class="entryAppVersion">Budd€ v3.6.17</p><p id="entryBuildId" class="entryBuildId">build budde-3-6-17</p><p>Connectez Google pour synchroniser vos données, ou continuez hors ligne.</p><div class="entryActions entryActions--doors"><div class="entryDoor entryDoor--left"><button id="entryGoogleButton" class="primaryBtn">Connexion Google</button></div><div class="entryDoor entryDoor--right"><button id="entryOfflineButton">Accéder hors ligne</button></div></div><p id="entryGateStatus" class="entryStatus"></p></div>`;
 const ENTRY_PANEL_FIX_CSS = `
-/* AST-008 — vrais panneaux DOM pour les portes de connexion */
+/* AST-008.1 — bandeaux toujours au-dessus des glissières */
+.frameShellTop{z-index:220!important;}
+.frameShellBottom.pipDock{z-index:220!important;}
+.entryGate{z-index:180!important;pointer-events:auto!important;}
+.entryGate::before,.entryGate::after{z-index:181!important;}
+.entryPanel.entryPanel--doors{z-index:210!important;}
 .entryPanel.entryPanel--doors{
   left:50%!important;right:auto!important;width:var(--frame-shell-w)!important;max-width:100vw!important;
-  transform:translateX(-50%)!important;box-sizing:border-box!important;z-index:132!important;overflow:visible!important;
+  transform:translateX(-50%)!important;box-sizing:border-box!important;overflow:visible!important;
   padding:0!important;background:transparent!important;border:0!important;box-shadow:none!important;
 }
 .entryPanel.entryPanel--doors::before,.entryPanel.entryPanel--doors::after{content:none!important;display:none!important;animation:none!important;}
