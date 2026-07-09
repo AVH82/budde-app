@@ -1,23 +1,23 @@
-const CACHE_NAME = 'budde-3-6-19';
+const CACHE_NAME = 'budde-3-6-20';
 const ENTRY_GATE_OLD = `<div class="entryPanel"><img class="entryLogo" src="assets/logo/budde_logo.png" alt="Budd€"><h1>Connexion Google</h1><p id="entryAppVersion" class="entryAppVersion">Budd€ v3.6.6</p><p id="entryBuildId" class="entryBuildId">build budde-3-6-6</p><p>Connectez Google pour synchroniser vos données, ou continuez hors ligne.</p><div class="entryActions"><button id="entryGoogleButton" class="primaryBtn">Connexion Google</button><button id="entryOfflineButton">Accéder hors ligne</button></div><p id="entryGateStatus" class="entryStatus"></p></div>`;
-const ENTRY_GATE_NEW = `<div class="entryPanel entryPanel--doors"><img class="entryLogo" src="assets/logo/budde_logo.png" alt="Budd€"><h1>Connexion Google</h1><p id="entryAppVersion" class="entryAppVersion">Budd€ v3.6.19</p><p id="entryBuildId" class="entryBuildId">build budde-3-6-19</p><p>Connectez Google pour synchroniser vos données, ou continuez hors ligne.</p><div class="entryActions entryActions--doors"><div class="entryDoor entryDoor--left"><button id="entryGoogleButton" class="primaryBtn">Connexion Google</button></div><div class="entryDoor entryDoor--right"><button id="entryOfflineButton">Accéder hors ligne</button></div></div><p id="entryGateStatus" class="entryStatus"></p></div>`;
+const ENTRY_GATE_NEW = `<div class="entryPanel entryPanel--doors"><img class="entryLogo" src="assets/logo/budde_logo.png" alt="Budd€"><h1>Connexion Google</h1><p id="entryAppVersion" class="entryAppVersion">Budd€ v3.6.20</p><p id="entryBuildId" class="entryBuildId">build budde-3-6-20</p><p>Connectez Google pour synchroniser vos données, ou continuez hors ligne.</p><div class="entryActions entryActions--doors"><div class="entryDoor entryDoor--left"><button id="entryGoogleButton" class="primaryBtn">Connexion Google</button></div><div class="entryDoor entryDoor--right"><button id="entryOfflineButton">Accéder hors ligne</button></div></div><p id="entryGateStatus" class="entryStatus"></p></div>`;
 const ENTRY_PANEL_FIX_CSS = `
-/* AST-008.3 — correction stacking context : header/dock au-dessus des volets */
+/* AST-008.5 — accès restauré : boutons au-dessus du dock, header au-dessus du volet */
 .app.frameShell{isolation:auto!important;}
 .app.frameShell main{position:relative!important;z-index:25!important;}
-.frameShellTop{z-index:260!important;}
+.frameShellTop{z-index:320!important;}
 .frameShellTop,.frameShellTop *{visibility:visible!important;}
-.frameShellBottom.pipDock{z-index:260!important;}
-.entryGate{z-index:180!important;pointer-events:auto!important;}
-.entryGate::before,.entryGate::after{z-index:181!important;}
+.frameShellBottom.pipDock{z-index:240!important;}
+.entryGate{z-index:270!important;pointer-events:auto!important;}
+.entryGate::before,.entryGate::after{z-index:271!important;}
 .entryGate::before{
   top:calc(var(--frame-top-h) + env(safe-area-inset-top) + 18px)!important;
   height:calc((100dvh - var(--frame-top-h) - var(--nav-h) - env(safe-area-inset-top) - env(safe-area-inset-bottom)) / 2 - 8px)!important;
 }
-.entryPanel.entryPanel--doors{z-index:210!important;}
-.frameShellTop .settingsTrustModule::before{content:'v3.6.19'!important;}
-#systemAppVersion::after,#diagnosticAppVersion::after,#entryAppVersion::after{content:'3.6.19'!important;}
-#systemBuildId::after,#diagnosticBuildId::after,#diagnosticExpectedCache::after,#entryBuildId::after{content:'budde-3-6-19'!important;}
+.entryPanel.entryPanel--doors{z-index:280!important;pointer-events:auto!important;}
+.frameShellTop .settingsTrustModule::before{content:'v3.6.20'!important;}
+#systemAppVersion::after,#diagnosticAppVersion::after,#entryAppVersion::after{content:'3.6.20'!important;}
+#systemBuildId::after,#diagnosticBuildId::after,#diagnosticExpectedCache::after,#entryBuildId::after{content:'budde-3-6-20'!important;}
 .entryPanel.entryPanel--doors{
   left:50%!important;right:auto!important;width:var(--frame-shell-w)!important;max-width:100vw!important;
   transform:translateX(-50%)!important;box-sizing:border-box!important;overflow:visible!important;
@@ -38,7 +38,7 @@ const ENTRY_PANEL_FIX_CSS = `
 .entryDoor--left{border-right:0!important;border-radius:var(--frame-radius) 0 0 0!important;}
 .entryDoor--right{border-left:0!important;border-radius:0 var(--frame-radius) 0 0!important;}
 .entryDoor button{
-  position:relative!important;width:100%!important;max-width:100%!important;min-height:64px!important;z-index:2!important;
+  position:relative!important;width:100%!important;max-width:100%!important;min-height:64px!important;z-index:2!important;pointer-events:auto!important;
   border:1px solid rgba(199,160,68,.65)!important;border-radius:12px!important;
   background:radial-gradient(circle at 50% 35%,rgba(157,255,69,.12),transparent 48%),linear-gradient(180deg,rgba(12,18,12,.95),rgba(2,6,2,.98))!important;
   color:var(--terminal-green)!important;font-family:inherit!important;font-weight:800!important;text-transform:uppercase!important;letter-spacing:.08em!important;
