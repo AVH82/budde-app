@@ -1,9 +1,9 @@
-/* AST-006.3 — CSS metal frame prototype + fixed monthbar */
+/* AST-006.5 — CSS metal frame prototype + adaptive monthbar spacing */
 :root{
   --frame-shell-w:min(430px,100vw);
   --frame-top-h:clamp(96px,23vw,124px);
   --frame-month-h:54px;
-  --frame-month-gap:10px;
+  --frame-month-gap:22px;
   --frame-bottom-h:calc(var(--nav-h,148px) + env(safe-area-inset-bottom));
   --frame-side-w:clamp(10px,3.2vw,18px);
   --frame-content-pad:clamp(8px,2.8vw,14px);
@@ -27,6 +27,7 @@ body{background:#010201;}
   background:radial-gradient(circle at 50% 0,rgba(157,255,69,.10),transparent 28%),linear-gradient(180deg,#071107,#030603)!important;
   isolation:isolate;
 }
+.app.frameShell:has(.monthbar[hidden]){padding-top:calc(var(--frame-top-h) + 18px + env(safe-area-inset-top))!important;}
 .app.frameShell::before,.app.frameShell::after,body::after{content:none!important;display:none!important;}
 .frameShellTop,.frameShellBottom,.frameRail{pointer-events:auto;}
 .frameShellTop{
@@ -48,7 +49,7 @@ body{background:#010201;}
   top:calc(var(--frame-top-h) + env(safe-area-inset-top) + var(--frame-month-gap));
   left:50%!important;
   transform:translateX(-50%)!important;
-  z-index:41!important;
+  z-index:43!important;
   width:calc(var(--frame-shell-w) - (var(--frame-content-pad) * 2))!important;
   height:var(--frame-month-h)!important;
   margin:0!important;
@@ -57,6 +58,7 @@ body{background:#010201;}
 }
 .app.frameShell .monthbar[hidden]{display:none!important;}
 .frameRail{position:fixed;top:calc(var(--frame-top-h) + var(--frame-month-h) + var(--frame-month-gap) + env(safe-area-inset-top) - 8px);bottom:calc(var(--nav-h,148px) + env(safe-area-inset-bottom) - 8px);z-index:36;width:var(--frame-side-w);pointer-events:none;border-left:1px solid rgba(199,160,68,.34);border-right:1px solid rgba(0,0,0,.8);background:repeating-linear-gradient(0deg,#5a5138 0 10px,#201f18 10px 18px,#7b6942 18px 20px),linear-gradient(90deg,#111,#5f553a,#171711);box-shadow:inset 0 0 8px rgba(0,0,0,.9),0 0 10px rgba(157,255,69,.08);}
+.app.frameShell:has(.monthbar[hidden]) .frameRail{top:calc(var(--frame-top-h) + env(safe-area-inset-top) + 10px);}
 .frameRail--left{left:calc(50% - (var(--frame-shell-w) / 2));}.frameRail--right{right:calc(50% - (var(--frame-shell-w) / 2));transform:scaleX(-1);}
 .frameShellBottom.pipDock{position:fixed!important;left:50%!important;right:auto!important;bottom:0!important;transform:translateX(-50%)!important;z-index:44!important;width:var(--frame-shell-w)!important;height:calc(var(--nav-h,148px) + env(safe-area-inset-bottom))!important;margin:0!important;padding:12px clamp(14px,4vw,22px) calc(10px + env(safe-area-inset-bottom))!important;border:1px solid rgba(199,160,68,.58)!important;border-bottom:0!important;border-radius:18px 18px 0 0!important;background:repeating-linear-gradient(90deg,rgba(255,255,255,.04) 0 1px,transparent 1px 8px),linear-gradient(180deg,#665d43 0%,#202019 24%,#11150e 58%,#544c37 100%)!important;box-shadow:0 -10px 28px rgba(0,0,0,.92),inset 0 0 0 2px rgba(0,0,0,.55),inset 0 12px 22px rgba(0,0,0,.48),0 0 14px rgba(157,255,69,.10)!important;filter:none!important;}
 .frameShellBottom .dockActions,.frameShellBottom .nav{position:relative;z-index:2;}.frameShellBottom .nav{left:auto!important;bottom:auto!important;transform:none!important;width:auto!important;background:rgba(2,5,2,.78)!important;border-color:rgba(199,160,68,.55)!important;}.frameShellBottom .nav button,.frameShellBottom .dockAction{background-color:rgba(5,11,5,.84)!important;border-color:rgba(199,160,68,.60)!important;box-shadow:inset 0 0 16px #000,0 0 6px rgba(157,255,69,.08)!important;}.frameShellBottom .nav button.active{border-color:#b9ff55!important;box-shadow:0 0 13px rgba(157,255,69,.75),inset 0 0 18px rgba(157,255,69,.16)!important;}
