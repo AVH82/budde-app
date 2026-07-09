@@ -5,7 +5,7 @@
     gate.dataset.entryMode=mode||'offline';
     gate.classList.add('entryGate--opening');
     document.body.classList.add('entryGateOpening');
-    setTimeout(()=>document.body.classList.remove('entryGateOpening'),1200);
+    setTimeout(()=>document.body.classList.remove('entryGateOpening'),2450);
   }
   function prepare(){
     const gate=document.getElementById('entryGate');

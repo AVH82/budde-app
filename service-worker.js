@@ -1,6 +1,6 @@
-const CACHE_NAME = 'budde-3-6-27';
+const CACHE_NAME = 'budde-3-6-28';
 const ENTRY_GATE_OLD = `<div class="entryPanel"><img class="entryLogo" src="assets/logo/budde_logo.png" alt="Budd€"><h1>Connexion Google</h1><p id="entryAppVersion" class="entryAppVersion">Budd€ v3.6.6</p><p id="entryBuildId" class="entryBuildId">build budde-3-6-6</p><p>Connectez Google pour synchroniser vos données, ou continuez hors ligne.</p><div class="entryActions"><button id="entryGoogleButton" class="primaryBtn">Connexion Google</button><button id="entryOfflineButton">Accéder hors ligne</button></div><p id="entryGateStatus" class="entryStatus"></p></div>`;
-const ENTRY_GATE_NEW = `<div class="entryPanel entryPanel--doors"><img class="entryLogo" src="assets/logo/budde_logo.png" alt="Budd€"><h1>Connexion Google</h1><p id="entryAppVersion" class="entryAppVersion">Budd€ v3.6.27</p><p id="entryBuildId" class="entryBuildId">build budde-3-6-27</p><p>Connectez Google pour synchroniser vos données, ou continuez hors ligne.</p><div class="entryActions entryActions--doors"><div class="entryDoor entryDoor--left"><button id="entryGoogleButton" class="primaryBtn">Connexion Google</button></div><div class="entryDoor entryDoor--right"><button id="entryOfflineButton">Accéder hors ligne</button></div></div><p id="entryGateStatus" class="entryStatus"></p></div>`;
+const ENTRY_GATE_NEW = `<div class="entryPanel entryPanel--doors"><img class="entryLogo" src="assets/logo/budde_logo.png" alt="Budd€"><h1>Connexion Google</h1><p id="entryAppVersion" class="entryAppVersion">Budd€ v3.6.28</p><p id="entryBuildId" class="entryBuildId">build budde-3-6-28</p><p>Connectez Google pour synchroniser vos données, ou continuez hors ligne.</p><div class="entryActions entryActions--doors"><div class="entryDoor entryDoor--left"><button id="entryGoogleButton" class="primaryBtn">Connexion Google</button></div><div class="entryDoor entryDoor--right"><button id="entryOfflineButton">Accéder hors ligne</button></div></div><p id="entryGateStatus" class="entryStatus"></p></div>`;
 const ENTRY_PANEL_FIX_CSS = `
 /* AST-008.5 — accès restauré : boutons au-dessus du dock, header au-dessus du volet */
 .app.frameShell{isolation:auto!important;}
@@ -15,9 +15,9 @@ const ENTRY_PANEL_FIX_CSS = `
   height:calc((100dvh - var(--frame-top-h) - var(--nav-h) - env(safe-area-inset-top) - env(safe-area-inset-bottom)) / 2 - 8px)!important;
 }
 .entryPanel.entryPanel--doors{z-index:280!important;pointer-events:auto!important;}
-.frameShellTop .settingsTrustModule::before{content:'v3.6.27'!important;}
-#systemAppVersion::after,#diagnosticAppVersion::after,#entryAppVersion::after{content:'3.6.27'!important;}
-#systemBuildId::after,#diagnosticBuildId::after,#diagnosticExpectedCache::after,#entryBuildId::after{content:'budde-3-6-27'!important;}
+.frameShellTop .settingsTrustModule::before{content:'v3.6.28'!important;}
+#systemAppVersion::after,#diagnosticAppVersion::after,#entryAppVersion::after{content:'3.6.28'!important;}
+#systemBuildId::after,#diagnosticBuildId::after,#diagnosticExpectedCache::after,#entryBuildId::after{content:'budde-3-6-28'!important;}
 .entryPanel.entryPanel--doors{
   left:50%!important;right:auto!important;width:var(--frame-shell-w)!important;max-width:100vw!important;
   transform:translateX(-50%)!important;box-sizing:border-box!important;overflow:visible!important;
@@ -117,9 +117,18 @@ body.scannerFullscreen .app.frameShell{padding-top:calc(var(--frame-top-h) + 20p
 body.scannerFullscreen .frameRail{top:calc(var(--frame-top-h) + env(safe-area-inset-top) - 6px)!important;}
 body.scannerFullscreen .frameShellBottom.pipDock{display:grid!important;visibility:visible!important;}
 
+
+/* AST-010.5 — startup button slide only */
+.entryGate.entryGate--opening::before{animation:entryShutterTopMechanical var(--gate-speed,2.45s) steps(7,end) forwards!important;}
+.entryGate.entryGate--opening::after{animation:entryShutterBottomMechanical var(--gate-speed,2.45s) steps(7,end) forwards!important;}
+.entryGate.entryGate--opening .entryDoor--left{animation:entryLeftDoorSlide var(--gate-speed,2.45s) steps(7,end) forwards!important;visibility:visible!important;opacity:1!important;}
+.entryGate.entryGate--opening .entryDoor--right{animation:entryRightDoorSlide var(--gate-speed,2.45s) steps(7,end) forwards!important;visibility:visible!important;opacity:1!important;}
+.entryGate.entryGate--opening .entryDoor>button{animation:none!important;visibility:visible!important;opacity:1!important;display:grid!important;}
+.entryGate.entryGate--opening .entryPanel,.entryGate.entryGate--opening .entryActions{visibility:visible!important;opacity:1!important;}
+
 `;
 const ASSETS = [
-  './','./index.html','./manifest.webmanifest','./css/pipboy.css?v=366','./css/frame-core.css?v=ast0104','./js/app.js?v=369','./js/buddy.js?v=366','./js/startup-gate.js?v=ast0104','./js/storage.local.js','./js/storage.service.js','./js/storage.google-drive.js','./js/google-auth.service.js','./js/buddy-vision.service.js?v=366','./js/receipt-ocr.service.js?v=366','./js/ocr-diagnostic.service.js?v=366','./assets/logo/budde_logo.png','./assets/nav/home.png','./assets/nav/expenses.png','./assets/nav/budget.png','./assets/nav/stats.png','./assets/nav/merchants.png','./assets/frame/FRM-001_frame-top.png','./assets/frame/FRM-002_frame-bottom.png','./assets/frame/FRM-003_frame-left.png','./assets/frame/FRM-004_frame-right.png','./assets/icon-192.png','./assets/icon-512.png','./assets/buddy-thinking.png','./assets/buddy-success.png','./assets/buddy-warning.png'
+  './','./index.html','./manifest.webmanifest','./css/pipboy.css?v=366','./css/frame-core.css?v=ast0105','./js/app.js?v=3610','./js/buddy.js?v=366','./js/startup-gate.js?v=ast0105','./js/storage.local.js','./js/storage.service.js','./js/storage.google-drive.js','./js/google-auth.service.js','./js/buddy-vision.service.js?v=366','./js/receipt-ocr.service.js?v=366','./js/ocr-diagnostic.service.js?v=366','./assets/logo/budde_logo.png','./assets/nav/home.png','./assets/nav/expenses.png','./assets/nav/budget.png','./assets/nav/stats.png','./assets/nav/merchants.png','./assets/frame/FRM-001_frame-top.png','./assets/frame/FRM-002_frame-bottom.png','./assets/frame/FRM-003_frame-left.png','./assets/frame/FRM-004_frame-right.png','./assets/icon-192.png','./assets/icon-512.png','./assets/buddy-thinking.png','./assets/buddy-success.png','./assets/buddy-warning.png'
 ];
 self.addEventListener('install', event => {event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(ASSETS)));self.skipWaiting();});
 self.addEventListener('activate', event => {event.waitUntil(caches.keys().then(keys => Promise.all(keys.filter(key => key !== CACHE_NAME).map(key => caches.delete(key)))));self.clients.claim();});
