@@ -6,7 +6,7 @@
   --frame-z-content:20;
   --frame-z-gate:300;
   --frame-z-shutter:310;
-  --frame-z-startup:340;
+  --frame-z-startup:420;
   --frame-z-chrome:400;
   --frame-motion:2450ms;
 }
@@ -64,11 +64,11 @@
 @keyframes frameShutterTopOpen{to{transform:translate(-50%,-115%);}}
 @keyframes frameShutterBottomOpen{to{transform:translate(-50%,115%);}}
 
-/* Startup controls are independent from shutters and dock. */
+/* Startup controls intentionally cover the bottom dock while the gate is closed. */
 .frameStartupControls{
   position:fixed;
   left:50%;
-  bottom:calc(var(--nav-h,104px) + env(safe-area-inset-bottom) + 8px);
+  bottom:0;
   transform:translateX(-50%);
   width:var(--frame-shell-w);
   max-width:100vw;
@@ -135,7 +135,7 @@ body.scannerFullscreen .frameShellTop,
 body.scannerFullscreen .frameShellBottom.pipDock{display:grid!important;visibility:visible!important;}
 
 @media(max-width:380px){
-  .frameStartupControls{bottom:calc(var(--nav-h,104px) + env(safe-area-inset-bottom) + 6px);}
+  .frameStartupControls{bottom:0;}
   .frameStartupChoice{padding-left:10px;padding-right:10px;}
   .frameStartupChoice>button{min-height:58px!important;font-size:12px!important;}
 }
