@@ -1,5 +1,5 @@
 (function(){
-  const FRAME_STYLESHEET='css/frame-system-v2.css?v=ast0113';
+  const FRAME_STYLESHEET='css/frame-system-v2.css?v=ast0114';
   const FRAME_MOTION_MS=2450;
 
   function ensureStylesheet(){
@@ -13,7 +13,8 @@
 
   function buildFrameStartup(){
     const gate=document.getElementById('entryGate');
-    if(!gate||gate.dataset.frameSystem==='v2')return gate;
+    if(!gate)return gate;
+    if(gate.dataset.frameSystem==='v2')return gate;
 
     gate.dataset.frameSystem='v2';
     gate.classList.add('frameStartup');
@@ -48,10 +49,14 @@
     controls.append(left,right);
 
     gate.prepend(top,bottom);
-    gate.appendChild(controls);
+    document.body.appendChild(controls);
     if(legacyActions)legacyActions.hidden=true;
 
     return gate;
+  }
+
+  function getControls(){
+    return document.querySelector('.frameStartupControls');
   }
 
   function showGate(gate){
@@ -59,16 +64,26 @@
     gate.hidden=false;
     gate.style.display='block';
     gate.style.visibility='visible';
+    const controls=getControls();
+    if(controls){
+      controls.hidden=false;
+      controls.classList.remove('frameStartupControls--opening');
+    }
   }
 
   function markOpening(mode){
     const gate=document.getElementById('entryGate');
     if(!gate)return;
+    const controls=getControls();
     gate.dataset.entryMode=mode||'offline';
     gate.dataset.userChoice='1';
     gate.classList.add('frameStartup--opening','entryGate--opening');
+    controls?.classList.add('frameStartupControls--opening');
     document.body.classList.add('entryGateOpening');
-    setTimeout(()=>document.body.classList.remove('entryGateOpening'),FRAME_MOTION_MS);
+    setTimeout(()=>{
+      document.body.classList.remove('entryGateOpening');
+      if(controls)controls.hidden=true;
+    },FRAME_MOTION_MS);
   }
 
   function prepare(){
