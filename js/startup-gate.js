@@ -1,5 +1,5 @@
 (function(){
-  const FRAME_STYLESHEET='css/frame-system-v2.css?v=ast0112';
+  const FRAME_STYLESHEET='css/frame-system-v2.css?v=ast0113';
   const FRAME_MOTION_MS=2450;
 
   function ensureStylesheet(){
