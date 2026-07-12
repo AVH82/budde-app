@@ -1,6 +1,7 @@
 (function(){
-  const FRAME_STYLESHEET='css/frame-system-v2.css?v=ast0116';
+  const FRAME_STYLESHEET='css/frame-system-v2.css?v=ast0117';
   const FRAME_MOTION_MS=2600;
+  let awaitingGoogleAuth=false;
 
   function ensureStylesheet(){
     if(document.querySelector('link[data-frame-system="v2"]'))return;
@@ -59,14 +60,14 @@
     return document.querySelector('.frameStartupControls');
   }
 
-  function showBuddyStatus(message){
+  function showBuddyStatus(message,state='neutral'){
     const legacyStatus=document.getElementById('entryGateStatus');
     if(legacyStatus){
       legacyStatus.textContent='';
       delete legacyStatus.dataset.entryStatus;
     }
     if(window.Buddy?.show){
-      window.Buddy.show('neutral',{target:'#buddyHeader',message});
+      window.Buddy.show(state,{target:'#buddyHeader',message});
       return;
     }
     const target=document.getElementById('buddyHeader');
@@ -88,7 +89,7 @@
 
   function markOpening(mode){
     const gate=document.getElementById('entryGate');
-    if(!gate)return;
+    if(!gate||gate.classList.contains('frameStartup--opening'))return;
     const controls=getControls();
     gate.dataset.entryMode=mode||'offline';
     gate.dataset.userChoice='1';
@@ -116,14 +117,24 @@
     const offline=document.getElementById('entryOfflineButton');
 
     if(offline)offline.addEventListener('click',()=>{
+      awaitingGoogleAuth=false;
       showBuddyStatus('MODE HORS LIGNE ACTIVÉ.');
       markOpening('offline');
     },{capture:true});
 
     if(google)google.addEventListener('click',()=>{
-      showBuddyStatus('CONNEXION SÉCURISÉE...');
-      markOpening('google');
+      awaitingGoogleAuth=true;
+      showBuddyStatus('CONNEXION SÉCURISÉE...','thinking');
     },{capture:true});
+
+    if(window.GoogleAuthService?.onChange){
+      window.GoogleAuthService.onChange(status=>{
+        if(!awaitingGoogleAuth||!status?.signedIn)return;
+        awaitingGoogleAuth=false;
+        showBuddyStatus('ESPACE SÉCURISÉ OUVERT.','success');
+        markOpening('google');
+      });
+    }
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',prepare,{once:true});

@@ -143,6 +143,7 @@
   pointer-events:none!important;
 }
 .entryPanel.frameStartupMeta .entryActions{display:none!important;}
+.entryPanel.frameStartupMeta #entryGateStatus{display:none!important;visibility:hidden!important;}
 #entryAppVersion{display:none!important;}
 
 body.scannerFullscreen .frameShellTop,
