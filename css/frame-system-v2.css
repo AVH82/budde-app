@@ -8,7 +8,8 @@
   --frame-z-shutter:310;
   --frame-z-startup:420;
   --frame-z-chrome:400;
-  --frame-motion:2450ms;
+  --frame-motion:2600ms;
+  --frame-motion-ease:cubic-bezier(.34,.08,.18,1);
 }
 
 .app.frameShell{isolation:auto!important;}
@@ -56,10 +57,18 @@
   height:calc((100dvh - var(--frame-top-h) - var(--nav-h) - env(safe-area-inset-top) - env(safe-area-inset-bottom)) / 2 + 12px);
   border-radius:14px 14px 0 0;
 }
-.frameStartup--opening .frameShutter--top{animation:frameShutterTopOpen var(--frame-motion) steps(7,end) forwards;}
-.frameStartup--opening .frameShutter--bottom{animation:frameShutterBottomOpen var(--frame-motion) steps(7,end) forwards;}
-@keyframes frameShutterTopOpen{to{transform:translate(-50%,-115%);}}
-@keyframes frameShutterBottomOpen{to{transform:translate(-50%,115%);}}
+.frameStartup--opening .frameShutter--top{animation:frameShutterTopOpen var(--frame-motion) var(--frame-motion-ease) forwards;}
+.frameStartup--opening .frameShutter--bottom{animation:frameShutterBottomOpen var(--frame-motion) var(--frame-motion-ease) forwards;}
+@keyframes frameShutterTopOpen{
+  0%{transform:translate(-50%,0)}
+  18%{transform:translate(-50%,-5%)}
+  100%{transform:translate(-50%,-115%)}
+}
+@keyframes frameShutterBottomOpen{
+  0%{transform:translate(-50%,0)}
+  18%{transform:translate(-50%,5%)}
+  100%{transform:translate(-50%,115%)}
+}
 
 /* Portaled directly under body so this component can truly cover the dock. */
 .frameStartupControls{
@@ -107,10 +116,18 @@
   animation:none!important;
   pointer-events:auto!important;
 }
-.frameStartupControls--opening .frameStartupChoice--left{animation:frameStartupLeftOpen var(--frame-motion) steps(7,end) forwards;}
-.frameStartupControls--opening .frameStartupChoice--right{animation:frameStartupRightOpen var(--frame-motion) steps(7,end) forwards;}
-@keyframes frameStartupLeftOpen{to{transform:translateX(-115%);}}
-@keyframes frameStartupRightOpen{to{transform:translateX(115%);}}
+.frameStartupControls--opening .frameStartupChoice--left{animation:frameStartupLeftOpen var(--frame-motion) var(--frame-motion-ease) forwards;}
+.frameStartupControls--opening .frameStartupChoice--right{animation:frameStartupRightOpen var(--frame-motion) var(--frame-motion-ease) forwards;}
+@keyframes frameStartupLeftOpen{
+  0%{transform:translateX(0)}
+  18%{transform:translateX(-5%)}
+  100%{transform:translateX(-115%)}
+}
+@keyframes frameStartupRightOpen{
+  0%{transform:translateX(0)}
+  18%{transform:translateX(5%)}
+  100%{transform:translateX(115%)}
+}
 
 .entryPanel.frameStartupMeta{
   position:fixed!important;
