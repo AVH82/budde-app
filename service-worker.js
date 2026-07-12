@@ -1,4 +1,4 @@
-const CACHE_NAME='budde-frame-v2-2';
+const CACHE_NAME='budde-frame-diag-001';
 
 const ASSETS=[
   './',
@@ -6,10 +6,10 @@ const ASSETS=[
   './manifest.webmanifest',
   './css/pipboy.css?v=366',
   './css/frame-core.css?v=ast0106',
-  './css/frame-system-v2.css?v=ast0111',
+  './css/frame-system-v2.css?v=astdiag001',
   './js/app.js?v=3610',
   './js/buddy.js?v=366',
-  './js/startup-gate.js?v=ast0111',
+  './js/startup-gate.js?v=astdiag001',
   './js/storage.local.js',
   './js/storage.service.js',
   './js/storage.google-drive.js',
