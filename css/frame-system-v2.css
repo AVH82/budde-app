@@ -149,6 +149,12 @@
 body.scannerFullscreen .frameShellTop,
 body.scannerFullscreen .frameShellBottom.pipDock{display:grid!important;visibility:visible!important;}
 
+/* AST-012.1 — the header is the single source of camera guidance. */
+#receiptCamera .cameraBuddyMessage,
+#receiptCamera .cameraActions{
+  display:none!important;
+}
+
 @media(max-width:380px){
   .frameStartupControls{bottom:0;}
   .frameStartupChoice{padding-left:10px;padding-right:10px;}
