@@ -16,7 +16,6 @@
 .frameShellTop{z-index:var(--frame-z-chrome)!important;display:grid!important;visibility:visible!important;}
 .frameShellBottom.pipDock{z-index:var(--frame-z-chrome)!important;display:grid!important;visibility:visible!important;}
 
-/* Explicit startup component */
 .entryGate.frameStartup{
   position:fixed!important;
   inset:0!important;
@@ -31,8 +30,6 @@
 }
 .entryGate.frameStartup.frameStartup--opening{pointer-events:none!important;}
 .entryGate.frameStartup[hidden]{display:none!important;}
-
-/* Disable legacy pseudo-element shutters. */
 .entryGate.frameStartup::before,
 .entryGate.frameStartup::after{content:none!important;display:none!important;animation:none!important;}
 
@@ -64,7 +61,7 @@
 @keyframes frameShutterTopOpen{to{transform:translate(-50%,-115%);}}
 @keyframes frameShutterBottomOpen{to{transform:translate(-50%,115%);}}
 
-/* Startup controls intentionally cover the bottom dock while the gate is closed. */
+/* Portaled directly under body so this component can truly cover the dock. */
 .frameStartupControls{
   position:fixed;
   left:50%;
@@ -80,7 +77,8 @@
   overflow:visible;
   pointer-events:auto;
 }
-.frameStartup--opening .frameStartupControls{pointer-events:none;}
+.frameStartupControls[hidden]{display:none!important;}
+.frameStartupControls--opening{pointer-events:none;}
 .frameStartupChoice{
   display:grid;
   place-items:stretch;
@@ -109,12 +107,11 @@
   animation:none!important;
   pointer-events:auto!important;
 }
-.frameStartup--opening .frameStartupChoice--left{animation:frameStartupLeftOpen var(--frame-motion) steps(7,end) forwards;}
-.frameStartup--opening .frameStartupChoice--right{animation:frameStartupRightOpen var(--frame-motion) steps(7,end) forwards;}
+.frameStartupControls--opening .frameStartupChoice--left{animation:frameStartupLeftOpen var(--frame-motion) steps(7,end) forwards;}
+.frameStartupControls--opening .frameStartupChoice--right{animation:frameStartupRightOpen var(--frame-motion) steps(7,end) forwards;}
 @keyframes frameStartupLeftOpen{to{transform:translateX(-115%);}}
 @keyframes frameStartupRightOpen{to{transform:translateX(115%);}}
 
-/* Legacy panel becomes metadata/status only; it no longer owns motion. */
 .entryPanel.frameStartupMeta{
   position:fixed!important;
   inset:auto!important;
