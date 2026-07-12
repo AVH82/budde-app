@@ -1,5 +1,5 @@
 (function(){
-  const FRAME_STYLESHEET='css/frame-system-v2.css?v=ast011';
+  const FRAME_STYLESHEET='css/frame-system-v2.css?v=ast0111';
   const FRAME_MOTION_MS=2450;
 
   function ensureStylesheet(){
@@ -53,10 +53,18 @@
     return gate;
   }
 
+  function showGate(gate){
+    if(!gate||gate.classList.contains('frameStartup--opening'))return;
+    gate.hidden=false;
+    gate.style.display='block';
+    gate.style.visibility='visible';
+  }
+
   function markOpening(mode){
     const gate=document.getElementById('entryGate');
     if(!gate)return;
     gate.dataset.entryMode=mode||'offline';
+    gate.dataset.userChoice='1';
     gate.classList.add('frameStartup--opening','entryGate--opening');
     document.body.classList.add('entryGateOpening');
     setTimeout(()=>document.body.classList.remove('entryGateOpening'),FRAME_MOTION_MS);
@@ -65,7 +73,16 @@
   function prepare(){
     ensureStylesheet();
     const gate=buildFrameStartup();
-    if(gate&&!document.body.dataset.entryOpened)gate.hidden=false;
+    showGate(gate);
+
+    /* app.js may auto-open the application when Google is already signed in.
+       The startup gate remains mandatory until the user explicitly chooses
+       Google or offline mode. Reassert visibility after app initialization. */
+    [0,100,350,800].forEach(delay=>{
+      setTimeout(()=>{
+        if(gate?.dataset.userChoice!=='1')showGate(gate);
+      },delay);
+    });
 
     const google=document.getElementById('entryGoogleButton');
     const offline=document.getElementById('entryOfflineButton');
