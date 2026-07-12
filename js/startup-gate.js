@@ -1,5 +1,5 @@
 (function(){
-  const FRAME_STYLESHEET='css/frame-system-v2.css?v=ast0115';
+  const FRAME_STYLESHEET='css/frame-system-v2.css?v=ast0116';
   const FRAME_MOTION_MS=2600;
 
   function ensureStylesheet(){
@@ -59,6 +59,21 @@
     return document.querySelector('.frameStartupControls');
   }
 
+  function showBuddyStatus(message){
+    const legacyStatus=document.getElementById('entryGateStatus');
+    if(legacyStatus){
+      legacyStatus.textContent='';
+      delete legacyStatus.dataset.entryStatus;
+    }
+    if(window.Buddy?.show){
+      window.Buddy.show('neutral',{target:'#buddyHeader',message});
+      return;
+    }
+    const target=document.getElementById('buddyHeader');
+    const text=target?.querySelector('.buddyBubble p');
+    if(text)text.textContent=message;
+  }
+
   function showGate(gate){
     if(!gate||gate.classList.contains('frameStartup--opening'))return;
     gate.hidden=false;
@@ -100,13 +115,13 @@
     const google=document.getElementById('entryGoogleButton');
     const offline=document.getElementById('entryOfflineButton');
 
-    if(offline)offline.addEventListener('click',()=>markOpening('offline'),{capture:true});
+    if(offline)offline.addEventListener('click',()=>{
+      showBuddyStatus('MODE HORS LIGNE ACTIVÉ.');
+      markOpening('offline');
+    },{capture:true});
+
     if(google)google.addEventListener('click',()=>{
-      const status=document.getElementById('entryGateStatus');
-      if(status){
-        status.textContent='ACCÈS ESPACE SÉCURISÉ.';
-        status.dataset.entryStatus='ACCÈS ESPACE SÉCURISÉ.';
-      }
+      showBuddyStatus('CONNEXION SÉCURISÉE...');
       markOpening('google');
     },{capture:true});
   }
