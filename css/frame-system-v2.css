@@ -4,9 +4,10 @@
 
 :root{
   --frame-z-content:20;
-  --frame-z-shutter:200;
-  --frame-z-startup:260;
-  --frame-z-chrome:320;
+  --frame-z-gate:300;
+  --frame-z-shutter:310;
+  --frame-z-startup:340;
+  --frame-z-chrome:400;
   --frame-motion:2450ms;
 }
 
@@ -25,7 +26,7 @@
   visibility:visible!important;
   overflow:hidden!important;
   background:transparent!important;
-  z-index:auto!important;
+  z-index:var(--frame-z-gate)!important;
   pointer-events:auto!important;
 }
 .entryGate.frameStartup.frameStartup--opening{pointer-events:none!important;}
