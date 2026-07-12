@@ -1,0 +1,140 @@
+/* AST-011 — Frame System v2
+   Structural layers are explicit and independent from the visual skin.
+   Future PNG assets can replace backgrounds without changing animation logic. */
+
+:root{
+  --frame-z-content:20;
+  --frame-z-shutter:200;
+  --frame-z-startup:260;
+  --frame-z-chrome:320;
+  --frame-motion:2450ms;
+}
+
+.app.frameShell{isolation:auto!important;}
+.app.frameShell main{position:relative!important;z-index:var(--frame-z-content)!important;}
+.frameShellTop{z-index:var(--frame-z-chrome)!important;display:grid!important;visibility:visible!important;}
+.frameShellBottom.pipDock{z-index:var(--frame-z-chrome)!important;display:grid!important;visibility:visible!important;}
+
+/* Explicit startup component */
+.entryGate.frameStartup{
+  position:fixed!important;
+  inset:0!important;
+  width:100vw!important;
+  height:100dvh!important;
+  display:block!important;
+  visibility:visible!important;
+  overflow:hidden!important;
+  background:transparent!important;
+  z-index:auto!important;
+  pointer-events:auto!important;
+}
+.entryGate.frameStartup.frameStartup--opening{pointer-events:none!important;}
+.entryGate.frameStartup[hidden]{display:none!important;}
+
+/* Disable legacy pseudo-element shutters. */
+.entryGate.frameStartup::before,
+.entryGate.frameStartup::after{content:none!important;display:none!important;animation:none!important;}
+
+.frameShutter{
+  position:absolute;
+  left:50%;
+  width:var(--frame-shell-w);
+  transform:translateX(-50%);
+  z-index:var(--frame-z-shutter);
+  pointer-events:none;
+  opacity:1;
+  background:radial-gradient(circle at 22px 22px,#b99f61 0 4px,#261f14 5px 9px,transparent 10px),repeating-linear-gradient(90deg,rgba(255,255,255,.045) 0 1px,transparent 1px 9px),repeating-linear-gradient(0deg,rgba(199,160,68,.11) 0 1px,transparent 1px 18px),linear-gradient(180deg,#5f563d 0%,#242219 22%,#0a0d07 56%,#514831 100%);
+  border:1px solid rgba(199,160,68,.64);
+  box-shadow:inset 0 0 0 2px rgba(0,0,0,.70),inset 0 0 32px rgba(0,0,0,.92),0 0 22px rgba(157,255,69,.10);
+  will-change:transform;
+}
+.frameShutter--top{
+  top:calc(var(--frame-top-h) + env(safe-area-inset-top) - 2px);
+  height:calc((100dvh - var(--frame-top-h) - var(--nav-h) - env(safe-area-inset-top) - env(safe-area-inset-bottom)) / 2 + 12px);
+  border-radius:0 0 14px 14px;
+}
+.frameShutter--bottom{
+  bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) - 2px);
+  height:calc((100dvh - var(--frame-top-h) - var(--nav-h) - env(safe-area-inset-top) - env(safe-area-inset-bottom)) / 2 + 12px);
+  border-radius:14px 14px 0 0;
+}
+.frameStartup--opening .frameShutter--top{animation:frameShutterTopOpen var(--frame-motion) steps(7,end) forwards;}
+.frameStartup--opening .frameShutter--bottom{animation:frameShutterBottomOpen var(--frame-motion) steps(7,end) forwards;}
+@keyframes frameShutterTopOpen{to{transform:translate(-50%,-115%);}}
+@keyframes frameShutterBottomOpen{to{transform:translate(-50%,115%);}}
+
+/* Startup controls are independent from shutters and dock. */
+.frameStartupControls{
+  position:fixed;
+  left:50%;
+  bottom:calc(var(--nav-h,104px) + env(safe-area-inset-bottom) + 8px);
+  transform:translateX(-50%);
+  width:var(--frame-shell-w);
+  max-width:100vw;
+  height:calc(var(--nav-h,104px) + env(safe-area-inset-bottom));
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:0;
+  z-index:var(--frame-z-startup);
+  overflow:visible;
+  pointer-events:auto;
+}
+.frameStartup--opening .frameStartupControls{pointer-events:none;}
+.frameStartupChoice{
+  display:grid;
+  place-items:stretch;
+  min-width:0;
+  height:100%;
+  padding:10px clamp(10px,3vw,18px) calc(9px + env(safe-area-inset-bottom));
+  box-sizing:border-box;
+  opacity:1;
+  visibility:visible;
+  will-change:transform;
+  background:radial-gradient(circle at 22px 22px,#c8b06e 0 4px,#2a2418 5px 9px,transparent 10px),repeating-linear-gradient(90deg,rgba(255,255,255,.05) 0 1px,transparent 1px 9px),linear-gradient(180deg,#6c6144 0%,#27251c 22%,#11150e 58%,#5a5138 100%);
+  border:1px solid rgba(154,131,82,.74);
+  box-shadow:inset 0 0 0 2px rgba(0,0,0,.62),inset 0 12px 22px rgba(0,0,0,.55),0 -10px 30px rgba(0,0,0,.72);
+}
+.frameStartupChoice--left{border-right:0;border-radius:var(--frame-radius) 0 0 0;}
+.frameStartupChoice--right{border-left:0;border-radius:0 var(--frame-radius) 0 0;}
+.frameStartupChoice>button{
+  width:100%!important;
+  height:100%!important;
+  min-height:64px!important;
+  display:grid!important;
+  place-items:center!important;
+  opacity:1!important;
+  visibility:visible!important;
+  transform:none!important;
+  animation:none!important;
+  pointer-events:auto!important;
+}
+.frameStartup--opening .frameStartupChoice--left{animation:frameStartupLeftOpen var(--frame-motion) steps(7,end) forwards;}
+.frameStartup--opening .frameStartupChoice--right{animation:frameStartupRightOpen var(--frame-motion) steps(7,end) forwards;}
+@keyframes frameStartupLeftOpen{to{transform:translateX(-115%);}}
+@keyframes frameStartupRightOpen{to{transform:translateX(115%);}}
+
+/* Legacy panel becomes metadata/status only; it no longer owns motion. */
+.entryPanel.frameStartupMeta{
+  position:fixed!important;
+  inset:auto!important;
+  left:50%!important;
+  top:calc(var(--frame-top-h) + env(safe-area-inset-top) + 18px)!important;
+  transform:translateX(-50%)!important;
+  width:min(340px,calc(100vw - 48px))!important;
+  z-index:calc(var(--frame-z-startup) + 1)!important;
+  background:transparent!important;
+  border:0!important;
+  box-shadow:none!important;
+  pointer-events:none!important;
+}
+.entryPanel.frameStartupMeta .entryActions{display:none!important;}
+#entryAppVersion{display:none!important;}
+
+body.scannerFullscreen .frameShellTop,
+body.scannerFullscreen .frameShellBottom.pipDock{display:grid!important;visibility:visible!important;}
+
+@media(max-width:380px){
+  .frameStartupControls{bottom:calc(var(--nav-h,104px) + env(safe-area-inset-bottom) + 6px);}
+  .frameStartupChoice{padding-left:10px;padding-right:10px;}
+  .frameStartupChoice>button{min-height:58px!important;font-size:12px!important;}
+}
