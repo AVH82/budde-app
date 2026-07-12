@@ -1,6 +1,6 @@
 (function(){
-  const FRAME_STYLESHEET='css/frame-system-v2.css?v=ast0114';
-  const FRAME_MOTION_MS=2450;
+  const FRAME_STYLESHEET='css/frame-system-v2.css?v=ast0115';
+  const FRAME_MOTION_MS=2600;
 
   function ensureStylesheet(){
     if(document.querySelector('link[data-frame-system="v2"]'))return;
