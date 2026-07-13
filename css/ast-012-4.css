@@ -1,0 +1,76 @@
+/* AST-012.4 — month picker sizing/position + visible release version */
+
+/* Keep the month picker inside the usable viewport, between header and dock. */
+#monthModal.modal{
+  z-index:390!important;
+  align-items:center!important;
+  justify-content:center!important;
+  padding:
+    calc(var(--frame-top-h) + env(safe-area-inset-top) + 14px)
+    16px
+    calc(var(--nav-h,104px) + env(safe-area-inset-bottom) + 14px)!important;
+}
+#monthModal .sheet{
+  width:min(390px,calc(100vw - 32px))!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  overflow:auto!important;
+  border-radius:18px!important;
+  padding:14px!important;
+}
+#monthModal .sheetHead{
+  grid-template-columns:52px minmax(0,1fr) 52px!important;
+  margin-bottom:10px!important;
+}
+#monthModal .sheetHead button{
+  min-width:48px!important;
+  min-height:48px!important;
+  padding:0!important;
+  font-size:28px!important;
+}
+#monthModal .monthGrid{
+  grid-template-columns:repeat(3,minmax(0,1fr))!important;
+  gap:8px!important;
+}
+#monthModal .monthGrid button{
+  min-height:46px!important;
+  padding:10px 4px!important;
+  font-size:12px!important;
+}
+#monthModal #closeMonth{
+  width:100%!important;
+  min-height:44px!important;
+  margin-top:10px!important;
+}
+
+/* Visible release version — single override for all rendered labels. */
+.frameShellTop .settingsTrustModule::before{
+  content:'v3.6.30'!important;
+}
+#systemAppVersion::after,
+#diagnosticAppVersion::after,
+#entryAppVersion::after{
+  content:'3.6.30'!important;
+}
+#systemBuildId::after,
+#diagnosticBuildId::after{
+  content:'budde-3-6-30'!important;
+}
+#diagnosticExpectedCache::after{
+  content:'budde-frame-v2-12'!important;
+}
+
+@media(max-width:380px){
+  #monthModal.modal{
+    padding-left:10px!important;
+    padding-right:10px!important;
+  }
+  #monthModal .sheet{
+    width:100%!important;
+    padding:12px!important;
+  }
+  #monthModal .monthGrid button{
+    min-height:42px!important;
+    font-size:11px!important;
+  }
+}
