@@ -146,6 +146,9 @@
 .entryPanel.frameStartupMeta #entryGateStatus{display:none!important;visibility:hidden!important;}
 #entryAppVersion{display:none!important;}
 
+/* Budget uses the same global month selector as Home, Expenses and Statistics. */
+.app.frameShell:has(#budget.view.active) > .monthbar[hidden]{display:grid!important;}
+
 body.scannerFullscreen .frameShellTop,
 body.scannerFullscreen .frameShellBottom.pipDock{display:grid!important;visibility:visible!important;}
 
