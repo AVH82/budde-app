@@ -1,15 +1,24 @@
 (function(){
   const FRAME_STYLESHEET='css/frame-system-v2.css?v=ast0117';
+  const RELEASE_STYLESHEET='css/ast-012-4.css?v=ast0124';
   const FRAME_MOTION_MS=2600;
   let awaitingGoogleAuth=false;
 
   function ensureStylesheet(){
-    if(document.querySelector('link[data-frame-system="v2"]'))return;
-    const link=document.createElement('link');
-    link.rel='stylesheet';
-    link.href=FRAME_STYLESHEET;
-    link.dataset.frameSystem='v2';
-    document.head.appendChild(link);
+    if(!document.querySelector('link[data-frame-system="v2"]')){
+      const link=document.createElement('link');
+      link.rel='stylesheet';
+      link.href=FRAME_STYLESHEET;
+      link.dataset.frameSystem='v2';
+      document.head.appendChild(link);
+    }
+    if(!document.querySelector('link[data-release-fix="ast0124"]')){
+      const releaseLink=document.createElement('link');
+      releaseLink.rel='stylesheet';
+      releaseLink.href=RELEASE_STYLESHEET;
+      releaseLink.dataset.releaseFix='ast0124';
+      document.head.appendChild(releaseLink);
+    }
   }
 
   function buildFrameStartup(){
