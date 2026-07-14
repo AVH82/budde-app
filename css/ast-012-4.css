@@ -1,5 +1,3 @@
-@import url('./ast-013-2.css?v=ast0132');
-
 /* AST-012.4 — month picker sizing/position + visible release version */
 
 /* Keep the month picker inside the usable viewport, between header and dock. */
@@ -59,7 +57,7 @@
   content:'budde-3-6-30'!important;
 }
 #diagnosticExpectedCache::after{
-  content:'budde-frame-v2-14'!important;
+  content:'budde-frame-v2-15'!important;
 }
 
 @media(max-width:380px){
