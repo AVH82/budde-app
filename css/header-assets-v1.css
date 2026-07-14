@@ -1,0 +1,55 @@
+/* AST-013.1 — Header skin built from independent PNG assets. */
+.frameShellTop{
+  position:fixed!important;
+  display:grid!important;
+  grid-template-columns:clamp(38px,10vw,54px) clamp(72px,20vw,96px) minmax(0,1fr) clamp(72px,20vw,96px) clamp(38px,10vw,54px)!important;
+  gap:0!important;
+  padding:0!important;
+  min-height:calc(var(--frame-top-h) + env(safe-area-inset-top))!important;
+  background:none!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  overflow:visible!important;
+}
+.frameShellTop::before,
+.frameShellTop::after{content:none!important;display:none!important;}
+.frameShellTop > *{position:relative;z-index:3;}
+.frameShellTop .buddyMount{
+  grid-column:2 / 4;
+  grid-row:1;
+  align-self:stretch!important;
+  margin:0!important;
+  padding:calc(env(safe-area-inset-top) + 14px) 14px 12px clamp(74px,18vw,90px)!important;
+  min-height:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:
+    url('../assets/frame/FRM-002_budde-frame.png') left center / auto 100% no-repeat,
+    url('../assets/frame/FRM-003_header-center-stretch.png') left center / 100% 100% stretch!important;
+  box-shadow:none!important;
+}
+.frameShellTop .settingsTrustModule{
+  grid-column:4;
+  grid-row:1;
+  align-self:stretch!important;
+  justify-self:stretch!important;
+  width:auto!important;
+  height:auto!important;
+  margin:0!important;
+  border:0!important;
+  border-radius:0!important;
+  background:url('../assets/frame/FRM-004_trust-frame.png') center / 100% 100% no-repeat!important;
+  box-shadow:none!important;
+}
+.frameShellTop .settingsTrustModule::before{right:8px!important;top:calc(env(safe-area-inset-top) + 6px)!important;}
+.frameShellTop::marker{display:none;}
+.frameShellTop{
+  background-image:
+    url('../assets/frame/FRM-001_header-left.png'),
+    url('../assets/frame/FRM-005_header-right.png')!important;
+  background-position:left center,right center!important;
+  background-size:clamp(38px,10vw,54px) 100%,clamp(38px,10vw,54px) 100%!important;
+  background-repeat:no-repeat!important;
+}
+.frameShellTop .settingsHotspot{width:100%!important;height:100%!important;}
