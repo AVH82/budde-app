@@ -1,15 +1,16 @@
-/* AST-013.5 — clean three-column responsive header rebuild.
-   The side PNGs are real images; only the central message plate stretches. */
+/* AST-013.6 — responsive header using tightly-cropped frame PNGs.
+   Single active source of truth for the three-part header layout. */
 .frameShellTop{
-  --header-skin-h:clamp(96px,24vw,118px);
-  --header-side-w:clamp(92px,27vw,118px);
+  --header-art-h:clamp(112px,29vw,132px);
+  --header-budde-w:clamp(100px,28vw,124px);
+  --header-trust-w:clamp(106px,30vw,132px);
   --header-center-min:150px;
   position:fixed!important;
-  min-height:var(--header-skin-h)!important;
-  height:var(--header-skin-h)!important;
+  min-height:var(--header-art-h)!important;
+  height:var(--header-art-h)!important;
   padding:0!important;
   display:grid!important;
-  grid-template-columns:minmax(92px,var(--header-side-w)) minmax(var(--header-center-min),1fr) minmax(92px,var(--header-side-w))!important;
+  grid-template-columns:var(--header-budde-w) minmax(var(--header-center-min),1fr) var(--header-trust-w)!important;
   align-items:stretch!important;
   gap:0!important;
   background:none!important;
@@ -38,11 +39,11 @@
   grid-row:1!important;
   display:grid!important;
   align-items:center!important;
-  background-image:url('../assets/frame/FRM-003_header-center-stretch.png.png')!important;
+  background-image:url('../assets/frame/FRM-003_header-center-stretch.png')!important;
   background-repeat:no-repeat!important;
   background-size:100% 100%!important;
   background-position:center!important;
-  padding:calc(var(--header-skin-h) * .19) clamp(5px,2vw,10px) calc(var(--header-skin-h) * .45)!important;
+  padding:calc(var(--header-art-h) * .19) clamp(5px,2vw,10px) calc(var(--header-art-h) * .45)!important;
   overflow:hidden!important;
 }
 .frameShellTop .settingsTrustModule{
@@ -66,7 +67,6 @@
   right:6px!important;
   top:6px!important;
   z-index:6!important;
-  transform:none!important;
   white-space:nowrap!important;
   pointer-events:none!important;
 }
