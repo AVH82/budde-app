@@ -1,16 +1,15 @@
-/* AST-013.3 — three-zone header architecture.
-   Fixed Budde and Trustmeter modules are clipped from their natural PNGs;
-   only the central message plate stretches horizontally. */
+/* AST-013.4 — three-zone header architecture.
+   The reserved frame header height is the master sizing reference: fixed
+   Budde/Trust modules scale from that height and the center stretches. */
 .frameShellTop{
-  --header-skin-h:clamp(96px,24vw,118px);
-  --header-budde-ratio:1.0866667;
-  --header-trust-ratio:1.2392027;
-  --header-budde-w:calc(var(--header-skin-h) * var(--header-budde-ratio));
-  --header-trust-w:calc(var(--header-skin-h) * var(--header-trust-ratio));
-  --header-canvas-offset:calc(var(--header-skin-h) / 724);
-  --header-budde-x:calc(-210 * var(--header-canvas-offset));
-  --header-trust-x:calc(var(--header-trust-w) - (1921 * var(--header-canvas-offset)));
+  --header-skin-h:calc(var(--frame-top-h) + env(safe-area-inset-top));
+  --header-module-h:var(--header-skin-h);
+  --header-budde-ratio:1.42;
+  --header-trust-ratio:1.24;
+  --header-budde-w:calc(var(--header-module-h) * var(--header-budde-ratio));
+  --header-trust-w:calc(var(--header-module-h) * var(--header-trust-ratio));
   position:fixed!important;
+  top:0!important;
   min-height:var(--header-skin-h)!important;
   height:var(--header-skin-h)!important;
   padding:0!important;
@@ -31,6 +30,7 @@
   position:relative!important;
   min-width:0!important;
   min-height:0!important;
+  height:100%!important;
   overflow:hidden!important;
   background-repeat:no-repeat!important;
   z-index:1!important;
@@ -40,7 +40,7 @@
   grid-row:1!important;
   background-image:url('../assets/frame/FRM-002_buddy-frame.png.png')!important;
   background-size:auto 100%!important;
-  background-position:var(--header-budde-x) center!important;
+  background-position:left center!important;
 }
 .frameShellTop .headerCenterModule{
   grid-column:2!important;
@@ -50,7 +50,7 @@
   background-image:url('../assets/frame/FRM-003_header-center-stretch.png.png')!important;
   background-size:100% 100%!important;
   background-position:center!important;
-  padding:calc(var(--header-skin-h) * .19) clamp(5px,2vw,10px) calc(var(--header-skin-h) * .45)!important;
+  padding:calc(var(--header-module-h) * .18) clamp(6px,2vw,12px) calc(var(--header-module-h) * .34)!important;
 }
 .frameShellTop .settingsTrustModule{
   grid-column:3!important;
@@ -62,14 +62,14 @@
   place-items:start center!important;
   background-image:url('../assets/frame/FRM-004_trust-frame.png.png')!important;
   background-size:auto 100%!important;
-  background-position:var(--header-trust-x) center!important;
+  background-position:right center!important;
   border:0!important;
   border-radius:0!important;
   box-shadow:none!important;
 }
 .frameShellTop .settingsTrustModule::before{
   right:calc(var(--header-trust-w) * .46)!important;
-  top:calc(var(--header-skin-h) * .05)!important;
+  top:calc(var(--header-module-h) * .05)!important;
   transform:translateX(50%)!important;
   z-index:4!important;
 }
@@ -77,7 +77,7 @@
   position:relative!important;
   z-index:2!important;
   min-width:0!important;
-  min-height:36px!important;
+  min-height:calc(var(--header-module-h) * .36)!important;
   width:100%!important;
   max-width:none!important;
   margin:0!important;
@@ -92,10 +92,10 @@
 .frameShellTop .settingsTrustFace{
   position:absolute!important;
   left:50%!important;
-  top:calc(var(--header-skin-h) * .295)!important;
+  top:calc(var(--header-module-h) * .295)!important;
   transform:translate(-50%,-50%)!important;
-  width:calc(var(--header-skin-h) * .42)!important;
-  height:calc(var(--header-skin-h) * .42)!important;
+  width:calc(var(--header-module-h) * .42)!important;
+  height:calc(var(--header-module-h) * .42)!important;
   max-width:none!important;
   max-height:none!important;
   margin:0!important;
@@ -109,7 +109,10 @@
 }
 .frameShellTop .headerTrustGauge{z-index:4!important;pointer-events:none!important;}
 @media(max-width:380px){
-  .frameShellTop{--header-skin-h:92px;}
+  .frameShellTop{
+    --header-budde-ratio:1.34;
+    --header-trust-ratio:1.16;
+  }
   .frameShellTop .headerCenterModule{padding-left:4px!important;padding-right:4px!important;}
   .frameShellTop .buddyMount--header{padding:5px 6px!important;}
 }
