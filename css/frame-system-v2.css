@@ -161,6 +161,37 @@ body.scannerFullscreen .frameShellBottom.pipDock{display:grid!important;visibili
   display:none!important;
 }
 
+/* AST-013.1 — segmented PNG header skin.
+   Each uploaded PNG keeps the same transparent master canvas, so the five
+   fixed/flexible slices are recomposed as aligned background layers. */
+.frameShellTop{
+  background-color:transparent!important;
+  background-image:
+    url('../assets/frame/FRM-001_header-left.png.png'),
+    url('../assets/frame/FRM-002_buddy-frame.png.png'),
+    url('../assets/frame/FRM-003_header-center-stretch.png.png'),
+    url('../assets/frame/FRM-004_trust-frame.png.png'),
+    url('../assets/frame/FRM-005_header-right.png.png')!important;
+  background-repeat:no-repeat!important;
+  background-position:center!important;
+  background-size:100% 155%!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+  overflow:visible!important;
+}
+.frameShellTop::before,
+.frameShellTop::after{
+  content:none!important;
+  display:none!important;
+}
+/* Existing interactive content remains above the skin. */
+.frameShellTop .buddyMount,
+.frameShellTop .settingsTrustModule{
+  position:relative;
+  z-index:2;
+}
+
 @media(max-width:380px){
   .frameStartupControls{bottom:0;}
   .frameStartupChoice{padding-left:10px;padding-right:10px;}
