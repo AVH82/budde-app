@@ -1,6 +1,7 @@
 (function(){
   const FRAME_STYLESHEET='css/frame-system-v2.css?v=ast0117';
   const RELEASE_STYLESHEET='css/ast-012-4.css?v=ast0124';
+  const HEADER_STYLESHEET='css/ast-013-2.css?v=ast0133';
   const FRAME_MOTION_MS=2600;
   let awaitingGoogleAuth=false;
 
@@ -18,6 +19,13 @@
       releaseLink.href=RELEASE_STYLESHEET;
       releaseLink.dataset.releaseFix='ast0124';
       document.head.appendChild(releaseLink);
+    }
+    if(!document.querySelector('link[data-header-fix="ast0133"]')){
+      const headerLink=document.createElement('link');
+      headerLink.rel='stylesheet';
+      headerLink.href=HEADER_STYLESHEET;
+      headerLink.dataset.headerFix='ast0133';
+      document.head.appendChild(headerLink);
     }
   }
 
