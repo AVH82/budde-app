@@ -215,12 +215,12 @@ body.scannerFullscreen .frameShellTop .buddyMount--header{
   --pivot-width:58.981233%; /* 220 / 373 */
   --pivot-height:73.089701%; /* 220 / 301 */
   --pivot-aspect-ratio:1 / 1;
-  --pivot-center-x:52.680965%; /* 196.5 / 373 */
-  --pivot-center-y:50.332226%; /* 151.5 / 301 */
-  --radiation-visible-size:114%;
+  --pivot-center-x:52.82%; /* AST-034 final concentric calibration */
+  --pivot-center-y:50.18%; /* AST-034 final concentric calibration */
+  --radiation-visible-size:122%;
   --radiation-visible-center-x:49.045967%; /* alpha bbox center 565.5 / 1153 */
   --radiation-visible-center-y:49.947313%; /* alpha bbox center 474 / 949 */
-  --radiation-canvas-width:122.190520%; /* 114 * 1153 / 1076 */
+  --radiation-canvas-width:calc(var(--radiation-visible-size) * 1153 / 1076);
   --dial-scale:119%;
   --dial-offset-x:0%;
   --dial-offset-y:0.2%;

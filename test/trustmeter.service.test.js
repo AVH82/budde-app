@@ -31,6 +31,7 @@ test('trustmeter startup scan is replay-only on scan entry and score updates sta
   assert.match(app, /else if\(v!=='receiptScanner'&&v!=='receiptCamera'\)resetHeaderTrustNeedle\(\)/);
   assert.match(app, /needle\.animate\(/);
   assert.match(app, /fill:'none'/);
+  assert.match(app, /scan\.addEventListener\('finish',\(\)=>applyCurrentReceiptTrustToNeedle\('scan-animation-finish'\)\)/);
   assert.match(app, /currentEffectiveReceiptTrust\(\)/);
   assert.doesNotMatch(app, /setHeaderTrustNeedleAngle\(receiptScannerState\?\.trust\)/);
   assert.doesNotMatch(app, /settingsTrustNeedle--animate/);
@@ -127,7 +128,8 @@ test('effective trust makes fake receipt angle red and reliable receipt angle gr
 test('app final angle uses effective trust instead of raw trust', () => {
   const app = fs.readFileSync('js/app.js', 'utf8');
   assert.match(app, /function currentReceiptTrustAngle\(\)\{return trustScoreToAngle\(currentEffectiveReceiptTrust\(\)\)\}/);
-  assert.match(app, /function updateHeaderTrustNeedle\(\)\{setHeaderTrustNeedleAngle\(currentEffectiveReceiptTrust\(\)\)\}/);
+  assert.match(app, /function applyCurrentReceiptTrustToNeedle\(source='update'\)\{const needle=document\.querySelector\('\.settingsTrustNeedle'\);const effectiveTrust=currentEffectiveReceiptTrust\(\);const angle=trustScoreToAngle\(effectiveTrust\)/);
+  assert.match(app, /needle\.style\.setProperty\('--needle-angle',`\$\{angle\}deg`\)/);
 });
 
 test('fillReceiptScannerFields installs complete scan state before effective needle update', () => {
@@ -141,7 +143,7 @@ test('fillReceiptScannerFields installs complete scan state before effective nee
   const preserved = body.indexOf('receiptScannerState.rephotoPreservedFields=null');
   const effective = body.indexOf('const effectiveTrust=currentEffectiveReceiptTrust()');
   const trustComponents = body.indexOf('trustComponents={capture:receiptScannerState.visionReport,ocr:ocrTrust,combined:receiptScannerState.trust,effective:effectiveTrust}');
-  const needle = body.indexOf('updateHeaderTrustNeedle()');
+  const needle = body.indexOf("applyCurrentReceiptTrustToNeedle('fill-receipt-fields')");
   assert.ok(lastOcr > -1 && lastOcr < fieldsLoop);
   assert.ok(origins > fieldsLoop && origins < effective);
   assert.ok(preserved > origins && preserved < effective);
