@@ -1,7 +1,7 @@
 (function(){
   const FRAME_STYLESHEET='css/frame-system-v2.css?v=ast0117';
   const RELEASE_STYLESHEET='css/ast-012-4.css?v=ast0124';
-  const HEADER_STYLESHEET='css/ast-013-2.css?v=ast018-header-bg';
+  const HEADER_STYLESHEET='css/ast-013-2.css?v=ast019-buddy-panel';
   const FRAME_MOTION_MS=2600;
   let awaitingGoogleAuth=false;
 
@@ -20,11 +20,11 @@
       releaseLink.dataset.releaseFix='ast0124';
       document.head.appendChild(releaseLink);
     }
-    if(!document.querySelector('link[data-header-fix="ast018-header-bg"]')){
+    if(!document.querySelector('link[data-header-fix="ast019-buddy-panel"]')){
       const headerLink=document.createElement('link');
       headerLink.rel='stylesheet';
       headerLink.href=HEADER_STYLESHEET;
-      headerLink.dataset.headerFix='ast018-header-bg';
+      headerLink.dataset.headerFix='ast019-buddy-panel';
       document.head.appendChild(headerLink);
     }
   }

@@ -123,11 +123,6 @@
   overflow:hidden!important;
   display:grid!important;
   place-items:center!important;
-  background:rgba(3,8,3,.42)!important;
-  border:1px solid rgba(157,255,69,.32)!important;
-  border-bottom-color:transparent!important;
-  border-radius:5px!important;
-  box-shadow:inset 0 0 16px rgba(0,0,0,.82),inset 0 0 8px rgba(157,255,69,.08)!important;
 }
 .frameShellTop .buddyMount--header .buddy{min-width:0!important;width:100%!important;max-width:100%!important;display:grid!important;place-items:center!important;}
 .frameShellTop .buddyMount--header .buddyAvatar{display:none!important;}
