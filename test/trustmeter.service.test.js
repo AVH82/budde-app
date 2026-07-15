@@ -17,9 +17,11 @@ test('maps trust scores linearly to the LOW/HIGH needle angles', () => {
   assert.equal(trustScoreToAngle(undefined), TRUST_MIN_ANGLE);
   assert.equal(trustScoreToAngle(-1), TRUST_MIN_ANGLE);
   assert.equal(trustScoreToAngle(0), TRUST_MIN_ANGLE);
-  assert.equal(trustScoreToAngle(25), -24);
+  assert.equal(TRUST_MIN_ANGLE, -60);
+  assert.equal(TRUST_MAX_ANGLE, 60);
+  assert.equal(trustScoreToAngle(25), -30);
   assert.equal(trustScoreToAngle(50), 0);
-  assert.equal(trustScoreToAngle(75), 24);
+  assert.equal(trustScoreToAngle(75), 30);
   assert.equal(trustScoreToAngle(100), TRUST_MAX_ANGLE);
   assert.equal(trustScoreToAngle(150), TRUST_MAX_ANGLE);
   assert.equal(trustScoreToAngle(0.5), 0);
@@ -54,7 +56,7 @@ test('effective trust caps fake receipt with fallback merchant and zero amount',
 test('effective trust is red when no merchant, amount or reliable date exists', () => {
   const state = { trust: 70, step: 'done', fields: { merchant: null, amount: null, date: null }, rawFields: {} };
   assert.equal(TrustmeterService.computeEffectiveReceiptTrust(state), 0);
-  assert.equal(TrustmeterService.trustScoreToAngle(TrustmeterService.computeEffectiveReceiptTrust(state)), -48);
+  assert.equal(TrustmeterService.trustScoreToAngle(TrustmeterService.computeEffectiveReceiptTrust(state)), TrustmeterService.TRUST_MIN_ANGLE);
   assert.equal(TrustmeterService.hasBlockingReceiptWarning(state), true);
 });
 
@@ -183,7 +185,7 @@ test('effective trust handles absent score and scan reset as LOW', () => {
 test('effective trust makes fake receipt angle red and reliable receipt angle green', () => {
   const fake = { trust: 90, validationStatus: 'invalid', fields: { merchant: 'À vérifier', amount: '0,00' }, lastOcrFields: { text: 'poster' } };
   const reliable = { trust: 88, fields: { merchant: 'LECLERC', amount: '42,10 €', date: '2026-07-13' }, rawFields: { merchant: 'LECLERC', total: 42.10, date: '2026-07-13' }, lastOcrFields: { merchant: 'LECLERC' } };
-  assert.equal(TrustmeterService.trustScoreToAngle(TrustmeterService.computeEffectiveReceiptTrust(fake)), -48);
+  assert.equal(TrustmeterService.trustScoreToAngle(TrustmeterService.computeEffectiveReceiptTrust(fake)), TrustmeterService.TRUST_MIN_ANGLE);
   assert.ok(TrustmeterService.trustScoreToAngle(TrustmeterService.computeEffectiveReceiptTrust(reliable)) > 30);
 });
 
@@ -194,6 +196,7 @@ test('radiation settings button uses iOS-safe static canvas sizing', () => {
   assert.match(css, /--radiation-visible-size:132%/);
   assert.match(css, /--radiation-canvas-width:141\.388%/);
   assert.doesNotMatch(css, /--radiation-canvas-width:calc\([^;]*\*[^;]*\/[^;]*\)/);
+  assert.match(css, /--needle-angle:-60deg/);
 });
 
 test('app final angle uses effective trust instead of raw trust', () => {
@@ -201,6 +204,11 @@ test('app final angle uses effective trust instead of raw trust', () => {
   assert.match(app, /function currentReceiptTrustAngle\(\)\{return trustScoreToAngle\(currentEffectiveReceiptTrust\(\)\)\}/);
   assert.match(app, /function applyCurrentReceiptTrustToNeedle\(source='update'\)\{const needle=document\.querySelector\('\.settingsTrustNeedle'\);const effectiveTrust=currentEffectiveReceiptTrust\(\);const angle=trustScoreToAngle\(effectiveTrust\)/);
   assert.match(app, /needle\.style\.setProperty\('--needle-angle',`\$\{angle\}deg`\)/);
+  assert.match(app, /-60\+\(normalizeTrustScore\(value\)\/100\)\*120/);
+  assert.doesNotMatch(app, /-48\+\(normalizeTrustScore\(value\)\/100\)\*96/);
+  assert.match(app, /TrustmeterService\?\.TRUST_MIN_ANGLE\?\?-60/);
+  assert.match(app, /TrustmeterService\?\.TRUST_MAX_ANGLE\?\?60/);
+  assert.match(app, /scan\.addEventListener\('finish',\(\)=>applyCurrentReceiptTrustToNeedle\('scan-animation-finish'\)\)/);
 });
 
 test('fillReceiptScannerFields installs complete scan state before effective needle update', () => {
@@ -237,5 +245,5 @@ test('effective trust on fillReceiptScannerFields-like fake receipt state stays 
   const effective = TrustmeterService.computeEffectiveReceiptTrust(state);
   assert.equal(signals.hasReliableDate, false);
   assert.ok(effective <= 15);
-  assert.equal(TrustmeterService.trustScoreToAngle(effective), -48);
+  assert.equal(TrustmeterService.trustScoreToAngle(effective), TrustmeterService.TRUST_MIN_ANGLE);
 });
