@@ -96,3 +96,40 @@ test('app final angle uses effective trust instead of raw trust', () => {
   assert.match(app, /function currentReceiptTrustAngle\(\)\{return trustScoreToAngle\(currentEffectiveReceiptTrust\(\)\)\}/);
   assert.match(app, /function updateHeaderTrustNeedle\(\)\{setHeaderTrustNeedleAngle\(currentEffectiveReceiptTrust\(\)\)\}/);
 });
+
+test('fillReceiptScannerFields installs complete scan state before effective needle update', () => {
+  const app = fs.readFileSync('js/app.js', 'utf8');
+  const start = app.indexOf('function fillReceiptScannerFields');
+  const end = app.indexOf('const DEBUG_CAPTURE', start);
+  const body = app.slice(start, end);
+  const fieldsLoop = body.indexOf('receiptScannerFields.forEach');
+  const lastOcr = body.indexOf('receiptScannerState.lastOcrFields={...fields}');
+  const origins = body.indexOf('receiptScannerState.ocrFieldOrigins[key]');
+  const preserved = body.indexOf('receiptScannerState.rephotoPreservedFields=null');
+  const effective = body.indexOf('const effectiveTrust=currentEffectiveReceiptTrust()');
+  const trustComponents = body.indexOf('trustComponents={capture:receiptScannerState.visionReport,ocr:ocrTrust,combined:receiptScannerState.trust,effective:effectiveTrust}');
+  const needle = body.indexOf('updateHeaderTrustNeedle()');
+  assert.ok(lastOcr > -1 && lastOcr < fieldsLoop);
+  assert.ok(origins > fieldsLoop && origins < effective);
+  assert.ok(preserved > origins && preserved < effective);
+  assert.ok(effective > preserved);
+  assert.ok(trustComponents > effective);
+  assert.ok(needle > trustComponents);
+});
+
+test('effective trust on fillReceiptScannerFields-like fake receipt state stays red despite high raw trust and fallback date', () => {
+  const state = {
+    trust: 82,
+    step: 'done',
+    rawFields: { diagnostic: { trust: 82 }, merchant: '', total: 0, date: '' },
+    lastOcrFields: { diagnostic: { trust: 82 }, merchant: '', total: 0, date: '' },
+    fields: { merchant: 'À vérifier', amount: '0,00', date: '2026-07-15', category: 'NON CLASSÉ' },
+    ocrFieldOrigins: { merchant: false, amount: false, date: false, category: false },
+    ocrDiagnostic: { trust: 82 }
+  };
+  const signals = TrustmeterService.receiptTrustSignals(state);
+  const effective = TrustmeterService.computeEffectiveReceiptTrust(state);
+  assert.equal(signals.hasReliableDate, false);
+  assert.ok(effective <= 15);
+  assert.ok(TrustmeterService.trustScoreToAngle(effective) < -30);
+});
