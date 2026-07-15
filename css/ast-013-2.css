@@ -194,7 +194,7 @@ body.scannerFullscreen .frameShellTop .settingsTrustModule--trust .settingsTrust
 }
 
 body.scannerFullscreen .frameShellTop .headerCenterModule{
-  background-color:transparent!important;
+  background-color:rgba(3,8,3,.42)!important;
 }
 body.scannerFullscreen .frameShellTop .buddyMount--header{
   background:transparent!important;
