@@ -1,17 +1,35 @@
-/* AST-013.6 — responsive header using tightly-cropped frame PNGs.
+/* AST-013.7 — responsive header using tightly-cropped frame PNGs.
    Single active source of truth for the three-part header layout. */
-.frameShellTop{
+:root{
   --header-art-h:clamp(112px,29vw,132px);
-  --header-budde-w:clamp(100px,28vw,124px);
-  --header-trust-w:clamp(106px,30vw,132px);
-  --header-center-min:150px;
+  --frame-top-h:var(--header-art-h);
+}
+.app.frameShell{
+  padding-top:calc(var(--header-art-h) + var(--frame-month-h) + var(--frame-month-gap) + env(safe-area-inset-top))!important;
+}
+.app.frameShell:has(.monthbar[hidden]){
+  padding-top:calc(var(--header-art-h) + 20px + env(safe-area-inset-top))!important;
+}
+.frameShellTop{
+  --header-budde-w:calc(var(--header-art-h) * 1.0866667);
+  --header-trust-w:calc(var(--header-art-h) * 1.2392027);
+  --header-center-min:0px;
+  --trust-control-x:50%;
+  --trust-control-y:49%;
+  --trust-control-size:clamp(38px,10vw,48px);
   position:fixed!important;
+  top:0!important;
+  left:50%!important;
+  transform:translateX(-50%)!important;
+  width:var(--frame-shell-w)!important;
   min-height:var(--header-art-h)!important;
   height:var(--header-art-h)!important;
+  max-height:var(--header-art-h)!important;
   padding:0!important;
   display:grid!important;
   grid-template-columns:var(--header-budde-w) minmax(var(--header-center-min),1fr) var(--header-trust-w)!important;
   align-items:stretch!important;
+  align-content:stretch!important;
   gap:0!important;
   background:none!important;
   border:0!important;
@@ -25,8 +43,9 @@
 .frameShellTop .settingsTrustModule{
   position:relative!important;
   min-width:0!important;
-  min-height:0!important;
-  height:100%!important;
+  min-height:var(--header-art-h)!important;
+  height:var(--header-art-h)!important;
+  max-height:var(--header-art-h)!important;
   overflow:visible!important;
   z-index:1!important;
   border:0!important;
@@ -43,13 +62,14 @@
   background-repeat:no-repeat!important;
   background-size:100% 100%!important;
   background-position:center!important;
-  padding:calc(var(--header-art-h) * .19) clamp(5px,2vw,10px) calc(var(--header-art-h) * .45)!important;
+  padding:0!important;
   overflow:hidden!important;
 }
 .frameShellTop .settingsTrustModule{
   grid-column:3!important;
   grid-row:1!important;
   width:100%!important;
+  min-width:0!important;
   display:grid!important;
   place-items:center!important;
   background:none!important;
@@ -64,38 +84,57 @@
   user-select:none!important;
 }
 .frameShellTop .settingsTrustModule::before{
-  right:6px!important;
-  top:6px!important;
+  content:'v3.6.30'!important;
+  position:absolute!important;
+  right:5px!important;
+  top:5px!important;
   z-index:6!important;
   white-space:nowrap!important;
   pointer-events:none!important;
+  max-width:calc(100% - 10px)!important;
+  padding:2px 5px!important;
+  border:1px solid rgba(199,160,68,.62)!important;
+  border-radius:5px!important;
+  background:linear-gradient(145deg,#4a432f,#151610 60%,#6d5d38)!important;
+  color:#bfff6a!important;
+  font-size:8px!important;
+  line-height:1!important;
+  letter-spacing:.08em!important;
+  text-shadow:0 0 7px rgba(157,255,69,.7)!important;
 }
 .frameShellTop .buddyMount--header{
-  position:relative!important;
+  position:absolute!important;
   z-index:2!important;
+  left:clamp(5px,2vw,10px)!important;
+  right:clamp(5px,2vw,10px)!important;
+  top:calc(var(--header-art-h) * .18)!important;
+  height:calc(var(--header-art-h) * .35)!important;
   min-width:0!important;
-  min-height:36px!important;
-  width:100%!important;
+  min-height:0!important;
+  width:auto!important;
   max-width:none!important;
   margin:0!important;
-  padding:6px 8px!important;
+  padding:4px 7px!important;
   overflow:hidden!important;
+  display:grid!important;
+  align-items:center!important;
   background:rgba(3,8,3,.54)!important;
   border:1px solid rgba(157,255,69,.25)!important;
   border-radius:8px!important;
   box-shadow:inset 0 0 14px rgba(0,0,0,.78)!important;
 }
-.frameShellTop .buddyMount--header .buddy{min-width:0!important;}
+.frameShellTop .buddyMount--header .buddy{min-width:0!important;align-items:center!important;}
 .frameShellTop .buddyMount--header .buddyAvatar{display:none!important;}
-.frameShellTop .buddyMount--header .buddyBubble{min-width:0!important;}
+.frameShellTop .buddyMount--header .buddyBubble{min-width:0!important;min-height:0!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;}
+.frameShellTop .buddyMount--header .buddyBubble p{margin:0!important;font-size:clamp(10px,2.7vw,13px)!important;line-height:1.15!important;max-height:calc(var(--header-art-h) * .28)!important;overflow:hidden!important;display:-webkit-box!important;-webkit-line-clamp:3!important;-webkit-box-orient:vertical!important;}
 .frameShellTop .settingsHotspot,
 .frameShellTop .settingsTrustFace{
   position:absolute!important;
-  left:50%!important;
-  top:50%!important;
+  left:var(--trust-control-x)!important;
+  top:var(--trust-control-y)!important;
   transform:translate(-50%,-50%)!important;
-  width:clamp(38px,10vw,48px)!important;
-  height:clamp(38px,10vw,48px)!important;
+  width:var(--trust-control-size)!important;
+  height:var(--trust-control-size)!important;
   max-width:none!important;
   max-height:none!important;
   margin:0!important;
@@ -111,6 +150,6 @@
 }
 .frameShellTop .headerTrustGauge{z-index:4!important;pointer-events:none!important;}
 @media(max-width:380px){
-  .frameShellTop .headerCenterModule{padding-left:4px!important;padding-right:4px!important;}
-  .frameShellTop .buddyMount--header{padding:5px 6px!important;}
+  .frameShellTop{--trust-control-size:38px;}
+  .frameShellTop .buddyMount--header{left:4px!important;right:4px!important;padding:3px 6px!important;}
 }
