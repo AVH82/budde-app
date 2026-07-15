@@ -45,16 +45,16 @@
 
 /* Visible release version — single override for all rendered labels. */
 .frameShellTop .settingsTrustModule::before{
-  content:'v3.6.30'!important;
+  content:'v3.6.33'!important;
 }
 #systemAppVersion::after,
 #diagnosticAppVersion::after,
 #entryAppVersion::after{
-  content:'3.6.30'!important;
+  content:'3.6.33'!important;
 }
 #systemBuildId::after,
 #diagnosticBuildId::after{
-  content:'budde-3-6-30'!important;
+  content:'budde-3-6-33'!important;
 }
 #diagnosticExpectedCache::after{
   content:'budde-frame-v2-20'!important;
