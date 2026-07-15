@@ -225,7 +225,7 @@ body.scannerFullscreen .frameShellTop .buddyMount--header{
   --pivot-center-y:50.332226%; /* 151.5 / 301 */
   --radiation-scale:124%;
   --radiation-offset-x:1.2%;
-  --radiation-offset-y:0%;
+  --radiation-offset-y:4%;
   --dial-scale:119%;
   --dial-offset-x:0%;
   --dial-offset-y:0.2%;
