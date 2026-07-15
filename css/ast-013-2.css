@@ -206,21 +206,34 @@ body.scannerFullscreen .frameShellTop .buddyMount--header{
   .frameShellTop .buddyMount--header{left:6px!important;right:6px!important;padding:0!important;}
 }
 
-/* AST-026 — static PNG pivot viewport inside the existing FRM-003 shell.
-   Measurements are derived from FRM-003_trust-frame.png native 373x301 by scanning
-   the continuous dark circular aperture: x=87..306, y=42..261, diameter=220px,
-   center=(196.5px,151.5px). The responsive shell keeps the native 373:301
-   ratio, so width=220/373 and height=220/301 render the same square in pixels.
-   These variables are reserved for the future 3D pivot,
-   needle animation, radioactive glow and CSS glass layer. */
+/* AST-027 — calibrated PNG pivot viewport inside the existing FRM-003 shell.
+   Frame aperture remains the single mechanical viewport measured in AST-026:
+   x=87..306, y=42..261, diameter=220px, center=(196.5px,151.5px).
+   Asset alpha measurements:
+   PVT-001 1153x949, bbox x=28..1103 y=0..948, visible 1076x949,
+   visual center=(565.5,474), transparent margins L28 T0 R49 B0.
+   PVT-002 346x289, bbox x=0..345 y=0..288, visible 346x289,
+   visual center=(172.5,144), transparent margins L0 T0 R0 B0.
+   PVT-003 237x261, bbox x=0..236 y=0..260 at alpha>0,
+   core bbox x=20..223 y=15..212 at alpha>250, real hub center≈(58px,176px).
+   Needle rotation point is therefore 24.472574% 67.432950% of PVT-003. */
 .frameShellTop .settingsTrustModule{
   --pivot-width:58.981233%; /* 220 / 373 */
   --pivot-height:73.089701%; /* 220 / 301 */
   --pivot-aspect-ratio:1 / 1; /* safety: the rendered viewport must remain circular */
   --pivot-center-x:52.680965%; /* 196.5 / 373 */
   --pivot-center-y:50.332226%; /* 151.5 / 301 */
-  --needle-origin-x:50%; /* PVT-003 hub center measured at x=118.5px of 237px */
-  --needle-origin-y:50.383142%; /* PVT-003 hub center measured at y=131.5px of 261px */
+  --radiation-scale:119%;
+  --radiation-offset-x:1.1%;
+  --radiation-offset-y:0.8%;
+  --dial-scale:119%;
+  --dial-offset-x:0%;
+  --dial-offset-y:0.2%;
+  --needle-scale:52%;
+  --needle-offset-x:0%;
+  --needle-offset-y:0%;
+  --needle-origin-x:24.472574%; /* real hub center x=58px / 237px */
+  --needle-origin-y:67.432950%; /* real hub center y=176px / 261px */
 }
 .frameShellTop .settingsHotspot,
 .frameShellTop .headerTrustGauge{
@@ -254,16 +267,32 @@ body.scannerFullscreen .frameShellTop .buddyMount--header{
 }
 .frameShellTop .settingsTrustAsset{
   position:absolute!important;
-  inset:0!important;
   display:block!important;
-  width:100%!important;
-  height:100%!important;
-  object-fit:contain!important;
+  max-width:none!important;
+  max-height:none!important;
   pointer-events:none!important;
   user-select:none!important;
 }
+.frameShellTop .settingsTrustAsset--radiation{
+  left:calc(50% + var(--radiation-offset-x))!important;
+  top:calc(50% + var(--radiation-offset-y))!important;
+  width:var(--radiation-scale)!important;
+  height:auto!important;
+  transform:translate(-50%,-50%)!important;
+}
+.frameShellTop .settingsTrustAsset--dial{
+  left:calc(50% + var(--dial-offset-x))!important;
+  top:calc(50% + var(--dial-offset-y))!important;
+  width:var(--dial-scale)!important;
+  height:auto!important;
+  transform:translate(-50%,-50%)!important;
+}
 .frameShellTop .settingsTrustNeedle{
   z-index:2!important;
+  left:calc(50% + var(--needle-offset-x))!important;
+  top:calc(50% + var(--needle-offset-y))!important;
+  width:var(--needle-scale)!important;
+  height:auto!important;
   transform-origin:var(--needle-origin-x) var(--needle-origin-y)!important;
-  transform:none!important;
+  transform:translate(calc(-1 * var(--needle-origin-x)),calc(-1 * var(--needle-origin-y)))!important;
 }
