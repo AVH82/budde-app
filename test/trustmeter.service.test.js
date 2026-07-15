@@ -50,9 +50,10 @@ test('effective trust caps fake receipt with fallback merchant and zero amount',
   assert.ok(TrustmeterService.computeEffectiveReceiptTrust(state) <= 15);
 });
 
-test('effective trust is LOW when no merchant, amount or reliable date exists', () => {
+test('effective trust is red when no merchant, amount or reliable date exists', () => {
   const state = { trust: 70, step: 'done', fields: { merchant: null, amount: null, date: null }, rawFields: {} };
-  assert.equal(TrustmeterService.computeEffectiveReceiptTrust(state), 0);
+  assert.equal(TrustmeterService.computeEffectiveReceiptTrust(state), 15);
+  assert.equal(TrustmeterService.hasBlockingReceiptWarning(state), true);
 });
 
 test('effective trust preserves high score for coherent reliable receipt', () => {
@@ -67,7 +68,7 @@ test('effective trust preserves high score for coherent reliable receipt', () =>
   assert.equal(TrustmeterService.computeEffectiveReceiptTrust(state), 85);
 });
 
-test('effective trust caps recognized merchant and amount with doubtful date to middle zone', () => {
+test('effective trust forces recognized merchant and amount with doubtful date to red zone', () => {
   const state = {
     trust: 65,
     step: 'done',
@@ -76,7 +77,39 @@ test('effective trust caps recognized merchant and amount with doubtful date to 
     lastOcrFields: { merchant: 'MONOPRIX', total: 8.90, date: '2026-07-15' },
     ocrDiagnostic: { date: { status: 'warning' } }
   };
-  assert.equal(TrustmeterService.computeEffectiveReceiptTrust(state), 40);
+  assert.equal(TrustmeterService.computeEffectiveReceiptTrust(state), 15);
+  assert.equal(TrustmeterService.hasBlockingReceiptWarning(state), true);
+});
+
+test('blocking receipt warning covers explicit review values and invalid amounts before progressive caps', () => {
+  const invalidStates = [
+    { trust: 95, fields: { merchant: 'Inconnu', amount: '12,00', date: '2026-07-14', category: 'NON CLASSÉ' } },
+    { trust: 95, fields: { merchant: 'LECLERC', amount: '-1,00', date: '2026-07-14', category: 'NON CLASSÉ' } },
+    { trust: 95, fields: { merchant: 'LECLERC', amount: 'abc', date: '2026-07-14', category: 'NON CLASSÉ' } },
+    { trust: 95, fields: { merchant: 'LECLERC', amount: '12,00', date: 'À vérifier', category: 'NON CLASSÉ' } },
+    { trust: 95, fields: { merchant: 'LECLERC', amount: '12,00', date: '2026-07-14', category: 'À vérifier' } },
+    { trust: 95, fields: { merchant: 'LECLERC', amount: '12,00', date: '2026-07-14', note: 'À vérifier' } },
+    { trust: 95, fields: { merchant: 'LECLERC', amount: '12,00', date: '2026-07-14' }, validationStatus: 'warning' },
+    { trust: 95, fields: { merchant: 'LECLERC', amount: '12,00', date: '2026-07-14' }, ocrDiagnostic: { amount: { status: 'warning' } } },
+    { trust: 95, fields: { merchant: 'LECLERC', amount: '12,00', date: '2026-07-14' }, visionReport: { isReceipt: false } }
+  ];
+  invalidStates.forEach(state => {
+    assert.equal(TrustmeterService.hasBlockingReceiptWarning(state), true);
+    assert.equal(TrustmeterService.computeEffectiveReceiptTrust(state), 15);
+  });
+});
+
+test('manual locked corrections do not count as unreliable OCR origins', () => {
+  const state = {
+    trust: 90,
+    fields: { merchant: 'LECLERC', amount: '42,10 €', date: '2026-07-13' },
+    rawFields: { merchant: 'LECLERC', total: 42.10, date: '2026-07-13' },
+    lastOcrFields: { merchant: 'LECLERC' },
+    lockedFields: { merchant: true, amount: true, date: true },
+    ocrFieldOrigins: { merchant: false, amount: false, date: false }
+  };
+  assert.equal(TrustmeterService.hasBlockingReceiptWarning(state), false);
+  assert.equal(TrustmeterService.computeEffectiveReceiptTrust(state), 90);
 });
 
 test('effective trust handles absent score and scan reset as LOW', () => {
