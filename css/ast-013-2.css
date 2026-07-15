@@ -118,7 +118,7 @@
   height:100%!important;
   max-width:none!important;
   margin:0!important;
-  padding:0 clamp(6px,1.8vw,10px)!important;
+  padding:0!important;
   overflow:hidden!important;
   background:transparent!important;
   background-color:transparent!important;
@@ -133,14 +133,14 @@
 }
 .frameShellTop .buddyMount--header::before,
 .frameShellTop .buddyMount--header::after{content:none!important;display:none!important;background:none!important;background-image:none!important;border:0!important;box-shadow:none!important;filter:none!important;backdrop-filter:none!important;}
-.frameShellTop .buddyMount--header .buddy{min-width:0!important;width:100%!important;max-width:100%!important;min-height:100%!important;height:100%!important;display:grid!important;place-items:center!important;padding:0!important;background:transparent!important;background-color:transparent!important;background-image:none!important;border:0!important;outline:0!important;box-shadow:none!important;filter:none!important;backdrop-filter:none!important;overflow:visible!important;}
+.frameShellTop .buddyMount--header .buddy{min-width:0!important;width:100%!important;max-width:none!important;min-height:100%!important;height:100%!important;display:grid!important;place-items:center!important;padding:0!important;background:transparent!important;background-color:transparent!important;background-image:none!important;border:0!important;outline:0!important;box-shadow:none!important;filter:none!important;backdrop-filter:none!important;overflow:visible!important;}
 .frameShellTop .buddyMount--header .buddy::before,
 .frameShellTop .buddyMount--header .buddy::after{content:none!important;display:none!important;background:none!important;background-image:none!important;border:0!important;box-shadow:none!important;filter:none!important;backdrop-filter:none!important;}
 .frameShellTop .buddyMount--header .buddyAvatar{display:none!important;}
-.frameShellTop .buddyMount--header .buddyBubble{min-width:0!important;min-height:100%!important;height:100%!important;width:100%!important;max-width:100%!important;padding:0!important;display:grid!important;place-items:center!important;border:0!important;outline:0!important;background:transparent!important;background-color:transparent!important;background-image:none!important;box-shadow:none!important;filter:none!important;backdrop-filter:none!important;overflow:visible!important;}
+.frameShellTop .buddyMount--header .buddyBubble{min-width:0!important;min-height:100%!important;height:100%!important;width:88%!important;max-width:none!important;padding:0!important;display:grid!important;place-items:center!important;border:0!important;outline:0!important;background:transparent!important;background-color:transparent!important;background-image:none!important;box-shadow:none!important;filter:none!important;backdrop-filter:none!important;overflow:visible!important;}
 .frameShellTop .buddyMount--header .buddyBubble::before,
 .frameShellTop .buddyMount--header .buddyBubble::after{content:none!important;display:none!important;background:none!important;background-image:none!important;border:0!important;box-shadow:none!important;filter:none!important;backdrop-filter:none!important;}
-.frameShellTop .buddyMount--header .buddyBubble p{margin:0 auto!important;width:100%!important;max-width:100%!important;text-align:center!important;font-size:clamp(9px,2.45vw,13px)!important;line-height:1.2!important;max-height:none!important;overflow:hidden!important;overflow-wrap:anywhere!important;display:-webkit-box!important;-webkit-line-clamp:3!important;-webkit-box-orient:vertical!important;background:transparent!important;background-color:transparent!important;background-image:none!important;border:0!important;outline:0!important;box-shadow:none!important;filter:none!important;backdrop-filter:none!important;}
+.frameShellTop .buddyMount--header .buddyBubble p{margin:0!important;width:100%!important;max-width:none!important;text-align:center!important;font-size:clamp(9px,2.45vw,13px)!important;line-height:1.2!important;max-height:none!important;overflow:hidden!important;overflow-wrap:anywhere!important;display:-webkit-box!important;-webkit-line-clamp:3!important;-webkit-box-orient:vertical!important;background:transparent!important;background-color:transparent!important;background-image:none!important;border:0!important;outline:0!important;box-shadow:none!important;filter:none!important;backdrop-filter:none!important;}
 .frameShellTop .settingsHotspot,
 .frameShellTop .settingsTrustFace{
   position:absolute!important;
@@ -174,5 +174,5 @@ body.scannerFullscreen .frameShellTop .buddyMount--header{
 }
 @media(max-width:380px){
   .frameShellTop{--trust-control-size:38px;}
-  .frameShellTop .buddyMount--header{left:6px!important;right:6px!important;padding:0 9px!important;}
+  .frameShellTop .buddyMount--header{left:6px!important;right:6px!important;padding:0!important;}
 }
