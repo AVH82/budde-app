@@ -51,7 +51,9 @@
   function hasUnreliableOcrOrigin(state={},diagnostic={}){
     const origins=state.ocrFieldOrigins||{};
     const locked=state.lockedFields||{};
-    return Object.entries(origins).some(([key,origin])=>origin===false&&!locked[key])||diagnostic.ocrReliable===false||diagnostic.reliable===false||diagnostic.originReliable===false;
+    const requiredOriginKeys=['merchant','amount','date'];
+    const hasUnreliableMainOrigin=requiredOriginKeys.some(key=>origins[key]===false&&!locked[key]);
+    return hasUnreliableMainOrigin||diagnostic.ocrReliable===false||diagnostic.reliable===false||diagnostic.originReliable===false;
   }
   function validDate(value){
     if(!value||value===RECEIPT_FIELD_FALLBACK)return false;

@@ -100,6 +100,66 @@ test('blocking receipt warning covers explicit review values and invalid amounts
   });
 });
 
+
+
+test('category without OCR origin does not block reliable receipt trust', () => {
+  const state = {
+    trust: 90,
+    fields: { merchant: 'LECLERC', amount: '42,10 €', date: '2026-07-13', category: 'NON CLASSÉ' },
+    rawFields: { merchant: 'LECLERC', total: 42.10, date: '2026-07-13' },
+    lastOcrFields: { merchant: 'LECLERC', total: 42.10, date: '2026-07-13' },
+    ocrFieldOrigins: { merchant: true, amount: true, date: true, category: false }
+  };
+  assert.equal(TrustmeterService.hasBlockingReceiptWarning(state), false);
+  assert.equal(TrustmeterService.computeEffectiveReceiptTrust(state), 90);
+  assert.ok(TrustmeterService.trustScoreToAngle(TrustmeterService.computeEffectiveReceiptTrust(state)) > 30);
+});
+
+test('suggested category without OCR origin is not a blocking warning', () => {
+  const state = {
+    trust: 88,
+    fields: { merchant: 'CARREFOUR', amount: '18,20 €', date: '2026-07-13', category: 'ALIMENTATION' },
+    rawFields: { merchant: 'CARREFOUR', total: 18.20, date: '2026-07-13' },
+    lastOcrFields: { merchant: 'CARREFOUR', total: 18.20, date: '2026-07-13' },
+    ocrFieldOrigins: { merchant: true, amount: true, date: true, category: false }
+  };
+  assert.equal(TrustmeterService.hasBlockingReceiptWarning(state), false);
+  assert.equal(TrustmeterService.computeEffectiveReceiptTrust(state), 88);
+});
+
+test('unreliable main OCR origins remain blocking until manually locked', () => {
+  const base = {
+    trust: 90,
+    fields: { merchant: 'LECLERC', amount: '42,10 €', date: '2026-07-13', category: 'NON CLASSÉ' },
+    rawFields: { merchant: 'LECLERC', total: 42.10, date: '2026-07-13' },
+    lastOcrFields: { merchant: 'LECLERC', total: 42.10, date: '2026-07-13' }
+  };
+  ['merchant', 'amount', 'date'].forEach(key => {
+    const state = { ...base, ocrFieldOrigins: { merchant: true, amount: true, date: true, category: false, [key]: false } };
+    assert.equal(TrustmeterService.hasBlockingReceiptWarning(state), true, `${key} false origin should block`);
+    assert.equal(TrustmeterService.computeEffectiveReceiptTrust(state), 15, `${key} false origin should force red`);
+  });
+  const locked = {
+    ...base,
+    lockedFields: { merchant: true, amount: true, date: true },
+    ocrFieldOrigins: { merchant: false, amount: false, date: false, category: false }
+  };
+  assert.equal(TrustmeterService.hasBlockingReceiptWarning(locked), false);
+  assert.equal(TrustmeterService.computeEffectiveReceiptTrust(locked), 90);
+});
+
+test('explicit review category remains blocking regardless of OCR origin', () => {
+  const state = {
+    trust: 90,
+    fields: { merchant: 'LECLERC', amount: '42,10 €', date: '2026-07-13', category: 'À vérifier' },
+    rawFields: { merchant: 'LECLERC', total: 42.10, date: '2026-07-13' },
+    lastOcrFields: { merchant: 'LECLERC', total: 42.10, date: '2026-07-13' },
+    ocrFieldOrigins: { merchant: true, amount: true, date: true, category: false }
+  };
+  assert.equal(TrustmeterService.hasBlockingReceiptWarning(state), true);
+  assert.equal(TrustmeterService.computeEffectiveReceiptTrust(state), 15);
+});
+
 test('manual locked corrections do not count as unreliable OCR origins', () => {
   const state = {
     trust: 90,
