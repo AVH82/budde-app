@@ -34,7 +34,7 @@
   background:none!important;
   border:0!important;
   box-shadow:none!important;
-  overflow:visible!important;
+  overflow:hidden!important;
 }
 .frameShellTop::before,
 .frameShellTop::after{content:none!important;display:none!important;}
@@ -64,7 +64,7 @@
   background-size:100% 100%!important;
   background-position:center!important;
   padding:0!important;
-  overflow:hidden!important;
+  overflow:visible!important;
 }
 .frameShellTop .settingsTrustModule{
   grid-column:3!important;
