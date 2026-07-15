@@ -206,37 +206,39 @@ body.scannerFullscreen .frameShellTop .buddyMount--header{
   .frameShellTop .buddyMount--header{left:6px!important;right:6px!important;padding:0!important;}
 }
 
-/* AST-029 — final calibrated PNG pivot viewport inside the existing FRM-003 shell.
-   Frame aperture remains the single mechanical viewport measured in AST-026:
-   x=87..306, y=42..261, diameter=220px, center=(196.5px,151.5px).
-   Asset alpha measurements:
-   PVT-001 1153x949, bbox x=28..1103 y=0..948, visible 1076x949,
-   visual center=(565.5,474), transparent margins L28 T0 R49 B0.
-   PVT-002 346x289, bbox x=0..345 y=0..288, visible 346x289,
-   visual center=(172.5,144), transparent margins L0 T0 R0 B0.
-   PVT-003 237x261, bbox x=0..236 y=0..260 at alpha>0,
-   core bbox x=20..223 y=15..212 at alpha>250, real hub center≈(58px,176px).
-   Needle rotation point is therefore 24.472574% 67.432950% of PVT-003. */
+/* AST-030 — radiation disc is clipped by the real FRM-003 aperture, while the
+   transparent Settings button remains an independent top layer.
+   Frame aperture measured on FRM-003: x=87..306, y=42..261, diameter=220px,
+   center=(196.5px,151.5px) in a 373x301 module.
+   PVT-001 alpha bbox: x=28..1103 y=0..948, visible center=(565.5,474). */
 .frameShellTop .settingsTrustModule{
   --pivot-width:58.981233%; /* 220 / 373 */
   --pivot-height:73.089701%; /* 220 / 301 */
-  --pivot-aspect-ratio:1 / 1; /* safety: the rendered viewport must remain circular */
+  --pivot-aspect-ratio:1 / 1;
   --pivot-center-x:52.680965%; /* 196.5 / 373 */
   --pivot-center-y:50.332226%; /* 151.5 / 301 */
-  --radiation-scale:124%;
-  --radiation-offset-x:1.2%;
-  --radiation-offset-y:4%;
+  --radiation-visible-size:102%;
+  --radiation-visible-center-x:49.045967%; /* 565.5 / 1153 */
+  --radiation-visible-center-y:49.947313%; /* 474 / 949 */
+  --radiation-canvas-width:109.302974%; /* visible size * 1153 / 1076 */
   --dial-scale:119%;
   --dial-offset-x:0%;
   --dial-offset-y:0.2%;
   --needle-scale:45.6%;
   --needle-offset-x:0%;
   --needle-offset-y:0%;
-  --needle-origin-x:24.472574%; /* real hub center x=58px / 237px */
-  --needle-origin-y:67.432950%; /* real hub center y=176px / 261px */
+  --needle-origin-x:24.472574%;
+  --needle-origin-y:67.432950%;
+  isolation:isolate!important;
+}
+.frameShellTop .settingsTrustModule>.headerFrameImage--trust{
+  position:absolute!important;
+  inset:0!important;
+  z-index:3!important;
+  pointer-events:none!important;
 }
 .frameShellTop .settingsHotspot,
-.frameShellTop .headerTrustGauge{
+.frameShellTop .settingsTrustFace{
   left:var(--pivot-center-x)!important;
   top:var(--pivot-center-y)!important;
   width:var(--pivot-width)!important;
@@ -249,7 +251,32 @@ body.scannerFullscreen .frameShellTop .buddyMount--header{
   background:transparent!important;
   box-shadow:none!important;
   filter:none!important;
+}
+.frameShellTop .settingsTrustRadiationFace{
+  z-index:2!important;
   overflow:hidden!important;
+  pointer-events:none!important;
+}
+.frameShellTop .headerTrustGauge{
+  z-index:2!important;
+  overflow:hidden!important;
+  pointer-events:none!important;
+}
+.frameShellTop .settingsHotspot{
+  z-index:4!important;
+  display:block!important;
+  overflow:visible!important;
+  appearance:none!important;
+  -webkit-appearance:none!important;
+  cursor:pointer!important;
+  color:transparent!important;
+  text-shadow:none!important;
+  pointer-events:auto!important;
+}
+.frameShellTop .settingsHotspot:focus-visible{
+  outline:2px solid var(--terminal-green)!important;
+  outline-offset:2px!important;
+  box-shadow:0 0 12px rgba(157,255,69,.72)!important;
 }
 .frameShellTop .settingsHotspot::before,
 .frameShellTop .settingsHotspot::after,
@@ -264,6 +291,7 @@ body.scannerFullscreen .frameShellTop .buddyMount--header{
   border-radius:50%!important;
   overflow:hidden!important;
   transform-style:preserve-3d;
+  pointer-events:none!important;
 }
 .frameShellTop .settingsTrustAsset{
   position:absolute!important;
@@ -274,11 +302,11 @@ body.scannerFullscreen .frameShellTop .buddyMount--header{
   user-select:none!important;
 }
 .frameShellTop .settingsTrustAsset--radiation{
-  left:calc(50% + var(--radiation-offset-x))!important;
-  top:calc(50% + var(--radiation-offset-y))!important;
-  width:var(--radiation-scale)!important;
+  left:50%!important;
+  top:50%!important;
+  width:var(--radiation-canvas-width)!important;
   height:auto!important;
-  transform:translate(-50%,-50%)!important;
+  transform:translate(calc(-1 * var(--radiation-visible-center-x)),calc(-1 * var(--radiation-visible-center-y)))!important;
 }
 .frameShellTop .settingsTrustAsset--dial{
   left:calc(50% + var(--dial-offset-x))!important;
