@@ -17,9 +17,9 @@ test('maps trust scores linearly to the LOW/HIGH needle angles', () => {
   assert.equal(trustScoreToAngle(undefined), TRUST_MIN_ANGLE);
   assert.equal(trustScoreToAngle(-1), TRUST_MIN_ANGLE);
   assert.equal(trustScoreToAngle(0), TRUST_MIN_ANGLE);
-  assert.equal(trustScoreToAngle(25), -30);
+  assert.equal(trustScoreToAngle(25), -24);
   assert.equal(trustScoreToAngle(50), 0);
-  assert.equal(trustScoreToAngle(75), 30);
+  assert.equal(trustScoreToAngle(75), 24);
   assert.equal(trustScoreToAngle(100), TRUST_MAX_ANGLE);
   assert.equal(trustScoreToAngle(150), TRUST_MAX_ANGLE);
   assert.equal(trustScoreToAngle(0.5), 0);
@@ -53,7 +53,8 @@ test('effective trust caps fake receipt with fallback merchant and zero amount',
 
 test('effective trust is red when no merchant, amount or reliable date exists', () => {
   const state = { trust: 70, step: 'done', fields: { merchant: null, amount: null, date: null }, rawFields: {} };
-  assert.equal(TrustmeterService.computeEffectiveReceiptTrust(state), 15);
+  assert.equal(TrustmeterService.computeEffectiveReceiptTrust(state), 0);
+  assert.equal(TrustmeterService.trustScoreToAngle(TrustmeterService.computeEffectiveReceiptTrust(state)), -48);
   assert.equal(TrustmeterService.hasBlockingReceiptWarning(state), true);
 });
 
@@ -96,7 +97,8 @@ test('blocking receipt warning covers explicit review values and invalid amounts
   ];
   invalidStates.forEach(state => {
     assert.equal(TrustmeterService.hasBlockingReceiptWarning(state), true);
-    assert.equal(TrustmeterService.computeEffectiveReceiptTrust(state), 15);
+    const expectedTrust = state.visionReport?.isReceipt === false ? 0 : 15;
+    assert.equal(TrustmeterService.computeEffectiveReceiptTrust(state), expectedTrust);
   });
 });
 
@@ -181,7 +183,7 @@ test('effective trust handles absent score and scan reset as LOW', () => {
 test('effective trust makes fake receipt angle red and reliable receipt angle green', () => {
   const fake = { trust: 90, validationStatus: 'invalid', fields: { merchant: 'À vérifier', amount: '0,00' }, lastOcrFields: { text: 'poster' } };
   const reliable = { trust: 88, fields: { merchant: 'LECLERC', amount: '42,10 €', date: '2026-07-13' }, rawFields: { merchant: 'LECLERC', total: 42.10, date: '2026-07-13' }, lastOcrFields: { merchant: 'LECLERC' } };
-  assert.ok(TrustmeterService.trustScoreToAngle(TrustmeterService.computeEffectiveReceiptTrust(fake)) < -30);
+  assert.equal(TrustmeterService.trustScoreToAngle(TrustmeterService.computeEffectiveReceiptTrust(fake)), -48);
   assert.ok(TrustmeterService.trustScoreToAngle(TrustmeterService.computeEffectiveReceiptTrust(reliable)) > 30);
 });
 
@@ -189,8 +191,8 @@ test('effective trust makes fake receipt angle red and reliable receipt angle gr
 
 test('radiation settings button uses iOS-safe static canvas sizing', () => {
   const css = fs.readFileSync('css/ast-013-2.css', 'utf8');
-  assert.match(css, /--radiation-visible-size:128%/);
-  assert.match(css, /--radiation-canvas-width:137\.051%/);
+  assert.match(css, /--radiation-visible-size:132%/);
+  assert.match(css, /--radiation-canvas-width:141\.388%/);
   assert.doesNotMatch(css, /--radiation-canvas-width:calc\([^;]*\*[^;]*\/[^;]*\)/);
 });
 
@@ -235,5 +237,5 @@ test('effective trust on fillReceiptScannerFields-like fake receipt state stays 
   const effective = TrustmeterService.computeEffectiveReceiptTrust(state);
   assert.equal(signals.hasReliableDate, false);
   assert.ok(effective <= 15);
-  assert.ok(TrustmeterService.trustScoreToAngle(effective) < -30);
+  assert.equal(TrustmeterService.trustScoreToAngle(effective), -48);
 });

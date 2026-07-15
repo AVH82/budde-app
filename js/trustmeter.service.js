@@ -1,6 +1,6 @@
 (function(root){
-  const TRUST_MIN_ANGLE=-60;
-  const TRUST_MAX_ANGLE=60;
+  const TRUST_MIN_ANGLE=-48;
+  const TRUST_MAX_ANGLE=48;
   const RECEIPT_FIELD_FALLBACK='À vérifier';
   function clamp(value,min,max){return Math.max(min,Math.min(max,value))}
   function normalizeTrustScore(value){
@@ -96,12 +96,12 @@
   }
   function computeEffectiveReceiptTrust(state={}){
     const baseTrust=normalizeTrustScore(state?.trust);
-    if(!baseTrust)return 0;
-    if(hasBlockingReceiptWarning(state))return Math.min(baseTrust||15,15);
     const signals=receiptTrustSignals(state);
+    if(!baseTrust)return 0;
     if(signals.noOcrResult&&signals.reliableMainFields===0)return 0;
-    if(signals.notReceipt)return Math.min(baseTrust,15);
-    if(!signals.hasReliableMerchant&&!signals.hasValidAmount)return Math.min(baseTrust,15);
+    if(signals.notReceipt)return 0;
+    if(!signals.hasReliableMerchant&&!signals.hasValidAmount)return 0;
+    if(hasBlockingReceiptWarning(state))return Math.min(baseTrust,15);
     if(signals.requiresFullReview&&signals.reliableMainFields<=1)return Math.min(baseTrust,15);
     if(signals.reliableMainFields===0)return 0;
     if(signals.reliableMainFields===1)return Math.min(baseTrust,30);
