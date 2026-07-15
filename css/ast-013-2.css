@@ -220,7 +220,7 @@ body.scannerFullscreen .frameShellTop .buddyMount--header{
   --radiation-visible-size:122%;
   --radiation-visible-center-x:49.045967%; /* alpha bbox center 565.5 / 1153 */
   --radiation-visible-center-y:49.947313%; /* alpha bbox center 474 / 949 */
-  --radiation-canvas-width:calc(var(--radiation-visible-size) * 1153 / 1076);
+  --radiation-canvas-width:130.779%;
   --dial-scale:119%;
   --dial-offset-x:0%;
   --dial-offset-y:0.2%;

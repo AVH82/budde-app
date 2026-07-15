@@ -125,6 +125,15 @@ test('effective trust makes fake receipt angle red and reliable receipt angle gr
   assert.ok(TrustmeterService.trustScoreToAngle(TrustmeterService.computeEffectiveReceiptTrust(reliable)) > 30);
 });
 
+
+
+test('radiation settings button uses iOS-safe static canvas sizing', () => {
+  const css = fs.readFileSync('css/ast-013-2.css', 'utf8');
+  assert.match(css, /--radiation-visible-size:122%/);
+  assert.match(css, /--radiation-canvas-width:130\.779%/);
+  assert.doesNotMatch(css, /--radiation-canvas-width:calc\([^;]*\*[^;]*\/[^;]*\)/);
+});
+
 test('app final angle uses effective trust instead of raw trust', () => {
   const app = fs.readFileSync('js/app.js', 'utf8');
   assert.match(app, /function currentReceiptTrustAngle\(\)\{return trustScoreToAngle\(currentEffectiveReceiptTrust\(\)\)\}/);
