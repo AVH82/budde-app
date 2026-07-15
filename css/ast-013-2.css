@@ -63,7 +63,7 @@
   align-items:center!important;
   background-image:url('../assets/frame/FRM-002_header-center-stretch.png')!important;
   background-repeat:no-repeat!important;
-  background-size:100% 100%!important;
+  background-size:100% calc(100% + var(--header-art-top-bleed))!important;
   background-position:center calc(0px - var(--header-art-top-bleed))!important;
   padding:0!important;
   overflow:visible!important;
