@@ -11,9 +11,9 @@
   padding-top:calc(var(--header-art-h) + 20px + env(safe-area-inset-top))!important;
 }
 .frameShellTop{
-  --header-budde-w:clamp(100px,28vw,124px);
-  --header-trust-w:clamp(106px,30vw,132px);
-  --header-center-min:150px;
+  --header-budde-w:calc(var(--header-art-h) * 1.0866667);
+  --header-trust-w:calc(var(--header-art-h) * 1.2392027);
+  --header-center-min:0px;
   --trust-control-x:50%;
   --trust-control-y:49%;
   --trust-control-size:clamp(38px,10vw,48px);
@@ -78,7 +78,7 @@
   display:block!important;
   width:100%!important;
   height:100%!important;
-  object-fit:fill!important;
+  object-fit:contain!important;
   object-position:center!important;
   pointer-events:none!important;
   user-select:none!important;
@@ -150,6 +150,6 @@
 }
 .frameShellTop .headerTrustGauge{z-index:4!important;pointer-events:none!important;}
 @media(max-width:380px){
-  .frameShellTop{--header-center-min:145px;--trust-control-size:38px;}
+  .frameShellTop{--trust-control-size:38px;}
   .frameShellTop .buddyMount--header{left:4px!important;right:4px!important;padding:3px 6px!important;}
 }
