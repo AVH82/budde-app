@@ -164,6 +164,35 @@
 }
 .frameShellTop .headerTrustGauge{z-index:4!important;pointer-events:none!important;}
 
+
+/* AST-025 — Scan reuses the validated Accueil header grid; only the right module flips to Trustmeter. */
+body.scannerFullscreen .frameShellTop{
+  grid-template-columns:var(--header-budde-w) minmax(var(--header-center-min),1fr) var(--header-trust-w)!important;
+  min-height:var(--header-art-h)!important;
+  height:var(--header-art-h)!important;
+  max-height:var(--header-art-h)!important;
+  padding:0!important;
+  background:none!important;
+  border:0!important;
+  box-shadow:none!important;
+  overflow:hidden!important;
+}
+body.scannerFullscreen .frameShellTop .headerBuddeModule,
+body.scannerFullscreen .frameShellTop .headerCenterModule,
+body.scannerFullscreen .frameShellTop .settingsTrustModule{
+  min-height:var(--header-art-h)!important;
+  height:var(--header-art-h)!important;
+  max-height:var(--header-art-h)!important;
+}
+body.scannerFullscreen .frameShellTop .settingsTrustModule--trust .settingsTrustFace--settings{
+  opacity:0!important;
+  pointer-events:none!important;
+}
+body.scannerFullscreen .frameShellTop .settingsTrustModule--trust .settingsTrustFace--trust{
+  opacity:1!important;
+  pointer-events:auto!important;
+}
+
 body.scannerFullscreen .frameShellTop .headerCenterModule{
   background-color:transparent!important;
 }
