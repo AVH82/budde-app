@@ -31,6 +31,7 @@ test('trustmeter startup scan is replay-only on scan entry and score updates sta
   assert.match(app, /else if\(v!=='receiptScanner'&&v!=='receiptCamera'\)resetHeaderTrustNeedle\(\)/);
   assert.match(app, /needle\.animate\(/);
   assert.match(app, /fill:'none'/);
+  assert.match(app, /scan\.addEventListener\('finish',\(\)=>applyCurrentReceiptTrustToNeedle\('scan-animation-finish'\)\)/);
   assert.match(app, /currentEffectiveReceiptTrust\(\)/);
   assert.doesNotMatch(app, /setHeaderTrustNeedleAngle\(receiptScannerState\?\.trust\)/);
   assert.doesNotMatch(app, /settingsTrustNeedle--animate/);
@@ -99,6 +100,66 @@ test('blocking receipt warning covers explicit review values and invalid amounts
   });
 });
 
+
+
+test('category without OCR origin does not block reliable receipt trust', () => {
+  const state = {
+    trust: 90,
+    fields: { merchant: 'LECLERC', amount: '42,10 €', date: '2026-07-13', category: 'NON CLASSÉ' },
+    rawFields: { merchant: 'LECLERC', total: 42.10, date: '2026-07-13' },
+    lastOcrFields: { merchant: 'LECLERC', total: 42.10, date: '2026-07-13' },
+    ocrFieldOrigins: { merchant: true, amount: true, date: true, category: false }
+  };
+  assert.equal(TrustmeterService.hasBlockingReceiptWarning(state), false);
+  assert.equal(TrustmeterService.computeEffectiveReceiptTrust(state), 90);
+  assert.ok(TrustmeterService.trustScoreToAngle(TrustmeterService.computeEffectiveReceiptTrust(state)) > 30);
+});
+
+test('suggested category without OCR origin is not a blocking warning', () => {
+  const state = {
+    trust: 88,
+    fields: { merchant: 'CARREFOUR', amount: '18,20 €', date: '2026-07-13', category: 'ALIMENTATION' },
+    rawFields: { merchant: 'CARREFOUR', total: 18.20, date: '2026-07-13' },
+    lastOcrFields: { merchant: 'CARREFOUR', total: 18.20, date: '2026-07-13' },
+    ocrFieldOrigins: { merchant: true, amount: true, date: true, category: false }
+  };
+  assert.equal(TrustmeterService.hasBlockingReceiptWarning(state), false);
+  assert.equal(TrustmeterService.computeEffectiveReceiptTrust(state), 88);
+});
+
+test('unreliable main OCR origins remain blocking until manually locked', () => {
+  const base = {
+    trust: 90,
+    fields: { merchant: 'LECLERC', amount: '42,10 €', date: '2026-07-13', category: 'NON CLASSÉ' },
+    rawFields: { merchant: 'LECLERC', total: 42.10, date: '2026-07-13' },
+    lastOcrFields: { merchant: 'LECLERC', total: 42.10, date: '2026-07-13' }
+  };
+  ['merchant', 'amount', 'date'].forEach(key => {
+    const state = { ...base, ocrFieldOrigins: { merchant: true, amount: true, date: true, category: false, [key]: false } };
+    assert.equal(TrustmeterService.hasBlockingReceiptWarning(state), true, `${key} false origin should block`);
+    assert.equal(TrustmeterService.computeEffectiveReceiptTrust(state), 15, `${key} false origin should force red`);
+  });
+  const locked = {
+    ...base,
+    lockedFields: { merchant: true, amount: true, date: true },
+    ocrFieldOrigins: { merchant: false, amount: false, date: false, category: false }
+  };
+  assert.equal(TrustmeterService.hasBlockingReceiptWarning(locked), false);
+  assert.equal(TrustmeterService.computeEffectiveReceiptTrust(locked), 90);
+});
+
+test('explicit review category remains blocking regardless of OCR origin', () => {
+  const state = {
+    trust: 90,
+    fields: { merchant: 'LECLERC', amount: '42,10 €', date: '2026-07-13', category: 'À vérifier' },
+    rawFields: { merchant: 'LECLERC', total: 42.10, date: '2026-07-13' },
+    lastOcrFields: { merchant: 'LECLERC', total: 42.10, date: '2026-07-13' },
+    ocrFieldOrigins: { merchant: true, amount: true, date: true, category: false }
+  };
+  assert.equal(TrustmeterService.hasBlockingReceiptWarning(state), true);
+  assert.equal(TrustmeterService.computeEffectiveReceiptTrust(state), 15);
+});
+
 test('manual locked corrections do not count as unreliable OCR origins', () => {
   const state = {
     trust: 90,
@@ -124,10 +185,20 @@ test('effective trust makes fake receipt angle red and reliable receipt angle gr
   assert.ok(TrustmeterService.trustScoreToAngle(TrustmeterService.computeEffectiveReceiptTrust(reliable)) > 30);
 });
 
+
+
+test('radiation settings button uses iOS-safe static canvas sizing', () => {
+  const css = fs.readFileSync('css/ast-013-2.css', 'utf8');
+  assert.match(css, /--radiation-visible-size:122%/);
+  assert.match(css, /--radiation-canvas-width:130\.779%/);
+  assert.doesNotMatch(css, /--radiation-canvas-width:calc\([^;]*\*[^;]*\/[^;]*\)/);
+});
+
 test('app final angle uses effective trust instead of raw trust', () => {
   const app = fs.readFileSync('js/app.js', 'utf8');
   assert.match(app, /function currentReceiptTrustAngle\(\)\{return trustScoreToAngle\(currentEffectiveReceiptTrust\(\)\)\}/);
-  assert.match(app, /function updateHeaderTrustNeedle\(\)\{setHeaderTrustNeedleAngle\(currentEffectiveReceiptTrust\(\)\)\}/);
+  assert.match(app, /function applyCurrentReceiptTrustToNeedle\(source='update'\)\{const needle=document\.querySelector\('\.settingsTrustNeedle'\);const effectiveTrust=currentEffectiveReceiptTrust\(\);const angle=trustScoreToAngle\(effectiveTrust\)/);
+  assert.match(app, /needle\.style\.setProperty\('--needle-angle',`\$\{angle\}deg`\)/);
 });
 
 test('fillReceiptScannerFields installs complete scan state before effective needle update', () => {
@@ -141,7 +212,7 @@ test('fillReceiptScannerFields installs complete scan state before effective nee
   const preserved = body.indexOf('receiptScannerState.rephotoPreservedFields=null');
   const effective = body.indexOf('const effectiveTrust=currentEffectiveReceiptTrust()');
   const trustComponents = body.indexOf('trustComponents={capture:receiptScannerState.visionReport,ocr:ocrTrust,combined:receiptScannerState.trust,effective:effectiveTrust}');
-  const needle = body.indexOf('updateHeaderTrustNeedle()');
+  const needle = body.indexOf("applyCurrentReceiptTrustToNeedle('fill-receipt-fields')");
   assert.ok(lastOcr > -1 && lastOcr < fieldsLoop);
   assert.ok(origins > fieldsLoop && origins < effective);
   assert.ok(preserved > origins && preserved < effective);
