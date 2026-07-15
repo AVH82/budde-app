@@ -206,7 +206,7 @@ body.scannerFullscreen .frameShellTop .buddyMount--header{
   .frameShellTop .buddyMount--header{left:6px!important;right:6px!important;padding:0!important;}
 }
 
-/* AST-027 — calibrated PNG pivot viewport inside the existing FRM-003 shell.
+/* AST-028 — final calibrated PNG pivot viewport inside the existing FRM-003 shell.
    Frame aperture remains the single mechanical viewport measured in AST-026:
    x=87..306, y=42..261, diameter=220px, center=(196.5px,151.5px).
    Asset alpha measurements:
@@ -223,13 +223,13 @@ body.scannerFullscreen .frameShellTop .buddyMount--header{
   --pivot-aspect-ratio:1 / 1; /* safety: the rendered viewport must remain circular */
   --pivot-center-x:52.680965%; /* 196.5 / 373 */
   --pivot-center-y:50.332226%; /* 151.5 / 301 */
-  --radiation-scale:119%;
-  --radiation-offset-x:1.1%;
-  --radiation-offset-y:0.8%;
+  --radiation-scale:124%;
+  --radiation-offset-x:1.2%;
+  --radiation-offset-y:2.2%;
   --dial-scale:119%;
   --dial-offset-x:0%;
   --dial-offset-y:0.2%;
-  --needle-scale:52%;
+  --needle-scale:48%;
   --needle-offset-x:0%;
   --needle-offset-y:0%;
   --needle-origin-x:24.472574%; /* real hub center x=58px / 237px */
@@ -294,5 +294,15 @@ body.scannerFullscreen .frameShellTop .buddyMount--header{
   width:var(--needle-scale)!important;
   height:auto!important;
   transform-origin:var(--needle-origin-x) var(--needle-origin-y)!important;
-  transform:translate(calc(-1 * var(--needle-origin-x)),calc(-1 * var(--needle-origin-y)))!important;
+  transform:translate(calc(-1 * var(--needle-origin-x)),calc(-1 * var(--needle-origin-y))) rotate(var(--needle-scan-angle,0deg))!important;
+}
+body.scannerFullscreen .frameShellTop .settingsTrustNeedle{
+  animation:trustmeterNeedleScan 1850ms cubic-bezier(.22,.76,.18,1) both!important;
+}
+@keyframes trustmeterNeedleScan{
+  0%{transform:translate(calc(-1 * var(--needle-origin-x)),calc(-1 * var(--needle-origin-y))) rotate(-46deg);}
+  54%{transform:translate(calc(-1 * var(--needle-origin-x)),calc(-1 * var(--needle-origin-y))) rotate(48deg);}
+  66%{transform:translate(calc(-1 * var(--needle-origin-x)),calc(-1 * var(--needle-origin-y))) rotate(56deg);}
+  80%{transform:translate(calc(-1 * var(--needle-origin-x)),calc(-1 * var(--needle-origin-y))) rotate(30deg);}
+  100%{transform:translate(calc(-1 * var(--needle-origin-x)),calc(-1 * var(--needle-origin-y))) rotate(38deg);}
 }
