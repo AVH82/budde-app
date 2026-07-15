@@ -217,10 +217,10 @@ body.scannerFullscreen .frameShellTop .buddyMount--header{
   --pivot-aspect-ratio:1 / 1;
   --pivot-center-x:52.680965%; /* 196.5 / 373 */
   --pivot-center-y:50.332226%; /* 151.5 / 301 */
-  --radiation-visible-size:102%;
+  --radiation-visible-size:108%;
   --radiation-visible-center-x:49.045967%; /* 565.5 / 1153 */
   --radiation-visible-center-y:49.947313%; /* 474 / 949 */
-  --radiation-canvas-width:109.302974%; /* visible size * 1153 / 1076 */
+  --radiation-canvas-width:115.758364%; /* 108 * 1153 / 1076 */
   --dial-scale:119%;
   --dial-offset-x:0%;
   --dial-offset-y:0.2%;
@@ -322,15 +322,7 @@ body.scannerFullscreen .frameShellTop .buddyMount--header{
   width:var(--needle-scale)!important;
   height:auto!important;
   transform-origin:var(--needle-origin-x) var(--needle-origin-y)!important;
-  transform:translate(calc(-1 * var(--needle-origin-x)),calc(-1 * var(--needle-origin-y))) rotate(var(--needle-scan-angle,0deg))!important;
-}
-.frameShellTop .settingsTrustNeedle--animate{
-  animation:trustmeterNeedleScan 1850ms cubic-bezier(.22,.76,.18,1) both!important;
-}
-@keyframes trustmeterNeedleScan{
-  0%{transform:translate(calc(-1 * var(--needle-origin-x)),calc(-1 * var(--needle-origin-y))) rotate(-46deg);}
-  54%{transform:translate(calc(-1 * var(--needle-origin-x)),calc(-1 * var(--needle-origin-y))) rotate(48deg);}
-  66%{transform:translate(calc(-1 * var(--needle-origin-x)),calc(-1 * var(--needle-origin-y))) rotate(56deg);}
-  80%{transform:translate(calc(-1 * var(--needle-origin-x)),calc(-1 * var(--needle-origin-y))) rotate(30deg);}
-  100%{transform:translate(calc(-1 * var(--needle-origin-x)),calc(-1 * var(--needle-origin-y))) rotate(38deg);}
+  --needle-angle:-48deg;
+  transform:translate(calc(-1 * var(--needle-origin-x)),calc(-1 * var(--needle-origin-y))) rotate(var(--needle-angle))!important;
+  transition:transform 720ms cubic-bezier(.18,.72,.16,1.08)!important;
 }
