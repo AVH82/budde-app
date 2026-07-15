@@ -60,6 +60,7 @@
   z-index:1!important;
   display:grid!important;
   align-items:center!important;
+  background-color:rgba(3,8,3,.42)!important;
   background-image:url('../assets/frame/FRM-002_header-center-stretch.png')!important;
   background-repeat:no-repeat!important;
   background-size:100% 100%!important;
@@ -154,6 +155,15 @@
   box-shadow:inset 0 0 10px rgba(0,0,0,.78),0 0 6px rgba(157,255,69,.12)!important;
 }
 .frameShellTop .headerTrustGauge{z-index:4!important;pointer-events:none!important;}
+
+body.scannerFullscreen .frameShellTop .headerCenterModule{
+  background-color:transparent!important;
+}
+body.scannerFullscreen .frameShellTop .buddyMount--header{
+  background:transparent!important;
+  border-color:transparent!important;
+  box-shadow:none!important;
+}
 @media(max-width:380px){
   .frameShellTop{--trust-control-size:38px;}
   .frameShellTop .buddyMount--header{left:6px!important;right:6px!important;padding:4px 9px!important;}
