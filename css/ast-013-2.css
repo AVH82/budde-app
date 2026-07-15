@@ -3,7 +3,6 @@
 :root{
   --header-art-h:clamp(112px,29vw,132px);
   --frame-top-h:var(--header-art-h);
-  --header-art-top-bleed:2px;
 }
 
 .app.frameShell{
@@ -63,8 +62,8 @@
   align-items:center!important;
   background-image:url('../assets/frame/FRM-002_header-center-stretch.png')!important;
   background-repeat:no-repeat!important;
-  background-size:100% calc(100% + var(--header-art-top-bleed))!important;
-  background-position:center calc(0px - var(--header-art-top-bleed))!important;
+  background-size:100% 100%!important;
+  background-position:center!important;
   padding:0!important;
   overflow:visible!important;
 }
@@ -84,8 +83,6 @@
   height:100%!important;
   object-fit:contain!important;
   object-position:center!important;
-  transform:translateY(calc(0px - var(--header-art-top-bleed)))!important;
-  clip-path:inset(var(--header-art-top-bleed) 0 0 0)!important;
   pointer-events:none!important;
   user-select:none!important;
 }
@@ -111,8 +108,8 @@
 .frameShellTop .buddyMount--header{
   position:absolute!important;
   z-index:2!important;
-  left:-10px!important;
-  right:-10px!important;
+  left:8px!important;
+  right:8px!important;
   top:calc(var(--header-art-h) * .08)!important;
   bottom:calc(var(--header-art-h) * .08)!important;
   min-width:0!important;
@@ -121,7 +118,7 @@
   height:auto!important;
   max-width:none!important;
   margin:0!important;
-  padding:5px 14px!important;
+  padding:5px clamp(10px,2.6vw,14px)!important;
   overflow:hidden!important;
   display:grid!important;
   place-items:center!important;
@@ -131,10 +128,10 @@
   border-radius:5px!important;
   box-shadow:inset 0 0 16px rgba(0,0,0,.82),inset 0 0 8px rgba(157,255,69,.08)!important;
 }
-.frameShellTop .buddyMount--header .buddy{min-width:0!important;width:100%!important;display:grid!important;place-items:center!important;}
+.frameShellTop .buddyMount--header .buddy{min-width:0!important;width:100%!important;max-width:100%!important;display:grid!important;place-items:center!important;}
 .frameShellTop .buddyMount--header .buddyAvatar{display:none!important;}
-.frameShellTop .buddyMount--header .buddyBubble{min-width:0!important;min-height:0!important;width:100%!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;}
-.frameShellTop .buddyMount--header .buddyBubble p{margin:0!important;width:100%!important;text-align:center!important;font-size:clamp(10px,2.7vw,13px)!important;line-height:1.2!important;max-height:3.6em!important;overflow:hidden!important;display:-webkit-box!important;-webkit-line-clamp:3!important;-webkit-box-orient:vertical!important;}
+.frameShellTop .buddyMount--header .buddyBubble{min-width:0!important;min-height:0!important;width:100%!important;max-width:100%!important;padding:0!important;border:0!important;background:transparent!important;box-shadow:none!important;overflow:visible!important;}
+.frameShellTop .buddyMount--header .buddyBubble p{margin:0 auto!important;width:100%!important;max-width:100%!important;text-align:center!important;font-size:clamp(9px,2.45vw,13px)!important;line-height:1.2!important;max-height:3.6em!important;overflow:hidden!important;overflow-wrap:anywhere!important;display:-webkit-box!important;-webkit-line-clamp:3!important;-webkit-box-orient:vertical!important;}
 .frameShellTop .settingsHotspot,
 .frameShellTop .settingsTrustFace{
   position:absolute!important;
@@ -159,5 +156,5 @@
 .frameShellTop .headerTrustGauge{z-index:4!important;pointer-events:none!important;}
 @media(max-width:380px){
   .frameShellTop{--trust-control-size:38px;}
-  .frameShellTop .buddyMount--header{left:-8px!important;right:-8px!important;padding:4px 12px!important;}
+  .frameShellTop .buddyMount--header{left:6px!important;right:6px!important;padding:4px 9px!important;}
 }
