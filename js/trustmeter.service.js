@@ -20,10 +20,59 @@
     const parsed=Number(normalized);
     return Number.isFinite(parsed)?parsed:0;
   }
+  function isReviewFallback(value){
+    return upper(value)===upper(RECEIPT_FIELD_FALLBACK);
+  }
+  function isBlank(value){
+    return value===null||value===undefined||String(value).trim()==='';
+  }
+  function isInvalidReceiptAmount(value){
+    if(isBlank(value)||isReviewFallback(value))return true;
+    if(typeof value==='number')return !Number.isFinite(value)||value<=0;
+    const text=String(value).trim();
+    if(!text||isReviewFallback(text))return true;
+    const numeric=text.replace(/[^0-9,.-]/g,'').replace(',', '.');
+    if(!numeric)return true;
+    const parsed=Number(numeric);
+    return !Number.isFinite(parsed)||parsed<=0;
+  }
+  function hasExplicitReviewValue(value){
+    if(value===null||value===undefined)return false;
+    if(typeof value==='string'||typeof value==='number'||typeof value==='boolean')return isReviewFallback(value);
+    if(Array.isArray(value))return value.some(hasExplicitReviewValue);
+    if(typeof value==='object')return Object.values(value).some(hasExplicitReviewValue);
+    return false;
+  }
+  function hasWarningStatus(value){
+    if(!value||typeof value!=='object')return false;
+    if(value.status==='warning'||value.validationStatus==='warning'||value.validationStatus==='invalid')return true;
+    return Object.values(value).some(item=>item&&typeof item==='object'&&hasWarningStatus(item));
+  }
+  function hasUnreliableOcrOrigin(state={},diagnostic={}){
+    const origins=state.ocrFieldOrigins||{};
+    const locked=state.lockedFields||{};
+    return Object.entries(origins).some(([key,origin])=>origin===false&&!locked[key])||diagnostic.ocrReliable===false||diagnostic.reliable===false||diagnostic.originReliable===false;
+  }
   function validDate(value){
     if(!value||value===RECEIPT_FIELD_FALLBACK)return false;
     const parsed=Date.parse(value);
     return Number.isFinite(parsed);
+  }
+  function hasBlockingReceiptWarning(state={}){
+    const fields=state.fields||{};
+    const rawFields=state.rawFields||{};
+    const diagnostic=state.ocrDiagnostic||rawFields.diagnostic||{};
+    const merchant=fields.merchant??rawFields.merchant;
+    const amount=fields.amount??rawFields.total??rawFields.amount;
+    const date=fields.date??rawFields.date;
+    const category=fields.category??rawFields.category;
+    const notReceipt=state.isLikelyReceipt===false||state.validationStatus==='invalid'||state.visionReport?.isReceipt===false||state.visionReport?.receipt?.isReceipt===false||diagnostic.isReceipt===false||diagnostic.likelyReceipt===false;
+    return isBlank(merchant)||upper(merchant)==='INCONNU'||isReviewFallback(merchant)
+      ||isInvalidReceiptAmount(amount)
+      ||isBlank(date)||isReviewFallback(date)||state.dateReliable===false||diagnostic.date?.reliable===false||diagnostic.date?.status==='warning'
+      ||isReviewFallback(category)||hasExplicitReviewValue(fields)||hasExplicitReviewValue(rawFields)
+      ||state.requiresFullReview===true||state.validationStatus==='warning'||state.validationStatus==='invalid'
+      ||hasUnreliableOcrOrigin(state,diagnostic)||hasWarningStatus(diagnostic)||notReceipt;
   }
   function receiptTrustSignals(state={}){
     const fields=state.fields||{};
@@ -35,7 +84,7 @@
     const rawDate=fields.date||rawFields.date;
     const hasReliableMerchant=!!merchant&&merchant!=='INCONNU'&&merchant!==upper(RECEIPT_FIELD_FALLBACK);
     const hasValidAmount=amount>0;
-    const hasReliableDate=validDate(rawDate)&&origins.date!==false&&diagnostic.date?.reliable!==false&&diagnostic.date?.status!=='warning';
+    const hasReliableDate=validDate(rawDate)&&(origins.date!==false||state.lockedFields?.date===true)&&diagnostic.date?.reliable!==false&&diagnostic.date?.status!=='warning';
     const reliableMainFields=[hasReliableMerchant,hasValidAmount,hasReliableDate].filter(Boolean).length;
     const noOcrResult=!state.lastOcrFields&&!rawFields.merchant&&!rawFields.total&&!rawFields.amount&&!rawFields.date;
     const notReceipt=state.isLikelyReceipt===false||state.validationStatus==='invalid'||state.error||state.visionReport?.isReceipt===false||state.visionReport?.receipt?.isReceipt===false||diagnostic.isReceipt===false||diagnostic.likelyReceipt===false;
@@ -46,6 +95,7 @@
   function computeEffectiveReceiptTrust(state={}){
     const baseTrust=normalizeTrustScore(state?.trust);
     if(!baseTrust)return 0;
+    if(hasBlockingReceiptWarning(state))return Math.min(baseTrust||15,15);
     const signals=receiptTrustSignals(state);
     if(signals.noOcrResult&&signals.reliableMainFields===0)return 0;
     if(signals.notReceipt)return Math.min(baseTrust,15);
@@ -56,7 +106,7 @@
     if(signals.reliableMainFields===2)return Math.min(baseTrust,40);
     return baseTrust;
   }
-  const api={TRUST_MIN_ANGLE,TRUST_MAX_ANGLE,normalizeTrustScore,trustScoreToAngle,receiptTrustSignals,computeEffectiveReceiptTrust};
+  const api={TRUST_MIN_ANGLE,TRUST_MAX_ANGLE,normalizeTrustScore,trustScoreToAngle,receiptTrustSignals,hasBlockingReceiptWarning,computeEffectiveReceiptTrust};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;
   root.TrustmeterService=api;
 })(typeof window!=='undefined'?window:globalThis);
