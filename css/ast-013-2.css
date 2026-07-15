@@ -209,10 +209,14 @@ body.scannerFullscreen .frameShellTop .buddyMount--header{
 /* AST-026 — static PNG pivot viewport inside the existing FRM-003 shell.
    Measurements are derived from FRM-003_trust-frame.png native 373x301 by scanning
    the continuous dark circular aperture: x=87..306, y=42..261, diameter=220px,
-   center=(196.5px,151.5px). These variables are reserved for the future 3D pivot,
+   center=(196.5px,151.5px). The responsive shell keeps the native 373:301
+   ratio, so width=220/373 and height=220/301 render the same square in pixels.
+   These variables are reserved for the future 3D pivot,
    needle animation, radioactive glow and CSS glass layer. */
 .frameShellTop .settingsTrustModule{
-  --pivot-size:58.981233%; /* 220 / 373 */
+  --pivot-width:58.981233%; /* 220 / 373 */
+  --pivot-height:73.089701%; /* 220 / 301 */
+  --pivot-aspect-ratio:1 / 1; /* safety: the rendered viewport must remain circular */
   --pivot-center-x:52.680965%; /* 196.5 / 373 */
   --pivot-center-y:50.332226%; /* 151.5 / 301 */
   --needle-origin-x:50%; /* PVT-003 hub center measured at x=118.5px of 237px */
@@ -222,8 +226,9 @@ body.scannerFullscreen .frameShellTop .buddyMount--header{
 .frameShellTop .headerTrustGauge{
   left:var(--pivot-center-x)!important;
   top:var(--pivot-center-y)!important;
-  width:var(--pivot-size)!important;
-  height:var(--pivot-size)!important;
+  width:var(--pivot-width)!important;
+  height:var(--pivot-height)!important;
+  aspect-ratio:var(--pivot-aspect-ratio)!important;
   min-height:0!important;
   padding:0!important;
   border:0!important;
