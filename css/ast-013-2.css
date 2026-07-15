@@ -3,7 +3,9 @@
 :root{
   --header-art-h:clamp(112px,29vw,132px);
   --frame-top-h:var(--header-art-h);
+  --header-art-top-bleed:2px;
 }
+
 .app.frameShell{
   padding-top:calc(var(--header-art-h) + var(--frame-month-h) + var(--frame-month-gap) + env(safe-area-inset-top))!important;
 }
@@ -61,8 +63,8 @@
   align-items:center!important;
   background-image:url('../assets/frame/FRM-002_header-center-stretch.png')!important;
   background-repeat:no-repeat!important;
-  background-size:100% 100%!important;
-  background-position:center!important;
+  background-size:100% calc(100% + var(--header-art-top-bleed))!important;
+  background-position:center calc(0px - var(--header-art-top-bleed))!important;
   padding:0!important;
   overflow:visible!important;
 }
@@ -82,6 +84,8 @@
   height:100%!important;
   object-fit:contain!important;
   object-position:center!important;
+  transform:translateY(calc(0px - var(--header-art-top-bleed)))!important;
+  clip-path:inset(var(--header-art-top-bleed) 0 0 0)!important;
   pointer-events:none!important;
   user-select:none!important;
 }
