@@ -17,9 +17,9 @@ test('maps trust scores linearly to the LOW/HIGH needle angles', () => {
   assert.equal(trustScoreToAngle(undefined), TRUST_MIN_ANGLE);
   assert.equal(trustScoreToAngle(-1), TRUST_MIN_ANGLE);
   assert.equal(trustScoreToAngle(0), TRUST_MIN_ANGLE);
-  assert.equal(trustScoreToAngle(25), -24);
+  assert.equal(trustScoreToAngle(25), -30);
   assert.equal(trustScoreToAngle(50), 0);
-  assert.equal(trustScoreToAngle(75), 24);
+  assert.equal(trustScoreToAngle(75), 30);
   assert.equal(trustScoreToAngle(100), TRUST_MAX_ANGLE);
   assert.equal(trustScoreToAngle(150), TRUST_MAX_ANGLE);
   assert.equal(trustScoreToAngle(0.5), 0);
@@ -189,8 +189,8 @@ test('effective trust makes fake receipt angle red and reliable receipt angle gr
 
 test('radiation settings button uses iOS-safe static canvas sizing', () => {
   const css = fs.readFileSync('css/ast-013-2.css', 'utf8');
-  assert.match(css, /--radiation-visible-size:122%/);
-  assert.match(css, /--radiation-canvas-width:130\.779%/);
+  assert.match(css, /--radiation-visible-size:128%/);
+  assert.match(css, /--radiation-canvas-width:137\.051%/);
   assert.doesNotMatch(css, /--radiation-canvas-width:calc\([^;]*\*[^;]*\/[^;]*\)/);
 });
 

@@ -88,7 +88,7 @@
   user-select:none!important;
 }
 .frameShellTop .settingsTrustModule::before{
-  content:'v3.6.30'!important;
+  content:'v3.6.31'!important;
   position:absolute!important;
   right:5px!important;
   top:5px!important;
@@ -215,12 +215,12 @@ body.scannerFullscreen .frameShellTop .buddyMount--header{
   --pivot-width:58.981233%; /* 220 / 373 */
   --pivot-height:73.089701%; /* 220 / 301 */
   --pivot-aspect-ratio:1 / 1;
-  --pivot-center-x:52.82%; /* AST-034 final concentric calibration */
-  --pivot-center-y:50.18%; /* AST-034 final concentric calibration */
-  --radiation-visible-size:122%;
+  --pivot-center-x:50%; /* AST-035 concentric calibration */
+  --pivot-center-y:50%; /* AST-035 concentric calibration */
+  --radiation-visible-size:128%;
   --radiation-visible-center-x:49.045967%; /* alpha bbox center 565.5 / 1153 */
   --radiation-visible-center-y:49.947313%; /* alpha bbox center 474 / 949 */
-  --radiation-canvas-width:130.779%;
+  --radiation-canvas-width:137.051%;
   --dial-scale:119%;
   --dial-offset-x:0%;
   --dial-offset-y:0.2%;
@@ -322,7 +322,7 @@ body.scannerFullscreen .frameShellTop .buddyMount--header{
   width:var(--needle-scale)!important;
   height:auto!important;
   transform-origin:var(--needle-origin-x) var(--needle-origin-y)!important;
-  --needle-angle:-48deg;
+  --needle-angle:-60deg;
   transform:translate(calc(-1 * var(--needle-origin-x)),calc(-1 * var(--needle-origin-y))) rotate(var(--needle-angle))!important;
   transition:transform 720ms cubic-bezier(.18,.72,.16,1.08)!important;
 }

@@ -1,7 +1,7 @@
 (function(){
   const FRAME_STYLESHEET='css/frame-system-v2.css?v=ast0117';
   const RELEASE_STYLESHEET='css/ast-012-4.css?v=ast0124';
-  const HEADER_STYLESHEET='css/ast-013-2.css?v=ast034-radiation-canvas-static';
+  const HEADER_STYLESHEET='css/ast-013-2.css?v=ast035-radiation-128-trust-60';
   const FRAME_MOTION_MS=2600;
   let awaitingGoogleAuth=false;
 
