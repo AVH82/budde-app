@@ -17,11 +17,11 @@ test('maps trust scores linearly to the LOW/HIGH needle angles', () => {
   assert.equal(trustScoreToAngle(undefined), TRUST_MIN_ANGLE);
   assert.equal(trustScoreToAngle(-1), TRUST_MIN_ANGLE);
   assert.equal(trustScoreToAngle(0), TRUST_MIN_ANGLE);
-  assert.equal(TRUST_MIN_ANGLE, -60);
-  assert.equal(TRUST_MAX_ANGLE, 60);
-  assert.equal(trustScoreToAngle(25), -30);
+  assert.equal(TRUST_MIN_ANGLE, -90);
+  assert.equal(TRUST_MAX_ANGLE, 90);
+  assert.equal(trustScoreToAngle(25), -45);
   assert.equal(trustScoreToAngle(50), 0);
-  assert.equal(trustScoreToAngle(75), 30);
+  assert.equal(trustScoreToAngle(75), 45);
   assert.equal(trustScoreToAngle(100), TRUST_MAX_ANGLE);
   assert.equal(trustScoreToAngle(150), TRUST_MAX_ANGLE);
   assert.equal(trustScoreToAngle(0.5), 0);
@@ -195,10 +195,10 @@ test('effective trust makes fake receipt angle red and reliable receipt angle gr
 
 test('radiation settings button uses iOS-safe static canvas sizing', () => {
   const css = fs.readFileSync('css/ast-013-2.css', 'utf8');
-  assert.match(css, /--radiation-visible-size:142.8%/);
-  assert.match(css, /--radiation-canvas-width:153\.038%/);
+  assert.match(css, /--radiation-visible-size:148.5%/);
+  assert.match(css, /--radiation-canvas-width:159\.148%/);
   assert.doesNotMatch(css, /--radiation-canvas-width:calc\([^;]*\*[^;]*\/[^;]*\)/);
-  assert.match(css, /--needle-angle:-60deg/);
+  assert.match(css, /--needle-angle:-90deg/);
 });
 
 test('app final angle uses effective trust instead of raw trust', () => {
@@ -208,10 +208,10 @@ test('app final angle uses effective trust instead of raw trust', () => {
   assert.match(app, /phase==='analyzing'.*return receiptScannerState\.trustNeedleDiagnostic/s);
   assert.match(app, /needle\.style\.setProperty\('--needle-angle',`\$\{angle\}deg`\)/);
   assert.match(app, /needle\.animate\(\[\{'--needle-angle'/);
-  assert.match(app, /-60\+\(normalizeTrustScore\(value\)\/100\)\*120/);
-  assert.doesNotMatch(app, /-48\+\(normalizeTrustScore\(value\)\/100\)\*96/);
-  assert.match(app, /TrustmeterService\?\.TRUST_MIN_ANGLE\?\?-60/);
-  assert.match(app, /TrustmeterService\?\.TRUST_MAX_ANGLE\?\?60/);
+  assert.match(app, /-90\+\(normalizeTrustScore\(value\)\/100\)\*180/);
+  assert.doesNotMatch(app, /-60\+\(normalizeTrustScore\(value\)\/100\)\*120/);
+  assert.match(app, /TrustmeterService\?\.TRUST_MIN_ANGLE\?\?-90/);
+  assert.match(app, /TrustmeterService\?\.TRUST_MAX_ANGLE\?\?90/);
   assert.match(app, /function startTrustmeterAnalyzingAnimation/);
 });
 
@@ -262,7 +262,7 @@ test('observed doubtful merchant with zero amount forces final LOW', () => {
 test('explicit review merchant and zero amount forces final LOW', () => {
   const state = { trust: 90, step: 'done', trustmeterPhase: 'result', fields: { merchant: 'À vérifier', amount: '0,00', date: '2026-07-15', category: 'NON CLASSÉ' }, lastOcrFields: { merchant: '', total: 0 } };
   assert.equal(TrustmeterService.computeEffectiveReceiptTrust(state), 0);
-  assert.equal(TrustmeterService.trustScoreToAngle(TrustmeterService.computeEffectiveReceiptTrust(state)), -60);
+  assert.equal(TrustmeterService.trustScoreToAngle(TrustmeterService.computeEffectiveReceiptTrust(state)), -90);
 });
 
 test('trustmeter phase machine and halo hooks are statically present', () => {

@@ -1,6 +1,6 @@
 (function(root){
-  const TRUST_MIN_ANGLE=-60;
-  const TRUST_MAX_ANGLE=60;
+  const TRUST_MIN_ANGLE=-90;
+  const TRUST_MAX_ANGLE=90;
   const RECEIPT_FIELD_FALLBACK='À vérifier';
   function clamp(value,min,max){return Math.max(min,Math.min(max,value))}
   function normalizeTrustScore(value){
