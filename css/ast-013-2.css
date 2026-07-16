@@ -218,18 +218,17 @@ body.scannerFullscreen .frameShellTop .buddyMount--header{
   --pivot-center-x:52.546917%; /* AST-037 apertureCenterX 196 / 373 */
   --pivot-center-y:50.332226%; /* AST-037 apertureCenterY 151.5 / 301 */
   --radiation-visible-size:148.5%;
-  --radiation-visible-center-x:50.946335%; /* AST-037 radiationHubX 587.411 / 1153 */
-  --radiation-visible-center-y:47.662193%; /* AST-037 radiationHubY 452.314 / 949 */
+  --radiation-visible-center-x:50.946%; /* AST-050 production calibration; radiationHubX 587.411 / 1153 */
+  --radiation-visible-center-y:47.662%; /* AST-050 production calibration; radiationHubY 452.314 / 949 */
   --radiation-canvas-width:159.148%;
-  /* AST-047: enlarge only the Trustmeter internals and align the dial/needle
-     pivot with the FRM-003 aperture center. Rotor geometry, mask, hotspot,
-     3D rotation, halos and settings button placement stay unchanged. */
+  /* AST-050: final Designer Mode calibration. Dial and needle offsets intentionally
+     differ; the calibrated Trustmeter composition stays inside the FRM-003 aperture. */
   --trustmeter-scale:1.08;
-  --dial-scale:128.52%;
-  --dial-offset-x:3.3%;
+  --dial-scale:168.49%;
+  --dial-offset-x:8.3%;
   --dial-offset-y:0.2%;
-  --needle-scale:49.248%;
-  --needle-offset-x:3.3%;
+  --needle-scale:64.022%;
+  --needle-offset-x:5.3%;
   --needle-offset-y:0%;
   --needle-origin-x:24.472574%;
   --needle-origin-y:67.432950%;
@@ -282,7 +281,7 @@ body.scannerFullscreen .frameShellTop .buddyMount--header{
 .frameShellTop .settingsTrustModule:has(#openSettings.active) .settingsTrustAsset--radiation{filter:drop-shadow(0 0 11px rgba(126,255,72,.62))!important;}
 .frameShellTop .headerTrustGauge{
   z-index:2!important;
-  overflow:hidden!important;
+  overflow:visible!important;
   pointer-events:none!important;
 }
 .frameShellTop .settingsHotspot{
@@ -332,6 +331,7 @@ body.scannerFullscreen .frameShellTop .buddyMount--header{
   transform:translate(calc(-1 * var(--radiation-visible-center-x)),calc(-1 * var(--radiation-visible-center-y)))!important;
 }
 .frameShellTop .settingsTrustAsset--dial{
+  z-index:1!important;
   left:calc(50% + var(--dial-offset-x))!important;
   top:calc(50% + var(--dial-offset-y))!important;
   width:var(--dial-scale)!important;
