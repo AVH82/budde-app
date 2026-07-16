@@ -88,7 +88,7 @@
   user-select:none!important;
 }
 .frameShellTop .settingsTrustModule::before{
-  content:'v3.6.44'!important;
+  content:'v3.6.45'!important;
   position:absolute!important;
   right:5px!important;
   top:5px!important;
@@ -226,10 +226,10 @@ body.scannerFullscreen .frameShellTop .buddyMount--header{
      3D rotation, halos and settings button placement stay unchanged. */
   --trustmeter-scale:1.08;
   --dial-scale:128.52%;
-  --dial-offset-x:2.3%;
+  --dial-offset-x:3.3%;
   --dial-offset-y:0.2%;
   --needle-scale:49.248%;
-  --needle-offset-x:2.3%;
+  --needle-offset-x:3.3%;
   --needle-offset-y:0%;
   --needle-origin-x:24.472574%;
   --needle-origin-y:67.432950%;

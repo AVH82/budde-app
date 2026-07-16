@@ -1,7 +1,7 @@
 (function(){
-  const FRAME_STYLESHEET='css/frame-system-v2.css?v=ast047';
-  const RELEASE_STYLESHEET='css/ast-012-4.css?v=ast047';
-  const HEADER_STYLESHEET='css/ast-013-2.css?v=ast047';
+  const FRAME_STYLESHEET='css/frame-system-v2.css?v=ast048';
+  const RELEASE_STYLESHEET='css/ast-012-4.css?v=ast048';
+  const HEADER_STYLESHEET='css/ast-013-2.css?v=ast048';
   const FRAME_MOTION_MS=2600;
   let awaitingGoogleAuth=false;
 
