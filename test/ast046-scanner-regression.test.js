@@ -42,7 +42,7 @@ test('AST-046 debugScanner is URL-gated and traces view, camera, video and rotor
   assert.match(source, /\['loadedmetadata','playing','pause','ended','error'\]/);
 });
 
-test('AST-047 rotor is view-driven and trustmeter internals are enlarged and centered', () => {
+test('AST-048 rotor is view-driven and trustmeter internals keep validated scale with final horizontal centering', () => {
   const source = app();
   const style = css();
   assert.match(source, /const scanHeaderActive=activeView==='receiptScanner'\|\|activeView==='receiptCamera'/);
@@ -51,17 +51,17 @@ test('AST-047 rotor is view-driven and trustmeter internals are enlarged and cen
   assert.match(style, /--dial-scale:128\.52%;/);
   assert.match(style, /--needle-scale:49\.248%;/);
   assert.doesNotMatch(style, /--(?:dial|needle)-scale:calc\([^;]*\*[^;]*\);/);
-  assert.match(style, /--dial-offset-x:2\.3%;/);
-  assert.match(style, /--needle-offset-x:2\.3%;/);
+  assert.match(style, /--dial-offset-x:3\.3%;/);
+  assert.match(style, /--needle-offset-x:3\.3%;/);
 });
 
-test('AST-047 version, cache and cache-busting are coherent', () => {
-  assert.match(app(), /const APP_VERSION='3\.6\.44'/);
+test('AST-048 version, cache and cache-busting are coherent', () => {
+  assert.match(app(), /const APP_VERSION='3\.6\.45'/);
   assert.match(app(), /const EXPECTED_CACHE_NAME=APP_BUILD_ID/);
-  assert.match(index(), /Budd€ v3\.6\.44/);
-  assert.match(index(), /build budde-3-6-44/);
-  assert.match(index(), /v=ast047/);
-  assert.match(sw(), /const CACHE_NAME='budde-3-6-44'/);
-  assert.match(sw(), /js\/app\.js\?v=ast047/);
-  assert.match(startup(), /v=ast047/);
+  assert.match(index(), /Budd€ v3\.6\.45/);
+  assert.match(index(), /build budde-3-6-45/);
+  assert.match(index(), /v=ast048/);
+  assert.match(sw(), /const CACHE_NAME='budde-3-6-45'/);
+  assert.match(sw(), /js\/app\.js\?v=ast048/);
+  assert.match(startup(), /v=ast048/);
 });
