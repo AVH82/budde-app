@@ -167,6 +167,7 @@
 
 /* AST-025 — Scan reuses the validated Accueil header grid; only the right module flips to Trustmeter. */
 body.scannerFullscreen .frameShellTop{
+  display:grid!important;
   grid-template-columns:var(--header-budde-w) minmax(var(--header-center-min),1fr) var(--header-trust-w)!important;
   min-height:var(--header-art-h)!important;
   height:var(--header-art-h)!important;
@@ -350,4 +351,43 @@ body.scannerFullscreen .frameShellTop .buddyMount--header{
   --needle-angle:-105deg;
   transform:translate(calc(-1 * var(--needle-origin-x)),calc(-1 * var(--needle-origin-y))) rotate(var(--needle-angle))!important;
   transition:transform 720ms cubic-bezier(.18,.72,.16,1.08)!important;
+}
+
+/* AST-042 — orientation initiale du rotor Paramètres / Trustmeter.
+   La face Radioactivité reste la face avant à rotateY(0deg) et le
+   Trustmeter reste la face arrière à rotateY(180deg). La rotation du
+   rotor n'est activée que par .settingsTrustModule--trust, appliquée
+   exclusivement pendant les vues receiptScanner / receiptCamera. */
+.frameShellTop .settingsTrustRotor{
+  transform:rotateY(0deg)!important;
+  transform-style:preserve-3d!important;
+}
+.frameShellTop .settingsTrustModule--trust .settingsTrustRotor{
+  transform:rotateY(180deg)!important;
+}
+.frameShellTop .settingsTrustFace{
+  backface-visibility:hidden!important;
+  -webkit-backface-visibility:hidden!important;
+  transform-style:preserve-3d!important;
+  opacity:1!important;
+}
+.frameShellTop .settingsTrustFace--settings,
+.frameShellTop .settingsTrustModule--trust .settingsTrustFace--settings{
+  transform:translate(-50%,-50%) rotateY(0deg)!important;
+}
+.frameShellTop .settingsTrustFace--trust,
+.frameShellTop .settingsTrustModule--trust .settingsTrustFace--trust{
+  transform:translate(-50%,-50%) rotateY(180deg)!important;
+}
+.frameShellTop .settingsTrustModule:not(.settingsTrustModule--trust) .settingsTrustFace--settings{
+  pointer-events:auto!important;
+}
+.frameShellTop .settingsTrustModule:not(.settingsTrustModule--trust) .settingsTrustFace--trust{
+  pointer-events:none!important;
+}
+.frameShellTop .settingsTrustModule--trust .settingsTrustFace--settings{
+  pointer-events:none!important;
+}
+.frameShellTop .settingsTrustModule--trust .settingsTrustFace--trust{
+  pointer-events:auto!important;
 }
