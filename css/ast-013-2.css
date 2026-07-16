@@ -88,7 +88,7 @@
   user-select:none!important;
 }
 .frameShellTop .settingsTrustModule::before{
-  content:'v3.6.37'!important;
+  content:'v3.6.41'!important;
   position:absolute!important;
   right:5px!important;
   top:5px!important;
@@ -222,10 +222,13 @@ body.scannerFullscreen .frameShellTop .buddyMount--header{
   --radiation-visible-center-y:47.662193%; /* AST-037 radiationHubY 452.314 / 949 */
   --radiation-canvas-width:159.148%;
   --dial-scale:119%;
-  --dial-offset-x:0%;
+  /* AST-044: PVT-002/PVT-003 are visually centered in their PNG boxes,
+     but the composed Trustmeter face reads 1.2% left in the FRM-003 aperture.
+     Shift only the dial/needle layer right; rotor, aperture and face geometry stay unchanged. */
+  --dial-offset-x:1.2%;
   --dial-offset-y:0.2%;
   --needle-scale:45.6%;
-  --needle-offset-x:0%;
+  --needle-offset-x:1.2%;
   --needle-offset-y:0%;
   --needle-origin-x:24.472574%;
   --needle-origin-y:67.432950%;
