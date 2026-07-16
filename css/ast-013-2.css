@@ -88,7 +88,7 @@
   user-select:none!important;
 }
 .frameShellTop .settingsTrustModule::before{
-  content:'v3.6.35'!important;
+  content:'v3.6.36'!important;
   position:absolute!important;
   right:5px!important;
   top:5px!important;
@@ -217,10 +217,10 @@ body.scannerFullscreen .frameShellTop .buddyMount--header{
   --pivot-aspect-ratio:1 / 1;
   --pivot-center-x:52.546917%; /* AST-037 apertureCenterX 196 / 373 */
   --pivot-center-y:50.332226%; /* AST-037 apertureCenterY 151.5 / 301 */
-  --radiation-visible-size:142.8%;
+  --radiation-visible-size:148.5%;
   --radiation-visible-center-x:50.946335%; /* AST-037 radiationHubX 587.411 / 1153 */
   --radiation-visible-center-y:47.662193%; /* AST-037 radiationHubY 452.314 / 949 */
-  --radiation-canvas-width:153.038%;
+  --radiation-canvas-width:159.148%;
   --dial-scale:119%;
   --dial-offset-x:0%;
   --dial-offset-y:0.2%;
@@ -338,7 +338,7 @@ body.scannerFullscreen .frameShellTop .buddyMount--header{
 @property --needle-angle{
   syntax:"<angle>";
   inherits:false;
-  initial-value:-60deg;
+  initial-value:-90deg;
 }
 .frameShellTop .settingsTrustNeedle{
   z-index:2!important;
@@ -347,7 +347,7 @@ body.scannerFullscreen .frameShellTop .buddyMount--header{
   width:var(--needle-scale)!important;
   height:auto!important;
   transform-origin:var(--needle-origin-x) var(--needle-origin-y)!important;
-  --needle-angle:-60deg;
+  --needle-angle:-90deg;
   transform:translate(calc(-1 * var(--needle-origin-x)),calc(-1 * var(--needle-origin-y))) rotate(var(--needle-angle))!important;
   transition:transform 720ms cubic-bezier(.18,.72,.16,1.08)!important;
 }
