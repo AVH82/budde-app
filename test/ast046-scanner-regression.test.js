@@ -48,20 +48,20 @@ test('AST-048 rotor is view-driven and trustmeter internals keep validated scale
   assert.match(source, /const scanHeaderActive=activeView==='receiptScanner'\|\|activeView==='receiptCamera'/);
   assert.doesNotMatch(source, /settingsTrustModule--trust[\s\S]{0,160}setView\(/);
   assert.match(style, /--trustmeter-scale:1\.08;/);
-  assert.match(style, /--dial-scale:128\.52%;/);
-  assert.match(style, /--needle-scale:49\.248%;/);
+  assert.match(style, /--dial-scale:168\.49%;/);
+  assert.match(style, /--needle-scale:64\.022%;/);
   assert.doesNotMatch(style, /--(?:dial|needle)-scale:calc\([^;]*\*[^;]*\);/);
-  assert.match(style, /--dial-offset-x:3\.3%;/);
-  assert.match(style, /--needle-offset-x:3\.3%;/);
+  assert.match(style, /--dial-offset-x:8\.3%;/);
+  assert.match(style, /--needle-offset-x:5\.3%;/);
 });
 
 test('AST-048 version, cache and cache-busting are coherent', () => {
-  assert.match(app(), /const APP_VERSION='3\.6\.46'/);
+  assert.match(app(), /const APP_VERSION='3\.6\.47'/);
   assert.match(app(), /const EXPECTED_CACHE_NAME=APP_BUILD_ID/);
-  assert.match(index(), /Budd€ v3\.6\.46/);
-  assert.match(index(), /build budde-3-6-46/);
-  assert.match(index(), /v=ast049/);
-  assert.match(sw(), /const CACHE_NAME='budde-3-6-46'/);
-  assert.match(sw(), /js\/app\.js\?v=ast049/);
-  assert.match(startup(), /v=ast049/);
+  assert.match(index(), /Budd€ v3\.6\.47/);
+  assert.match(index(), /build budde-3-6-47/);
+  assert.match(index(), /v=ast050/);
+  assert.match(sw(), /const CACHE_NAME='budde-3-6-47'/);
+  assert.match(sw(), /js\/app\.js\?v=ast050/);
+  assert.match(startup(), /v=ast050/);
 });

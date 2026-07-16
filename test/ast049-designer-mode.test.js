@@ -79,8 +79,8 @@ function runDesigner(search = '') {
     querySelector: selector => elements[selector] || null
   };
   const computed = {
-    '--dial-offset-x': '3.3%', '--dial-offset-y': '0.2%', '--needle-offset-x': '3.3%', '--needle-offset-y': '0%',
-    '--dial-scale': '128.52%', '--needle-scale': '49.248%', '--radiation-visible-center-x': '50.946335%', '--radiation-visible-center-y': '47.662193%'
+    '--dial-offset-x': '8.3%', '--dial-offset-y': '0.2%', '--needle-offset-x': '5.3%', '--needle-offset-y': '0%',
+    '--dial-scale': '168.49%', '--needle-scale': '64.022%', '--radiation-visible-center-x': '50.946%', '--radiation-visible-center-y': '47.662%'
   };
   const context = {
     window: null, document, navigator: {}, URLSearchParams, innerWidth: 390, innerHeight: 800, devicePixelRatio: 2,
@@ -96,8 +96,8 @@ function runDesigner(search = '') {
 }
 
 const fullValues = (overrides = {}) => ({
-  dialOffsetX: 3.3, dialOffsetY: 0.2, needleOffsetX: 3.3, needleOffsetY: 0,
-  dialScale: 128.52, needleScale: 49.248, radiationCenterX: 50.946, radiationCenterY: 47.662,
+  dialOffsetX: 8.3, dialOffsetY: 0.2, needleOffsetX: 5.3, needleOffsetY: 0,
+  dialScale: 168.49, needleScale: 64.022, radiationCenterX: 50.946, radiationCenterY: 47.662,
   ...overrides
 });
 
@@ -184,7 +184,7 @@ test('AST-049 production CSS reset removes only designer variables', () => {
   assert.equal(moduleStyle.getPropertyValue('opacity'), '0.8');
   api.restoreProductionValues();
   assert.equal(moduleStyle.getPropertyValue('opacity'), '0.8');
-  assert.equal(moduleStyle.getPropertyValue('--dial-offset-x'), '3.3%');
+  assert.equal(moduleStyle.getPropertyValue('--dial-offset-x'), '8.3%');
   assert.equal(moduleStyle.getPropertyValue('--radiation-visible-center-x'), '50.946%');
   assert.doesNotMatch(source(), /removeAttribute\('style'\)/);
 });
@@ -195,8 +195,8 @@ test('AST-049 reset trustmeter group does not modify radiation', () => {
   api.setValues(fullValues({ dialOffsetX: 99, needleOffsetX: 88, radiationCenterX: 12, radiationCenterY: 13 }));
   api.selectTarget('trustmeterGroup');
   api.reset();
-  assert.equal(api.getValues().dialOffsetX, 3.3);
-  assert.equal(api.getValues().needleOffsetX, 3.3);
+  assert.equal(api.getValues().dialOffsetX, 8.3);
+  assert.equal(api.getValues().needleOffsetX, 5.3);
   assert.equal(api.getValues().radiationCenterX, 12);
 });
 
@@ -206,8 +206,8 @@ test('AST-049 reset dial does not modify needle or radiation', () => {
   api.setValues(fullValues({ dialOffsetX: 99, dialScale: 77, needleOffsetX: 88, radiationCenterX: 12 }));
   api.selectTarget('trustmeterDial');
   api.reset();
-  assert.equal(api.getValues().dialOffsetX, 3.3);
-  assert.equal(api.getValues().dialScale, 128.52);
+  assert.equal(api.getValues().dialOffsetX, 8.3);
+  assert.equal(api.getValues().dialScale, 168.49);
   assert.equal(api.getValues().needleOffsetX, 88);
   assert.equal(api.getValues().radiationCenterX, 12);
 });
@@ -218,8 +218,8 @@ test('AST-049 reset needle does not modify dial or radiation', () => {
   api.setValues(fullValues({ dialOffsetX: 99, needleOffsetX: 88, needleScale: 11, radiationCenterX: 12 }));
   api.selectTarget('trustmeterNeedle');
   api.reset();
-  assert.equal(api.getValues().needleOffsetX, 3.3);
-  assert.equal(api.getValues().needleScale, 49.248);
+  assert.equal(api.getValues().needleOffsetX, 5.3);
+  assert.equal(api.getValues().needleScale, 64.022);
   assert.equal(api.getValues().dialOffsetX, 99);
   assert.equal(api.getValues().radiationCenterX, 12);
 });
@@ -230,8 +230,8 @@ test('AST-049 reset radiation does not modify trustmeter', () => {
   api.setValues(fullValues({ dialOffsetX: 99, needleOffsetX: 88, radiationCenterX: 12, radiationCenterY: 13 }));
   api.selectTarget('radiation');
   api.reset();
-  assert.equal(api.getValues().radiationCenterX, 50.946335);
-  assert.equal(api.getValues().radiationCenterY, 47.662193);
+  assert.equal(api.getValues().radiationCenterX, 50.946);
+  assert.equal(api.getValues().radiationCenterY, 47.662);
   assert.equal(api.getValues().dialOffsetX, 99);
   assert.equal(api.getValues().needleOffsetX, 88);
 });
@@ -239,8 +239,8 @@ test('AST-049 reset radiation does not modify trustmeter', () => {
 test('AST-049 live CSS includes trustmeter and radiation without calc multiplication', () => {
   const { context } = runDesigner('?designer=1');
   const cssText = context.window.BuddeDesignerMode.makeCss(fullValues({ radiationCenterX: 50.946, radiationCenterY: 47.662 }));
-  assert.match(cssText, /--dial-offset-x: 3\.3%;/);
-  assert.match(cssText, /--needle-scale: 49\.248%;/);
+  assert.match(cssText, /--dial-offset-x: 8\.3%;/);
+  assert.match(cssText, /--needle-scale: 64\.022%;/);
   assert.match(cssText, /--radiation-visible-center-x: 50\.946%;/);
   assert.match(cssText, /--radiation-visible-center-y: 47\.662%;/);
   assert.doesNotMatch(cssText, /calc\([^)]*\*/);
@@ -263,9 +263,9 @@ test('AST-049 close cleans debug state and only designer overrides', () => {
 });
 
 test('AST-049 files are loaded and version/cache stay on PR #216 values', () => {
-  assert.match(index(), /css\/designer-mode\.css\?v=ast049/);
-  assert.match(index(), /js\/designer-mode\.js\?v=ast049/);
+  assert.match(index(), /css\/designer-mode\.css\?v=ast050/);
+  assert.match(index(), /js\/designer-mode\.js\?v=ast050/);
   assert.match(css(), /\.designer-panel/);
-  assert.match(app(), /const APP_VERSION='3\.6\.46'/);
-  assert.match(fs.readFileSync('service-worker.js', 'utf8'), /const CACHE_NAME='budde-3-6-46'/);
+  assert.match(app(), /const APP_VERSION='3\.6\.47'/);
+  assert.match(fs.readFileSync('service-worker.js', 'utf8'), /const CACHE_NAME='budde-3-6-47'/);
 });
