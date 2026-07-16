@@ -101,8 +101,8 @@
     if(signals.noOcrResult&&signals.reliableMainFields===0)return 0;
     if(signals.notReceipt)return 0;
     if(!signals.hasReliableMerchant&&!signals.hasValidAmount)return 0;
-    if(hasBlockingReceiptWarning(state))return Math.min(baseTrust,15);
-    if(signals.requiresFullReview&&signals.reliableMainFields<=1)return Math.min(baseTrust,15);
+    if(hasBlockingReceiptWarning(state))return 0;
+    if(signals.requiresFullReview&&signals.reliableMainFields<=1)return 0;
     if(signals.reliableMainFields===0)return 0;
     if(signals.reliableMainFields===1)return Math.min(baseTrust,30);
     if(signals.reliableMainFields===2)return Math.min(baseTrust,40);

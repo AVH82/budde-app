@@ -208,19 +208,19 @@ body.scannerFullscreen .frameShellTop .buddyMount--header{
 
 /* AST-030 — radiation disc is clipped by the real FRM-003 aperture, while the
    transparent Settings button remains an independent top layer.
-   Frame aperture measured on FRM-003: x=87..306, y=42..261, diameter=220px,
-   center=(196.5px,151.5px) in a 373x301 module.
-   PVT-001 alpha bbox: x=28..1103 y=0..948, visible center=(565.5,474). */
+   Frame aperture measured on FRM-003: transparent opening x=83..309, y=42..261,
+   diameter≈223.5px, center=(196px,151.5px) in a 373x301 module.
+   PVT-001 hub measured from central metallic moyeu: center=(587.411px,452.314px). */
 .frameShellTop .settingsTrustModule{
   --pivot-width:58.981233%; /* 220 / 373 */
   --pivot-height:73.089701%; /* 220 / 301 */
   --pivot-aspect-ratio:1 / 1;
-  --pivot-center-x:52.50%; /* AST-036 visual aperture calibration */
-  --pivot-center-y:50.10%; /* AST-036 visual aperture calibration */
-  --radiation-visible-size:132%;
-  --radiation-visible-center-x:49.045967%; /* alpha bbox center 565.5 / 1153 */
-  --radiation-visible-center-y:49.947313%; /* alpha bbox center 474 / 949 */
-  --radiation-canvas-width:141.388%;
+  --pivot-center-x:52.546917%; /* AST-037 apertureCenterX 196 / 373 */
+  --pivot-center-y:50.332226%; /* AST-037 apertureCenterY 151.5 / 301 */
+  --radiation-visible-size:140%;
+  --radiation-visible-center-x:50.946335%; /* AST-037 radiationHubX 587.411 / 1153 */
+  --radiation-visible-center-y:47.662193%; /* AST-037 radiationHubY 452.314 / 949 */
+  --radiation-canvas-width:150.037%;
   --dial-scale:119%;
   --dial-offset-x:0%;
   --dial-offset-y:0.2%;
@@ -257,6 +257,26 @@ body.scannerFullscreen .frameShellTop .buddyMount--header{
   overflow:hidden!important;
   pointer-events:none!important;
 }
+.frameShellTop .settingsTrustRadiationFace::before{
+  content:""!important;
+  position:absolute!important;
+  inset:7%!important;
+  border-radius:50%!important;
+  background:radial-gradient(circle,rgba(126,255,72,.34) 0%,rgba(126,255,72,.18) 46%,rgba(126,255,72,0) 72%)!important;
+  filter:blur(4px)!important;
+  opacity:.58!important;
+  transition:opacity 320ms ease,filter 320ms ease!important;
+  pointer-events:none!important;
+  z-index:0!important;
+}
+.frameShellTop .settingsTrustModule:has(#openSettings.active) .settingsTrustRadiationFace::before,
+.frameShellTop .settingsTrustModule .settingsHotspot.active~.settingsTrustRadiationFace::before,
+.frameShellTop .settingsTrustRadiationFace:has(+ .headerFrameImage--trust + #openSettings.active)::before{
+  opacity:.95!important;
+  filter:blur(7px)!important;
+}
+.frameShellTop .settingsTrustAsset--radiation{z-index:1!important;filter:drop-shadow(0 0 5px rgba(126,255,72,.28))!important;transition:filter 320ms ease!important;}
+.frameShellTop .settingsTrustModule:has(#openSettings.active) .settingsTrustAsset--radiation{filter:drop-shadow(0 0 11px rgba(126,255,72,.62))!important;}
 .frameShellTop .headerTrustGauge{
   z-index:2!important;
   overflow:hidden!important;

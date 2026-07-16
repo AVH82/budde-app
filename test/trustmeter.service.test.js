@@ -29,11 +29,11 @@ test('maps trust scores linearly to the LOW/HIGH needle angles', () => {
 
 test('trustmeter startup scan is replay-only on scan entry and score updates stay dynamic', () => {
   const app = fs.readFileSync('js/app.js', 'utf8');
-  assert.match(app, /if\(enteringScan\)replayHeaderTrustNeedle\(\)/);
+  assert.match(app, /if\(enteringScan\)resetHeaderTrustNeedle\(\)/);
   assert.match(app, /else if\(v!=='receiptScanner'&&v!=='receiptCamera'\)resetHeaderTrustNeedle\(\)/);
   assert.match(app, /needle\.animate\(/);
-  assert.match(app, /fill:'none'/);
-  assert.match(app, /scan\.addEventListener\('finish',\(\)=>applyCurrentReceiptTrustToNeedle\('scan-animation-finish'\)\)/);
+  assert.match(app, /fill:'forwards'/);
+  assert.match(app, /function startTrustmeterAnalyzingAnimation/);
   assert.match(app, /currentEffectiveReceiptTrust\(\)/);
   assert.doesNotMatch(app, /setHeaderTrustNeedleAngle\(receiptScannerState\?\.trust\)/);
   assert.doesNotMatch(app, /settingsTrustNeedle--animate/);
@@ -50,7 +50,7 @@ test('effective trust caps fake receipt with fallback merchant and zero amount',
     validationStatus: 'warning',
     requiresFullReview: true
   };
-  assert.ok(TrustmeterService.computeEffectiveReceiptTrust(state) <= 15);
+  assert.equal(TrustmeterService.computeEffectiveReceiptTrust(state), 0);
 });
 
 test('effective trust is red when no merchant, amount or reliable date exists', () => {
@@ -81,7 +81,7 @@ test('effective trust forces recognized merchant and amount with doubtful date t
     lastOcrFields: { merchant: 'MONOPRIX', total: 8.90, date: '2026-07-15' },
     ocrDiagnostic: { date: { status: 'warning' } }
   };
-  assert.equal(TrustmeterService.computeEffectiveReceiptTrust(state), 15);
+  assert.equal(TrustmeterService.computeEffectiveReceiptTrust(state), 0);
   assert.equal(TrustmeterService.hasBlockingReceiptWarning(state), true);
 });
 
@@ -99,8 +99,7 @@ test('blocking receipt warning covers explicit review values and invalid amounts
   ];
   invalidStates.forEach(state => {
     assert.equal(TrustmeterService.hasBlockingReceiptWarning(state), true);
-    const expectedTrust = state.visionReport?.isReceipt === false ? 0 : 15;
-    assert.equal(TrustmeterService.computeEffectiveReceiptTrust(state), expectedTrust);
+    assert.equal(TrustmeterService.computeEffectiveReceiptTrust(state), 0);
   });
 });
 
@@ -141,7 +140,7 @@ test('unreliable main OCR origins remain blocking until manually locked', () => 
   ['merchant', 'amount', 'date'].forEach(key => {
     const state = { ...base, ocrFieldOrigins: { merchant: true, amount: true, date: true, category: false, [key]: false } };
     assert.equal(TrustmeterService.hasBlockingReceiptWarning(state), true, `${key} false origin should block`);
-    assert.equal(TrustmeterService.computeEffectiveReceiptTrust(state), 15, `${key} false origin should force red`);
+    assert.equal(TrustmeterService.computeEffectiveReceiptTrust(state), 0, `${key} false origin should force LOW`);
   });
   const locked = {
     ...base,
@@ -161,7 +160,7 @@ test('explicit review category remains blocking regardless of OCR origin', () =>
     ocrFieldOrigins: { merchant: true, amount: true, date: true, category: false }
   };
   assert.equal(TrustmeterService.hasBlockingReceiptWarning(state), true);
-  assert.equal(TrustmeterService.computeEffectiveReceiptTrust(state), 15);
+  assert.equal(TrustmeterService.computeEffectiveReceiptTrust(state), 0);
 });
 
 test('manual locked corrections do not count as unreliable OCR origins', () => {
@@ -193,8 +192,8 @@ test('effective trust makes fake receipt angle red and reliable receipt angle gr
 
 test('radiation settings button uses iOS-safe static canvas sizing', () => {
   const css = fs.readFileSync('css/ast-013-2.css', 'utf8');
-  assert.match(css, /--radiation-visible-size:132%/);
-  assert.match(css, /--radiation-canvas-width:141\.388%/);
+  assert.match(css, /--radiation-visible-size:140%/);
+  assert.match(css, /--radiation-canvas-width:150\.037%/);
   assert.doesNotMatch(css, /--radiation-canvas-width:calc\([^;]*\*[^;]*\/[^;]*\)/);
   assert.match(css, /--needle-angle:-60deg/);
 });
@@ -202,13 +201,13 @@ test('radiation settings button uses iOS-safe static canvas sizing', () => {
 test('app final angle uses effective trust instead of raw trust', () => {
   const app = fs.readFileSync('js/app.js', 'utf8');
   assert.match(app, /function currentReceiptTrustAngle\(\)\{return trustScoreToAngle\(currentEffectiveReceiptTrust\(\)\)\}/);
-  assert.match(app, /function applyCurrentReceiptTrustToNeedle\(source='update'\)\{const needle=document\.querySelector\('\.settingsTrustNeedle'\);const effectiveTrust=currentEffectiveReceiptTrust\(\);const angle=trustScoreToAngle\(effectiveTrust\)/);
+  assert.match(app, /function applyCurrentReceiptTrustToNeedle\(source='update'\)\{const phase=receiptScannerState\.trustmeterPhase/);
   assert.match(app, /needle\.style\.setProperty\('--needle-angle',`\$\{angle\}deg`\)/);
   assert.match(app, /-60\+\(normalizeTrustScore\(value\)\/100\)\*120/);
   assert.doesNotMatch(app, /-48\+\(normalizeTrustScore\(value\)\/100\)\*96/);
   assert.match(app, /TrustmeterService\?\.TRUST_MIN_ANGLE\?\?-60/);
   assert.match(app, /TrustmeterService\?\.TRUST_MAX_ANGLE\?\?60/);
-  assert.match(app, /scan\.addEventListener\('finish',\(\)=>applyCurrentReceiptTrustToNeedle\('scan-animation-finish'\)\)/);
+  assert.match(app, /function startTrustmeterAnalyzingAnimation/);
 });
 
 test('fillReceiptScannerFields installs complete scan state before effective needle update', () => {
@@ -244,6 +243,33 @@ test('effective trust on fillReceiptScannerFields-like fake receipt state stays 
   const signals = TrustmeterService.receiptTrustSignals(state);
   const effective = TrustmeterService.computeEffectiveReceiptTrust(state);
   assert.equal(signals.hasReliableDate, false);
-  assert.ok(effective <= 15);
+  assert.equal(effective, 0);
   assert.equal(TrustmeterService.trustScoreToAngle(effective), TrustmeterService.TRUST_MIN_ANGLE);
+});
+
+
+test('observed doubtful merchant with zero amount forces final LOW', () => {
+  const state = { trust: 82, step: 'done', trustmeterPhase: 'result', fields: { merchant: 'TE PI CA 0', amount: '0,00', date: '2026-07-15', category: 'NON CLASSÉ' }, rawFields: { merchant: 'TE PI CA 0', total: 0, date: '' }, lastOcrFields: { merchant: 'TE PI CA 0', total: 0 }, ocrFieldOrigins: { merchant: false, amount: false, date: false, category: false }, ocrDiagnostic: { reliable: false } };
+  assert.equal(TrustmeterService.computeEffectiveReceiptTrust(state), 0);
+  assert.equal(TrustmeterService.trustScoreToAngle(0), TrustmeterService.TRUST_MIN_ANGLE);
+});
+
+test('explicit review merchant and zero amount forces final LOW', () => {
+  const state = { trust: 90, step: 'done', trustmeterPhase: 'result', fields: { merchant: 'À vérifier', amount: '0,00', date: '2026-07-15', category: 'NON CLASSÉ' }, lastOcrFields: { merchant: '', total: 0 } };
+  assert.equal(TrustmeterService.computeEffectiveReceiptTrust(state), 0);
+  assert.equal(TrustmeterService.trustScoreToAngle(TrustmeterService.computeEffectiveReceiptTrust(state)), -60);
+});
+
+test('trustmeter phase machine and halo hooks are statically present', () => {
+  const app = fs.readFileSync('js/app.js', 'utf8');
+  const css = fs.readFileSync('css/ast-013-2.css', 'utf8');
+  assert.match(app, /trustmeterPhase:'idle'/);
+  assert.match(app, /receiptScannerState\.trustmeterPhase='analyzing'/);
+  assert.match(app, /receiptScannerState\.trustmeterPhase='result'/);
+  assert.match(app, /stopTrustmeterAnalyzingAnimation\('manual-change'\)/);
+  assert.match(css, /settingsTrustRadiationFace::before/);
+  assert.match(css, /rgba\(126,255,72/);
+  assert.match(css, /transition:opacity 320ms ease/);
+  assert.match(css, /apertureCenterX 196 \/ 373/);
+  assert.match(css, /radiationHubX 587\.411 \/ 1153/);
 });
