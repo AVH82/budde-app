@@ -141,7 +141,6 @@
 .frameShellTop .buddyMount--header .buddyBubble::before,
 .frameShellTop .buddyMount--header .buddyBubble::after{content:none!important;display:none!important;background:none!important;background-image:none!important;border:0!important;box-shadow:none!important;filter:none!important;backdrop-filter:none!important;}
 .frameShellTop .buddyMount--header .buddyBubble p{margin:0!important;width:100%!important;max-width:none!important;text-align:center!important;font-size:clamp(9px,2.45vw,13px)!important;line-height:1.2!important;max-height:none!important;overflow:hidden!important;overflow-wrap:normal!important;word-break:normal!important;display:-webkit-box!important;-webkit-line-clamp:3!important;-webkit-box-orient:vertical!important;background:transparent!important;background-color:transparent!important;background-image:none!important;border:0!important;outline:0!important;box-shadow:none!important;filter:none!important;backdrop-filter:none!important;}
-.frameShellTop .settingsHotspot,
 .frameShellTop .settingsTrustFace{
   position:absolute!important;
   left:var(--trust-control-x)!important;
@@ -238,7 +237,6 @@ body.scannerFullscreen .frameShellTop .buddyMount--header{
   z-index:3!important;
   pointer-events:none!important;
 }
-.frameShellTop .settingsHotspot,
 .frameShellTop .settingsTrustFace{
   left:var(--pivot-center-x)!important;
   top:var(--pivot-center-y)!important;
@@ -351,6 +349,32 @@ body.scannerFullscreen .frameShellTop .buddyMount--header{
   --needle-angle:-105deg;
   transform:translate(calc(-1 * var(--needle-origin-x)),calc(-1 * var(--needle-origin-y))) rotate(var(--needle-angle))!important;
   transition:transform 720ms cubic-bezier(.18,.72,.16,1.08)!important;
+}
+
+/* AST-043 — géométrie historique du rotor Paramètres / Trustmeter.
+   Le conteneur 3D reste plein module, mais seules les deux faces portent les
+   dimensions calibrées sur la fenêtre FRM-003. Le bouton interne remplit la
+   face Radioactivité pour éviter le second recentrage introduit avec AST-041. */
+.frameShellTop .settingsTrustRotor{
+  position:absolute!important;
+  inset:0!important;
+  z-index:2!important;
+  transform-origin:50% 50%!important;
+}
+.frameShellTop .settingsTrustFace{
+  position:absolute!important;
+  margin:0!important;
+  transform-origin:50% 50%!important;
+}
+.frameShellTop .settingsTrustFace .settingsHotspot{
+  position:absolute!important;
+  inset:0!important;
+  left:0!important;
+  top:0!important;
+  width:100%!important;
+  height:100%!important;
+  transform:none!important;
+  margin:0!important;
 }
 
 /* AST-042 — orientation initiale du rotor Paramètres / Trustmeter.
