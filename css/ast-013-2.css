@@ -225,10 +225,10 @@ body.scannerFullscreen .frameShellTop .buddyMount--header{
      pivot with the FRM-003 aperture center. Rotor geometry, mask, hotspot,
      3D rotation, halos and settings button placement stay unchanged. */
   --trustmeter-scale:1.08;
-  --dial-scale:calc(119% * var(--trustmeter-scale));
+  --dial-scale:128.52%;
   --dial-offset-x:2.3%;
   --dial-offset-y:0.2%;
-  --needle-scale:calc(45.6% * var(--trustmeter-scale));
+  --needle-scale:49.248%;
   --needle-offset-x:2.3%;
   --needle-offset-y:0%;
   --needle-origin-x:24.472574%;

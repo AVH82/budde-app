@@ -48,6 +48,9 @@ test('AST-047 rotor is view-driven and trustmeter internals are enlarged and cen
   assert.match(source, /const scanHeaderActive=activeView==='receiptScanner'\|\|activeView==='receiptCamera'/);
   assert.doesNotMatch(source, /settingsTrustModule--trust[\s\S]{0,160}setView\(/);
   assert.match(style, /--trustmeter-scale:1\.08;/);
+  assert.match(style, /--dial-scale:128\.52%;/);
+  assert.match(style, /--needle-scale:49\.248%;/);
+  assert.doesNotMatch(style, /--(?:dial|needle)-scale:calc\([^;]*\*[^;]*\);/);
   assert.match(style, /--dial-offset-x:2\.3%;/);
   assert.match(style, /--needle-offset-x:2\.3%;/);
 });
