@@ -94,6 +94,9 @@ test('blocking receipt warning covers explicit review values and invalid amounts
     { trust: 95, fields: { merchant: 'LECLERC', amount: '12,00', date: '2026-07-14', category: 'À vérifier' } },
     { trust: 95, fields: { merchant: 'LECLERC', amount: '12,00', date: '2026-07-14', note: 'À vérifier' } },
     { trust: 95, fields: { merchant: 'LECLERC', amount: '12,00', date: '2026-07-14' }, validationStatus: 'warning' },
+    { trust: 95, fields: { merchant: 'LECLERC', amount: '12,00', date: '2026-07-14' }, merchantReliable: false },
+    { trust: 95, fields: { merchant: 'LECLERC', amount: '12,00', date: '2026-07-14' }, ocrDiagnostic: { merchant: { reliable: false } } },
+    { trust: 95, fields: { merchant: 'LECLERC', amount: '12,00', date: '2026-07-14' }, ocrDiagnostic: { buddy: { requiresVerification: true } } },
     { trust: 95, fields: { merchant: 'LECLERC', amount: '12,00', date: '2026-07-14' }, ocrDiagnostic: { amount: { status: 'warning' } } },
     { trust: 95, fields: { merchant: 'LECLERC', amount: '12,00', date: '2026-07-14' }, visionReport: { isReceipt: false } }
   ];
@@ -192,8 +195,8 @@ test('effective trust makes fake receipt angle red and reliable receipt angle gr
 
 test('radiation settings button uses iOS-safe static canvas sizing', () => {
   const css = fs.readFileSync('css/ast-013-2.css', 'utf8');
-  assert.match(css, /--radiation-visible-size:140%/);
-  assert.match(css, /--radiation-canvas-width:150\.037%/);
+  assert.match(css, /--radiation-visible-size:142.8%/);
+  assert.match(css, /--radiation-canvas-width:153\.038%/);
   assert.doesNotMatch(css, /--radiation-canvas-width:calc\([^;]*\*[^;]*\/[^;]*\)/);
   assert.match(css, /--needle-angle:-60deg/);
 });
@@ -202,7 +205,9 @@ test('app final angle uses effective trust instead of raw trust', () => {
   const app = fs.readFileSync('js/app.js', 'utf8');
   assert.match(app, /function currentReceiptTrustAngle\(\)\{return trustScoreToAngle\(currentEffectiveReceiptTrust\(\)\)\}/);
   assert.match(app, /function applyCurrentReceiptTrustToNeedle\(source='update'\)\{const phase=receiptScannerState\.trustmeterPhase/);
+  assert.match(app, /phase==='analyzing'.*return receiptScannerState\.trustNeedleDiagnostic/s);
   assert.match(app, /needle\.style\.setProperty\('--needle-angle',`\$\{angle\}deg`\)/);
+  assert.match(app, /needle\.animate\(\[\{'--needle-angle'/);
   assert.match(app, /-60\+\(normalizeTrustScore\(value\)\/100\)\*120/);
   assert.doesNotMatch(app, /-48\+\(normalizeTrustScore\(value\)\/100\)\*96/);
   assert.match(app, /TrustmeterService\?\.TRUST_MIN_ANGLE\?\?-60/);
