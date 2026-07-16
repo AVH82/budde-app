@@ -45,7 +45,7 @@
   }
   function hasWarningStatus(value){
     if(!value||typeof value!=='object')return false;
-    if(value.status==='warning'||value.validationStatus==='warning'||value.validationStatus==='invalid')return true;
+    if(value.status==='warning'||value.status==='invalid'||value.validationStatus==='warning'||value.validationStatus==='invalid'||value.requiresVerification===true||value.requiresReview===true||value.needsVerification===true)return true;
     return Object.values(value).some(item=>item&&typeof item==='object'&&hasWarningStatus(item));
   }
   function hasUnreliableOcrOrigin(state={},diagnostic={}){
@@ -65,11 +65,13 @@
     const rawFields=state.rawFields||{};
     const diagnostic=state.ocrDiagnostic||rawFields.diagnostic||{};
     const merchant=fields.merchant??rawFields.merchant;
+    const merchantDiagnostic=diagnostic.merchant||diagnostic.vendor||diagnostic.commerchant;
+    const unreliableMerchant=state.merchantReliable===false||merchantDiagnostic?.reliable===false||merchantDiagnostic?.trusted===false||merchantDiagnostic?.status==='warning'||merchantDiagnostic?.status==='invalid';
     const amount=fields.amount??rawFields.total??rawFields.amount;
     const date=fields.date??rawFields.date;
     const category=fields.category??rawFields.category;
     const notReceipt=state.isLikelyReceipt===false||state.validationStatus==='invalid'||state.visionReport?.isReceipt===false||state.visionReport?.receipt?.isReceipt===false||diagnostic.isReceipt===false||diagnostic.likelyReceipt===false;
-    return isBlank(merchant)||upper(merchant)==='INCONNU'||isReviewFallback(merchant)
+    return isBlank(merchant)||upper(merchant)==='INCONNU'||isReviewFallback(merchant)||unreliableMerchant
       ||isInvalidReceiptAmount(amount)
       ||isBlank(date)||isReviewFallback(date)||state.dateReliable===false||diagnostic.date?.reliable===false||diagnostic.date?.status==='warning'
       ||isReviewFallback(category)||hasExplicitReviewValue(fields)||hasExplicitReviewValue(rawFields)
