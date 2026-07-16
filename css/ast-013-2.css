@@ -88,7 +88,7 @@
   user-select:none!important;
 }
 .frameShellTop .settingsTrustModule::before{
-  content:'v3.6.36'!important;
+  content:'v3.6.37'!important;
   position:absolute!important;
   right:5px!important;
   top:5px!important;
@@ -338,7 +338,7 @@ body.scannerFullscreen .frameShellTop .buddyMount--header{
 @property --needle-angle{
   syntax:"<angle>";
   inherits:false;
-  initial-value:-90deg;
+  initial-value:-105deg;
 }
 .frameShellTop .settingsTrustNeedle{
   z-index:2!important;
@@ -347,7 +347,7 @@ body.scannerFullscreen .frameShellTop .buddyMount--header{
   width:var(--needle-scale)!important;
   height:auto!important;
   transform-origin:var(--needle-origin-x) var(--needle-origin-y)!important;
-  --needle-angle:-90deg;
+  --needle-angle:-105deg;
   transform:translate(calc(-1 * var(--needle-origin-x)),calc(-1 * var(--needle-origin-y))) rotate(var(--needle-angle))!important;
   transition:transform 720ms cubic-bezier(.18,.72,.16,1.08)!important;
 }

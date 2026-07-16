@@ -1,5 +1,6 @@
 (function(root){
-  const TRUST_MIN_ANGLE=-90;
+  const TRUST_MIN_ANGLE=-105;
+  const TRUST_CENTER_ANGLE=0;
   const TRUST_MAX_ANGLE=90;
   const RECEIPT_FIELD_FALLBACK='À vérifier';
   function clamp(value,min,max){return Math.max(min,Math.min(max,value))}
@@ -11,7 +12,8 @@
   }
   function trustScoreToAngle(value){
     const score=normalizeTrustScore(value);
-    return TRUST_MIN_ANGLE+(score/100)*(TRUST_MAX_ANGLE-TRUST_MIN_ANGLE);
+    if(score<=50)return TRUST_MIN_ANGLE+(score/50)*(TRUST_CENTER_ANGLE-TRUST_MIN_ANGLE);
+    return TRUST_CENTER_ANGLE+((score-50)/50)*(TRUST_MAX_ANGLE-TRUST_CENTER_ANGLE);
   }
   function upper(value){return String(value||'').trim().toLocaleUpperCase('fr-FR')}
   function amountNumber(value){
@@ -110,7 +112,7 @@
     if(signals.reliableMainFields===2)return Math.min(baseTrust,40);
     return baseTrust;
   }
-  const api={TRUST_MIN_ANGLE,TRUST_MAX_ANGLE,normalizeTrustScore,trustScoreToAngle,receiptTrustSignals,hasBlockingReceiptWarning,computeEffectiveReceiptTrust};
+  const api={TRUST_MIN_ANGLE,TRUST_CENTER_ANGLE,TRUST_MAX_ANGLE,normalizeTrustScore,trustScoreToAngle,receiptTrustSignals,hasBlockingReceiptWarning,computeEffectiveReceiptTrust};
   if(typeof module!=='undefined'&&module.exports)module.exports=api;
   root.TrustmeterService=api;
 })(typeof window!=='undefined'?window:globalThis);
