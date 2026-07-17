@@ -45,19 +45,19 @@
 
 /* Visible release version — single override for all rendered labels. */
 .frameShellTop .settingsTrustModule::before{
-  content:'v3.6.47'!important;
+  content:'v3.6.48'!important;
 }
 #systemAppVersion::after,
 #diagnosticAppVersion::after,
 #entryAppVersion::after{
-  content:'3.6.47'!important;
+  content:'3.6.48'!important;
 }
 #systemBuildId::after,
 #diagnosticBuildId::after{
-  content:'budde-3-6-47'!important;
+  content:'budde-3-6-48'!important;
 }
 #diagnosticExpectedCache::after{
-  content:'budde-3-6-47'!important;
+  content:'budde-3-6-48'!important;
 }
 
 @media(max-width:380px){
@@ -74,3 +74,50 @@
     font-size:11px!important;
   }
 }
+
+/* AST-051 — iOS Safari rotor isolation and Trustmeter layer order.
+   Root cause: Safari was still compositing the hidden rotateY(180deg) face; the
+   explicit state visibility/opacity below keeps the 3D rotation but removes the
+   non-active face from paint and hit-testing. The right-edge dark crop came from
+   the circular .settingsTrustViewport mask, so the Trustmeter viewport is now
+   overflow-visible while the FRM-003 frame remains the only visible aperture. */
+.frameShellTop .settingsTrustRotor{
+  transform-style:preserve-3d!important;
+  perspective:900px!important;
+}
+.frameShellTop .settingsTrustFace{
+  backface-visibility:hidden!important;
+  -webkit-backface-visibility:hidden!important;
+  transform-style:preserve-3d!important;
+  transition:transform 520ms cubic-bezier(.2,.7,.18,1),opacity 160ms linear,visibility 0s linear 160ms!important;
+}
+.frameShellTop .settingsTrustModule:not(.settingsTrustModule--trust) .settingsTrustFace--settings,
+.frameShellTop .settingsTrustModule--trust .settingsTrustFace--trust{
+  opacity:1!important;
+  visibility:visible!important;
+  pointer-events:auto!important;
+  transition-delay:0s!important;
+}
+.frameShellTop .settingsTrustModule:not(.settingsTrustModule--trust) .settingsTrustFace--trust,
+.frameShellTop .settingsTrustModule--trust .settingsTrustFace--settings{
+  opacity:0!important;
+  visibility:hidden!important;
+  pointer-events:none!important;
+}
+.frameShellTop .settingsTrustModule:not(.settingsTrustModule--trust) .settingsTrustFace--trust .settingsTrustAsset--dial,
+.frameShellTop .settingsTrustModule:not(.settingsTrustModule--trust) .settingsTrustFace--trust .settingsTrustNeedle,
+.frameShellTop .settingsTrustModule--trust .settingsTrustFace--settings .settingsTrustAsset--radiation{
+  opacity:0!important;
+}
+.frameShellTop .settingsTrustModule--trust .headerTrustGauge,
+.frameShellTop .settingsTrustModule--trust .headerTrustGauge .settingsTrustViewport{
+  overflow:visible!important;
+  clip-path:none!important;
+  mask-image:none!important;
+  -webkit-mask-image:none!important;
+}
+.frameShellTop .settingsTrustModule--trust .settingsTrustFace--trust{z-index:2!important;}
+.frameShellTop .settingsTrustModule--trust .settingsTrustAsset--dial{z-index:1!important;}
+.frameShellTop .settingsTrustModule--trust .settingsTrustNeedle{z-index:2!important;}
+.frameShellTop .settingsTrustModule>.headerFrameImage--trust{z-index:3!important;}
+html.debugLayers .debugLayerHidden{opacity:0!important;visibility:hidden!important;pointer-events:none!important;}
