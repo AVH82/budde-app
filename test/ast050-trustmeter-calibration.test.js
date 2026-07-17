@@ -35,12 +35,12 @@ test('AST-050 removes the asymmetric Trustmeter face clipping and keeps a single
 });
 
 test('AST-050 version build cache and cache-busting are coherent', () => {
-  assert.match(app(), /const APP_VERSION='3\.6\.47'/);
+  assert.match(app(), /const APP_VERSION='3\.6\.48'/);
   assert.match(app(), /const APP_BUILD_ID=`budde-\$\{APP_VERSION\.replaceAll\('\.','-'\)\}`/);
-  assert.match(index(), /Budd€ v3\.6\.47/);
-  assert.match(index(), /build budde-3-6-47/);
-  assert.match(index(), /v=ast050/);
-  assert.match(sw(), /const CACHE_NAME='budde-3-6-47'/);
-  assert.match(sw(), /js\/app\.js\?v=ast050/);
-  assert.match(startup(), /v=ast050/);
+  assert.match(index(), /Budd€ v3\.6\.48/);
+  assert.match(index(), /build budde-3-6-48/);
+  assert.match(index(), /v=ast051/);
+  assert.match(sw(), /const CACHE_NAME='budde-3-6-48'/);
+  assert.match(sw(), /js\/app\.js\?v=ast051/);
+  assert.match(startup(), /v=ast051/);
 });
