@@ -75,8 +75,8 @@
 
 @media(prefers-reduced-motion:reduce){
   .frameStartup--opening .frameShutterTrack,
-  .frameStartupControls--opening .frameStartupChoice{animation-duration:120ms!important;animation-timing-function:linear!important;}
-  .frameStartupControls--opening .frameStartupChoice{animation-delay:0ms!important;}
+  .frameStartupControls--opening .startupAccessAssembly{animation-duration:120ms!important;animation-timing-function:linear!important;}
+  .frameStartupControls--opening .startupAccessAssembly{animation-delay:0ms!important;}
 }
 
 /* Portaled directly under body so this component can truly cover the dock. */
@@ -88,30 +88,77 @@
   width:var(--frame-shell-w);
   max-width:100vw;
   height:calc(var(--nav-h,104px) + env(safe-area-inset-bottom));
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  gap:clamp(4px,1.5vw,8px);
+  perspective:900px;
   z-index:var(--frame-z-startup);
   overflow:visible;
   pointer-events:auto;
 }
 .frameStartupControls[hidden]{display:none!important;}
 .frameStartupControls--opening{pointer-events:none;}
+.startupAccessAssembly{
+  position:absolute;
+  inset:0;
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  padding:10px clamp(14px,4vw,22px) calc(9px + env(safe-area-inset-bottom));
+  transform-origin:center center;
+  transform-style:preserve-3d;
+  backface-visibility:hidden;
+  will-change:transform,filter,opacity;
+}
+.startupAccessPanel{
+  position:absolute;
+  inset:0;
+  z-index:0;
+  width:100%;
+  height:100%;
+  object-fit:fill;
+  pointer-events:none;
+  backface-visibility:hidden;
+}
+.startupAccessAssembly::after{
+  content:'';
+  position:absolute;
+  z-index:-1;
+  left:1.5%;
+  right:1.5%;
+  bottom:-7px;
+  height:8px;
+  transform:rotateX(90deg);
+  transform-origin:center top;
+  background:linear-gradient(180deg,#4b4a3d,#171812 55%,#050605);
+  box-shadow:0 5px 12px rgba(0,0,0,.75);
+}
+.startupAccessGlow{
+  position:relative;
+  z-index:1;
+  align-self:stretch;
+  margin:5px 2px;
+  border-radius:16px;
+  opacity:0;
+  pointer-events:none;
+  background:radial-gradient(ellipse at center,rgba(190,255,105,.68) 0,rgba(157,255,69,.34) 34%,rgba(157,255,69,.12) 58%,transparent 76%);
+  filter:blur(8px);
+  box-shadow:0 0 12px rgba(157,255,69,.72),0 0 28px rgba(157,255,69,.45),inset 0 0 18px rgba(215,255,164,.8);
+  transition:opacity 120ms ease;
+}
+.startupAccessGlow--network{grid-column:1;grid-row:1;}
+.startupAccessGlow--local{grid-column:2;grid-row:1;}
 .frameStartupChoice{
+  position:relative;
+  z-index:2;
+  grid-row:1;
   display:grid;
   place-items:stretch;
   min-width:0;
   height:100%;
-  padding:10px 0 calc(9px + env(safe-area-inset-bottom));
+  padding:0;
   box-sizing:border-box;
   opacity:1;
   visibility:visible;
-  will-change:transform;
-  transform-style:preserve-3d;
-  backface-visibility:hidden;
 }
-.frameStartupChoice--network{transform-origin:center top;}
-.frameStartupChoice--local{transform-origin:center bottom;}
+.frameStartupChoice--network{grid-column:1;}
+.frameStartupChoice--local{grid-column:2;}
 .frameStartupChoice>button{
   width:100%!important;
   height:100%!important;
@@ -134,20 +181,21 @@
 .frameStartupChoice>button:hover .frameStartupChoiceAsset,
 .frameStartupChoice>button:focus-visible .frameStartupChoiceAsset{filter:brightness(1.05) drop-shadow(0 0 5px rgba(157,255,69,.35));}
 .frameStartupChoice>button:focus-visible{outline:2px solid var(--terminal-green)!important;outline-offset:2px;}
+.frameStartupControls--selected-network .startupAccessGlow--network,
+.frameStartupControls--selected-local .startupAccessGlow--local{opacity:1;}
 .frameStartupControls--selected-network .frameStartupChoice--network .frameStartupChoiceAsset,
-.frameStartupControls--selected-local .frameStartupChoice--local .frameStartupChoiceAsset{filter:brightness(1.12) drop-shadow(0 0 5px rgba(157,255,69,.85)) drop-shadow(0 0 14px rgba(157,255,69,.55));transform:translateY(2px);}
-.frameStartupControls--opening .frameStartupChoice--network{animation:frameStartupNetworkOpen 780ms cubic-bezier(.22,.75,.18,1) 200ms forwards;}
-.frameStartupControls--opening .frameStartupChoice--local{animation:frameStartupLocalOpen 780ms cubic-bezier(.22,.75,.18,1) 200ms forwards;}
-@keyframes frameStartupNetworkOpen{
-  0%{transform:perspective(850px) rotateX(0);filter:brightness(1) drop-shadow(0 8px 10px rgba(0,0,0,.45));}
-  45%{filter:brightness(.88) drop-shadow(0 10px 13px rgba(0,0,0,.65));}
-  100%{transform:perspective(850px) rotateX(96deg);filter:brightness(.68) drop-shadow(0 8px 16px rgba(0,0,0,.7));visibility:hidden;}
+.frameStartupControls--selected-local .frameStartupChoice--local .frameStartupChoiceAsset{filter:brightness(1.08);transform:translateY(2px) scale(.99);}
+.frameStartupControls--opening .startupAccessAssembly{animation:startupAccessAssemblyOpen 820ms cubic-bezier(.2,.72,.15,1) 200ms forwards;}
+@keyframes startupAccessAssemblyOpen{
+  0%{transform:rotateX(0);filter:brightness(1) drop-shadow(0 7px 8px rgba(0,0,0,.45));opacity:1;}
+  42%{filter:brightness(.86) drop-shadow(0 14px 13px rgba(0,0,0,.7));opacity:.96;}
+  78%{opacity:.72;}
+  100%{transform:rotateX(104deg);filter:brightness(.58) drop-shadow(0 20px 19px rgba(0,0,0,.82));opacity:0;visibility:hidden;}
 }
-@keyframes frameStartupLocalOpen{
-  0%{transform:perspective(850px) rotateX(0);filter:brightness(1) drop-shadow(0 8px 10px rgba(0,0,0,.45));}
-  45%{filter:brightness(.88) drop-shadow(0 10px 13px rgba(0,0,0,.65));}
-  100%{transform:perspective(850px) rotateX(-96deg);filter:brightness(.68) drop-shadow(0 8px 16px rgba(0,0,0,.7));visibility:hidden;}
-}
+
+/* Navigation is fixed; the access assembly alone uncovers it. */
+.frameShellBottom .nav,
+.frameShellBottom .nav button{animation:none!important;transition:none!important;transform:none;}
 
 .entryPanel.frameStartupMeta{
   position:fixed!important;
@@ -198,6 +246,6 @@ body.scannerFullscreen .frameShellBottom.pipDock{display:grid!important;visibili
 
 @media(max-width:380px){
   .frameStartupControls{bottom:0;}
-  .frameStartupControls{padding-left:10px;padding-right:10px;}
+  .startupAccessAssembly{padding-left:10px;padding-right:10px;}
   .frameStartupChoice>button{min-height:58px!important;font-size:12px!important;}
 }
