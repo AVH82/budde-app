@@ -263,9 +263,9 @@ test('AST-049 close cleans debug state and only designer overrides', () => {
 });
 
 test('AST-049 files are loaded and version/cache stay on PR #216 values', () => {
-  assert.match(index(), /css\/designer-mode\.css\?v=ast051/);
-  assert.match(index(), /js\/designer-mode\.js\?v=ast051/);
+  assert.match(index(), /css\/designer-mode\.css\?v=ast052/);
+  assert.match(index(), /js\/designer-mode\.js\?v=ast052/);
   assert.match(css(), /\.designer-panel/);
-  assert.match(app(), /const APP_VERSION='3\.6\.48'/);
-  assert.match(fs.readFileSync('service-worker.js', 'utf8'), /const CACHE_NAME='budde-3-6-48'/);
+  assert.match(app(), /const APP_VERSION='3\.6\.49'/);
+  assert.match(fs.readFileSync('service-worker.js', 'utf8'), /const CACHE_NAME='budde-3-6-49'/);
 });

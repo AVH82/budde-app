@@ -1,9 +1,40 @@
 (function(){
-  const FRAME_STYLESHEET='css/frame-system-v2.css?v=ast051';
-  const RELEASE_STYLESHEET='css/ast-012-4.css?v=ast051';
-  const HEADER_STYLESHEET='css/ast-013-2.css?v=ast051';
+  const FRAME_STYLESHEET='css/frame-system-v2.css?v=ast052';
+  const RELEASE_STYLESHEET='css/ast-012-4.css?v=ast052';
+  const HEADER_STYLESHEET='css/ast-013-2.css?v=ast052';
   const FRAME_MOTION_MS=2600;
+  const SHUTTER_SLAT_ASPECT=122/797;
+  const SHUTTER_COVERAGE_MARGIN=2;
   let awaitingGoogleAuth=false;
+
+  function makeShutter(position){
+    const shutter=document.createElement('div');
+    shutter.className=`frameShutter frameShutter--${position}`;
+    shutter.setAttribute('aria-hidden','true');
+    const track=document.createElement('div');
+    track.className='frameShutterTrack';
+    const junction=document.createElement('img');
+    junction.className='frameShutterJunction';
+    junction.src='assets/frame/frame-shutter-junction.png';
+    junction.alt='';
+
+    const shellWidth=Math.min(window.innerWidth,430);
+    const usableHeight=Math.max(0,window.innerHeight-
+      (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--frame-top-h'))||118)-
+      (parseFloat(getComputedStyle(document.documentElement).getPropertyValue('--nav-h'))||104));
+    const slatHeight=Math.max(1,shellWidth*SHUTTER_SLAT_ASPECT);
+    const slatCount=Math.max(3,Math.ceil((usableHeight/2)/slatHeight)+SHUTTER_COVERAGE_MARGIN);
+    const slats=Array.from({length:slatCount},()=>{
+      const slat=document.createElement('img');
+      slat.className='frameShutterSlat';
+      slat.src='assets/frame/frame-shutter-slat.png';
+      slat.alt='';
+      return slat;
+    });
+    track.append(...(position==='top'?[...slats,junction]:[junction,...slats]));
+    shutter.appendChild(track);
+    return shutter;
+  }
 
   function ensureStylesheet(){
     if(!document.querySelector('link[data-frame-system="v2"]')){
@@ -44,13 +75,8 @@
     const google=document.getElementById('entryGoogleButton');
     const offline=document.getElementById('entryOfflineButton');
 
-    const top=document.createElement('div');
-    top.className='frameShutter frameShutter--top';
-    top.setAttribute('aria-hidden','true');
-
-    const bottom=document.createElement('div');
-    bottom.className='frameShutter frameShutter--bottom';
-    bottom.setAttribute('aria-hidden','true');
+    const top=makeShutter('top');
+    const bottom=makeShutter('bottom');
 
     const controls=document.createElement('div');
     controls.className='frameStartupControls';

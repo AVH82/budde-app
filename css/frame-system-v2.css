@@ -41,33 +41,41 @@
   transform:translateX(-50%);
   z-index:var(--frame-z-shutter);
   pointer-events:none;
-  opacity:1;
-  background:radial-gradient(circle at 22px 22px,#b99f61 0 4px,#261f14 5px 9px,transparent 10px),repeating-linear-gradient(90deg,rgba(255,255,255,.045) 0 1px,transparent 1px 9px),repeating-linear-gradient(0deg,rgba(199,160,68,.11) 0 1px,transparent 1px 18px),linear-gradient(180deg,#5f563d 0%,#242219 22%,#0a0d07 56%,#514831 100%);
-  border:1px solid rgba(199,160,68,.64);
-  box-shadow:inset 0 0 0 2px rgba(0,0,0,.70),inset 0 0 32px rgba(0,0,0,.92),0 0 22px rgba(157,255,69,.10);
-  will-change:transform;
+  overflow:hidden;
+  background:transparent;
 }
 .frameShutter--top{
   top:calc(var(--frame-top-h) + env(safe-area-inset-top) - 2px);
   height:calc((100dvh - var(--frame-top-h) - var(--nav-h) - env(safe-area-inset-top) - env(safe-area-inset-bottom)) / 2 + 12px);
-  border-radius:0 0 14px 14px;
 }
 .frameShutter--bottom{
   bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) - 2px);
   height:calc((100dvh - var(--frame-top-h) - var(--nav-h) - env(safe-area-inset-top) - env(safe-area-inset-bottom)) / 2 + 12px);
-  border-radius:14px 14px 0 0;
 }
-.frameStartup--opening .frameShutter--top{animation:frameShutterTopOpen var(--frame-motion) var(--frame-motion-ease) forwards;}
-.frameStartup--opening .frameShutter--bottom{animation:frameShutterBottomOpen var(--frame-motion) var(--frame-motion-ease) forwards;}
-@keyframes frameShutterTopOpen{
-  0%{transform:translate(-50%,0)}
-  18%{transform:translate(-50%,-5%)}
-  100%{transform:translate(-50%,-115%)}
+.frameShutterTrack{position:absolute;left:0;width:100%;display:flex;flex-direction:column;will-change:transform;backface-visibility:hidden;}
+.frameShutter--top .frameShutterTrack{bottom:0;}
+.frameShutter--bottom .frameShutterTrack{top:0;}
+.frameShutterSlat,.frameShutterJunction{display:block;width:100%;height:auto;flex:0 0 auto;margin:-1px 0 0;}
+.frameShutterJunction{position:relative;z-index:1;}
+.frameShutter--bottom .frameShutterJunction{transform:scaleY(-1);}
+.frameStartup--opening .frameShutter--top .frameShutterTrack{animation:frameSlatsRollUp var(--frame-motion) var(--frame-motion-ease) forwards;}
+.frameStartup--opening .frameShutter--bottom .frameShutterTrack{animation:frameSlatsRollDown var(--frame-motion) var(--frame-motion-ease) forwards;}
+@keyframes frameSlatsRollUp{
+  0%{transform:translateY(0) scaleY(1)}
+  18%{transform:translateY(-3%) scaleY(.995)}
+  82%{transform:translateY(-86%) scaleY(.985)}
+  100%{transform:translateY(calc(-100% - 2px)) scaleY(.96)}
 }
-@keyframes frameShutterBottomOpen{
-  0%{transform:translate(-50%,0)}
-  18%{transform:translate(-50%,5%)}
-  100%{transform:translate(-50%,115%)}
+@keyframes frameSlatsRollDown{
+  0%{transform:translateY(0) scaleY(1)}
+  18%{transform:translateY(3%) scaleY(.995)}
+  82%{transform:translateY(86%) scaleY(.985)}
+  100%{transform:translateY(calc(100% + 2px)) scaleY(.96)}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .frameStartup--opening .frameShutterTrack,
+  .frameStartupControls--opening .frameStartupChoice{animation-duration:120ms!important;animation-timing-function:linear!important;}
 }
 
 /* Portaled directly under body so this component can truly cover the dock. */
