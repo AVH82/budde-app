@@ -1,7 +1,7 @@
 (function(){
-  const FRAME_STYLESHEET='css/frame-system-v2.css?v=ast052';
-  const RELEASE_STYLESHEET='css/ast-012-4.css?v=ast052';
-  const HEADER_STYLESHEET='css/ast-013-2.css?v=ast052';
+  const FRAME_STYLESHEET='css/frame-system-v2.css?v=ast053';
+  const RELEASE_STYLESHEET='css/ast-012-4.css?v=ast053';
+  const HEADER_STYLESHEET='css/ast-013-2.css?v=ast053';
   const FRAME_MOTION_MS=2600;
   const SHUTTER_SLAT_ASPECT=122/797;
   const SHUTTER_COVERAGE_MARGIN=2;
@@ -83,13 +83,23 @@
     controls.setAttribute('aria-label','Choix de connexion');
 
     const left=document.createElement('div');
-    left.className='frameStartupChoice frameStartupChoice--left';
+    left.className='frameStartupChoice frameStartupChoice--network';
 
     const right=document.createElement('div');
-    right.className='frameStartupChoice frameStartupChoice--right';
+    right.className='frameStartupChoice frameStartupChoice--local';
 
-    if(google)left.appendChild(google);
-    if(offline)right.appendChild(offline);
+    if(google){
+      google.className='frameStartupChoiceButton';
+      google.setAttribute('aria-label','NETWORK MODE — cloud synchronization');
+      google.innerHTML='<img class="frameStartupChoiceAsset" src="assets/frame/network-mode-button.png" alt=""><span class="sr-only">NETWORK MODE — cloud synchronization</span>';
+      left.appendChild(google);
+    }
+    if(offline){
+      offline.className='frameStartupChoiceButton';
+      offline.setAttribute('aria-label','LOCAL MODE — device storage');
+      offline.innerHTML='<img class="frameStartupChoiceAsset" src="assets/frame/local-mode-button.png" alt=""><span class="sr-only">LOCAL MODE — device storage</span>';
+      right.appendChild(offline);
+    }
     controls.append(left,right);
 
     gate.prepend(top,bottom);
@@ -138,6 +148,7 @@
     gate.dataset.userChoice='1';
     gate.classList.add('frameStartup--opening','entryGate--opening');
     controls?.classList.add('frameStartupControls--opening');
+    controls?.querySelectorAll('button').forEach(button=>{button.disabled=true;});
     document.body.classList.add('entryGateOpening');
     setTimeout(()=>{
       document.body.classList.remove('entryGateOpening');
@@ -161,12 +172,16 @@
 
     if(offline)offline.addEventListener('click',()=>{
       awaitingGoogleAuth=false;
+      getControls()?.classList.add('frameStartupControls--selected-local');
       showBuddyStatus('MODE HORS LIGNE ACTIVÉ.');
       markOpening('offline');
     },{capture:true});
 
     if(google)google.addEventListener('click',()=>{
       awaitingGoogleAuth=true;
+      const controls=getControls();
+      controls?.classList.remove('frameStartupControls--selected-local');
+      controls?.classList.add('frameStartupControls--selected-network');
       showBuddyStatus('CONNEXION SÉCURISÉE...','thinking');
     },{capture:true});
 
