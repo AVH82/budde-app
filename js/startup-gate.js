@@ -1,8 +1,8 @@
 (function(){
-  const FRAME_STYLESHEET='css/frame-system-v2.css?v=ast055';
-  const RELEASE_STYLESHEET='css/ast-012-4.css?v=ast055';
-  const HEADER_STYLESHEET='css/ast-013-2.css?v=ast055';
-  const STARTUP_ACCESS_PANEL='assets/frame/startup-access-panel.png?v=ast055';
+  const FRAME_STYLESHEET='css/frame-system-v2.css?v=ast056';
+  const RELEASE_STYLESHEET='css/ast-012-4.css?v=ast056';
+  const HEADER_STYLESHEET='css/ast-013-2.css?v=ast056';
+  const STARTUP_ACCESS_PANEL='assets/frame/startup-access-panel.png?v=ast056';
   const FRAME_MOTION_MS=2600;
   const SHUTTER_SLAT_ASPECT=122/797;
   const SHUTTER_COVERAGE_MARGIN=2;
@@ -82,13 +82,20 @@
     const controls=document.createElement('div');
     controls.className='frameStartupControls';
     controls.setAttribute('aria-label','Choix de connexion');
-    controls.style.setProperty('--startup-access-panel',`url("${STARTUP_ACCESS_PANEL}")`);
+    const scene=document.createElement('div');
+    scene.className='startupAccessScene';
+    const rotor=document.createElement('div');
+    rotor.className='startupAccessRotor';
+    const front=document.createElement('section');
+    front.className='startupAccessFace startupAccessFace--front';
+    const back=document.createElement('section');
+    back.className='startupAccessFace startupAccessFace--back';
+    back.setAttribute('aria-hidden','true');
 
-    const assembly=document.createElement('div');
-    assembly.className='startupAccessAssembly';
-
-    const accessPanel=document.createElement('div');
+    const accessPanel=document.createElement('img');
     accessPanel.className='startupAccessPanel';
+    accessPanel.src=STARTUP_ACCESS_PANEL;
+    accessPanel.alt='';
     accessPanel.setAttribute('aria-hidden','true');
 
     const glowNetwork=document.createElement('span');
@@ -117,8 +124,10 @@
       offline.innerHTML='<img class="frameStartupChoiceAsset" src="assets/frame/local-mode-button.png" alt=""><span class="sr-only">LOCAL MODE — device storage</span>';
       right.appendChild(offline);
     }
-    assembly.append(accessPanel,glowNetwork,glowLocal,left,right);
-    controls.appendChild(assembly);
+    front.append(accessPanel,glowNetwork,glowLocal,left,right);
+    rotor.append(front,back);
+    scene.appendChild(rotor);
+    controls.appendChild(scene);
 
     gate.prepend(top,bottom);
     document.body.appendChild(controls);
@@ -139,23 +148,10 @@
     if(!footer||!controls)return;
 
     const rect=footer.getBoundingClientRect();
-    const dockActions=footer.querySelector('.dockActions');
-    const nav=footer.querySelector('.nav');
-    const dockActionsRect=dockActions?.getBoundingClientRect();
-    const navRect=nav?.getBoundingClientRect();
-    const dockActionsGap=dockActionsRect&&navRect
-      ? Math.max(0,navRect.top-dockActionsRect.bottom)
-      : 0;
     controls.style.left=`${rect.left}px`;
     controls.style.bottom=`${Math.max(0,window.innerHeight-rect.bottom)}px`;
     controls.style.width=`${rect.width}px`;
     controls.style.height=`${rect.height}px`;
-    if(dockActionsRect){
-      controls.style.setProperty(
-        '--startup-dock-actions-height',
-        `${dockActionsRect.height+dockActionsGap}px`
-      );
-    }
   }
 
   function refreshStartupControlsBox(){
@@ -187,6 +183,7 @@
     if(controls){
       controls.hidden=false;
       controls.classList.remove('frameStartupControls--opening');
+      controls.querySelector('.startupAccessRotor')?.classList.remove('is-open');
     }
   }
 
@@ -200,6 +197,7 @@
     controls?.classList.add('frameStartupControls--opening');
     controls?.querySelectorAll('button').forEach(button=>{button.disabled=true;});
     document.body.classList.add('entryGateOpening');
+    setTimeout(()=>controls?.querySelector('.startupAccessRotor')?.classList.add('is-open'),200);
     setTimeout(()=>{
       document.body.classList.remove('entryGateOpening');
       if(controls)controls.hidden=true;
