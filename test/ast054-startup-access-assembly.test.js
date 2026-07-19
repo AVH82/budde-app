@@ -13,6 +13,10 @@ test('startup gate builds one panel assembly from all three PNG assets', () => {
   }
   assert.match(startup(), /startupAccessAssembly/);
   assert.match(startup(), /startupAccessPanel/);
+  assert.match(startup(), /startup-access-panel\.png\?v=ast055/);
+  assert.match(css(), /startup-access-panel\.png\?v=ast055/);
+  assert.match(css(), /border-image-slice:190 175 fill/);
+  assert.match(css(), /border-image-repeat:stretch/);
 });
 
 test('assembly owns rotation and buttons have no independent opening animation', () => {
@@ -38,6 +42,9 @@ test('network and local CSS glow layers sit in the assembly selection model', ()
 test('startup controls follow the footer real box and viewport changes', () => {
   assert.match(startup(), /querySelector\('\.frameShellBottom'\)/);
   assert.match(startup(), /footer\.getBoundingClientRect\(\)/);
+  assert.match(startup(), /footer\.querySelector\('\.dockActions'\)/);
+  assert.match(startup(), /dockActions\?\.getBoundingClientRect\(\)/);
+  assert.match(startup(), /--startup-dock-actions-height/);
   for (const property of ['left','bottom','width','height']) {
     assert.match(startup(), new RegExp(`controls\\.style\\.${property}=`));
   }
@@ -53,18 +60,18 @@ test('assembly fills and isolates the measured box with ordered layers', () => {
   assert.match(css(), /\.frameStartupChoice\{[^}]*z-index:2;/s);
   assert.match(css(), /\.sr-only\{[^}]*clip:rect\(0,0,0,0\)!important;[^}]*clip-path:inset\(50%\)!important;/s);
   assert.doesNotMatch(css(), /\.frameStartupControls\{[^}]*height:[^}]*--nav-h/s);
-  assert.match(css(), /grid-template-rows:calc\(var\(--dock-action-h,58px\) \+ 7px\) minmax\(0,1fr\)/);
+  assert.match(css(), /grid-template-rows:var\(--startup-dock-actions-height,65px\) minmax\(0,1fr\)/);
 });
 
-test('AST-054 versions and precaches the complete access assembly', () => {
+test('AST-055 versions and precaches the complete access assembly', () => {
   const sw=read('service-worker.js');
   const index=read('index.html');
   const app=read('js/app.js');
-  assert.match(app, /APP_VERSION='3\.6\.51'/);
-  assert.match(sw, /CACHE_NAME='budde-3-6-51'/);
-  assert.match(sw, /assets\/frame\/startup-access-panel\.png/);
+  assert.match(app, /APP_VERSION='3\.6\.52'/);
+  assert.match(sw, /CACHE_NAME='budde-3-6-52'/);
+  assert.match(sw, /assets\/frame\/startup-access-panel\.png\?v=ast055/);
   assert.match(sw, /assets\/frame\/network-mode-button\.png/);
   assert.match(sw, /assets\/frame\/local-mode-button\.png/);
-  assert.match(index, /frame-system-v2\.css\?v=ast054/);
-  assert.match(index, /startup-gate\.js\?v=ast054/);
+  assert.match(index, /frame-system-v2\.css\?v=ast055/);
+  assert.match(index, /startup-gate\.js\?v=ast055/);
 });

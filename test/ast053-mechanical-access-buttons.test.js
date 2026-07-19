@@ -34,9 +34,9 @@ test('mechanical plates are precached at the coherent AST-053 build', () => {
   const sw=read('service-worker.js');
   const index=read('index.html');
   const app=read('js/app.js');
-  assert.match(sw, /CACHE_NAME='budde-3-6-51'/);
+  assert.match(sw, /CACHE_NAME='budde-3-6-52'/);
   assert.match(sw, /assets\/frame\/network-mode-button\.png/);
   assert.match(sw, /assets\/frame\/local-mode-button\.png/);
-  assert.match(index, /startup-gate\.js\?v=ast054/);
-  assert.match(app, /APP_VERSION='3\.6\.51'/);
+  assert.match(index, /startup-gate\.js\?v=ast055/);
+  assert.match(app, /APP_VERSION='3\.6\.52'/);
 });
