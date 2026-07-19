@@ -122,6 +122,8 @@
 
     gate.prepend(top,bottom);
     document.body.appendChild(controls);
+    syncStartupControlsToFooter();
+    requestAnimationFrame(syncStartupControlsToFooter);
     if(legacyActions)legacyActions.hidden=true;
 
     return gate;
@@ -129,6 +131,23 @@
 
   function getControls(){
     return document.querySelector('.frameStartupControls');
+  }
+
+  function syncStartupControlsToFooter(){
+    const footer=document.querySelector('.frameShellBottom');
+    const controls=getControls();
+    if(!footer||!controls)return;
+
+    const rect=footer.getBoundingClientRect();
+    controls.style.left=`${rect.left}px`;
+    controls.style.bottom=`${Math.max(0,window.innerHeight-rect.bottom)}px`;
+    controls.style.width=`${rect.width}px`;
+    controls.style.height=`${rect.height}px`;
+  }
+
+  function refreshStartupControlsBox(){
+    syncStartupControlsToFooter();
+    requestAnimationFrame(syncStartupControlsToFooter);
   }
 
   function showBuddyStatus(message,state='neutral'){
@@ -178,6 +197,9 @@
     ensureStylesheet();
     const gate=buildFrameStartup();
     showGate(gate);
+    window.addEventListener('resize',refreshStartupControlsBox);
+    window.addEventListener('orientationchange',refreshStartupControlsBox);
+    refreshStartupControlsBox();
 
     [0,100,350,800,1500,3000].forEach(delay=>{
       setTimeout(()=>{

@@ -82,12 +82,8 @@
 /* Portaled directly under body so this component can truly cover the dock. */
 .frameStartupControls{
   position:fixed;
-  left:50%;
+  left:0;
   bottom:0;
-  transform:translateX(-50%);
-  width:var(--frame-shell-w);
-  max-width:100vw;
-  height:calc(var(--nav-h,104px) + env(safe-area-inset-bottom));
   perspective:900px;
   z-index:var(--frame-z-startup);
   overflow:visible;
@@ -98,8 +94,10 @@
 .startupAccessAssembly{
   position:absolute;
   inset:0;
+  isolation:isolate;
   display:grid;
   grid-template-columns:1fr 1fr;
+  grid-template-rows:calc(var(--dock-action-h,58px) + 7px) minmax(0,1fr);
   padding:10px clamp(14px,4vw,22px) calc(9px + env(safe-area-inset-bottom));
   transform-origin:center center;
   transform-style:preserve-3d;
@@ -142,12 +140,12 @@
   box-shadow:0 0 12px rgba(157,255,69,.72),0 0 28px rgba(157,255,69,.45),inset 0 0 18px rgba(215,255,164,.8);
   transition:opacity 120ms ease;
 }
-.startupAccessGlow--network{grid-column:1;grid-row:1;}
-.startupAccessGlow--local{grid-column:2;grid-row:1;}
+.startupAccessGlow--network{grid-column:1;grid-row:2;}
+.startupAccessGlow--local{grid-column:2;grid-row:2;}
 .frameStartupChoice{
   position:relative;
   z-index:2;
-  grid-row:1;
+  grid-row:2;
   display:grid;
   place-items:stretch;
   min-width:0;
@@ -178,6 +176,18 @@
   cursor:pointer;
 }
 .frameStartupChoiceAsset{display:block;width:100%;height:100%;object-fit:contain;transition:filter 140ms ease,transform 100ms ease;}
+.sr-only{
+  position:absolute!important;
+  width:1px!important;
+  height:1px!important;
+  padding:0!important;
+  margin:-1px!important;
+  overflow:hidden!important;
+  clip:rect(0,0,0,0)!important;
+  clip-path:inset(50%)!important;
+  white-space:nowrap!important;
+  border:0!important;
+}
 .frameStartupChoice>button:hover .frameStartupChoiceAsset,
 .frameStartupChoice>button:focus-visible .frameStartupChoiceAsset{filter:brightness(1.05) drop-shadow(0 0 5px rgba(157,255,69,.35));}
 .frameStartupChoice>button:focus-visible{outline:2px solid var(--terminal-green)!important;outline-offset:2px;}
