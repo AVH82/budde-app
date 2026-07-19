@@ -1,7 +1,8 @@
 (function(){
-  const FRAME_STYLESHEET='css/frame-system-v2.css?v=ast054';
-  const RELEASE_STYLESHEET='css/ast-012-4.css?v=ast054';
-  const HEADER_STYLESHEET='css/ast-013-2.css?v=ast054';
+  const FRAME_STYLESHEET='css/frame-system-v2.css?v=ast055';
+  const RELEASE_STYLESHEET='css/ast-012-4.css?v=ast055';
+  const HEADER_STYLESHEET='css/ast-013-2.css?v=ast055';
+  const STARTUP_ACCESS_PANEL='assets/frame/startup-access-panel.png?v=ast055';
   const FRAME_MOTION_MS=2600;
   const SHUTTER_SLAT_ASPECT=122/797;
   const SHUTTER_COVERAGE_MARGIN=2;
@@ -81,14 +82,13 @@
     const controls=document.createElement('div');
     controls.className='frameStartupControls';
     controls.setAttribute('aria-label','Choix de connexion');
+    controls.style.setProperty('--startup-access-panel',`url("${STARTUP_ACCESS_PANEL}")`);
 
     const assembly=document.createElement('div');
     assembly.className='startupAccessAssembly';
 
-    const accessPanel=document.createElement('img');
+    const accessPanel=document.createElement('div');
     accessPanel.className='startupAccessPanel';
-    accessPanel.src='assets/frame/startup-access-panel.png';
-    accessPanel.alt='';
     accessPanel.setAttribute('aria-hidden','true');
 
     const glowNetwork=document.createElement('span');
@@ -139,10 +139,23 @@
     if(!footer||!controls)return;
 
     const rect=footer.getBoundingClientRect();
+    const dockActions=footer.querySelector('.dockActions');
+    const nav=footer.querySelector('.nav');
+    const dockActionsRect=dockActions?.getBoundingClientRect();
+    const navRect=nav?.getBoundingClientRect();
+    const dockActionsGap=dockActionsRect&&navRect
+      ? Math.max(0,navRect.top-dockActionsRect.bottom)
+      : 0;
     controls.style.left=`${rect.left}px`;
     controls.style.bottom=`${Math.max(0,window.innerHeight-rect.bottom)}px`;
     controls.style.width=`${rect.width}px`;
     controls.style.height=`${rect.height}px`;
+    if(dockActionsRect){
+      controls.style.setProperty(
+        '--startup-dock-actions-height',
+        `${dockActionsRect.height+dockActionsGap}px`
+      );
+    }
   }
 
   function refreshStartupControlsBox(){

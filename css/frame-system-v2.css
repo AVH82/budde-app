@@ -97,7 +97,7 @@
   isolation:isolate;
   display:grid;
   grid-template-columns:1fr 1fr;
-  grid-template-rows:calc(var(--dock-action-h,58px) + 7px) minmax(0,1fr);
+  grid-template-rows:var(--startup-dock-actions-height,65px) minmax(0,1fr);
   padding:10px clamp(14px,4vw,22px) calc(9px + env(safe-area-inset-bottom));
   transform-origin:center center;
   transform-style:preserve-3d;
@@ -110,7 +110,13 @@
   z-index:0;
   width:100%;
   height:100%;
-  object-fit:fill;
+  box-sizing:border-box;
+  background:#292820;
+  border:24px solid transparent;
+  border-image-source:var(--startup-access-panel,url('../assets/frame/startup-access-panel.png?v=ast055'));
+  border-image-slice:190 175 fill;
+  border-image-width:24px 22px;
+  border-image-repeat:stretch;
   pointer-events:none;
   backface-visibility:hidden;
 }
