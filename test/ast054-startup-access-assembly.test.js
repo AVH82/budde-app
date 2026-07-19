@@ -35,6 +35,27 @@ test('network and local CSS glow layers sit in the assembly selection model', ()
   assert.match(css(), /selected-local \.startupAccessGlow--local/);
 });
 
+test('startup controls follow the footer real box and viewport changes', () => {
+  assert.match(startup(), /querySelector\('\.frameShellBottom'\)/);
+  assert.match(startup(), /footer\.getBoundingClientRect\(\)/);
+  for (const property of ['left','bottom','width','height']) {
+    assert.match(startup(), new RegExp(`controls\\.style\\.${property}=`));
+  }
+  assert.match(startup(), /addEventListener\('resize',refreshStartupControlsBox\)/);
+  assert.match(startup(), /addEventListener\('orientationchange',refreshStartupControlsBox\)/);
+  assert.match(startup(), /requestAnimationFrame\(syncStartupControlsToFooter\)/);
+});
+
+test('assembly fills and isolates the measured box with ordered layers', () => {
+  assert.match(css(), /\.startupAccessAssembly\{[^}]*position:absolute;[^}]*inset:0;[^}]*isolation:isolate;/s);
+  assert.match(css(), /\.startupAccessPanel\{[^}]*z-index:0;/s);
+  assert.match(css(), /\.startupAccessGlow\{[^}]*z-index:1;/s);
+  assert.match(css(), /\.frameStartupChoice\{[^}]*z-index:2;/s);
+  assert.match(css(), /\.sr-only\{[^}]*clip:rect\(0,0,0,0\)!important;[^}]*clip-path:inset\(50%\)!important;/s);
+  assert.doesNotMatch(css(), /\.frameStartupControls\{[^}]*height:[^}]*--nav-h/s);
+  assert.match(css(), /grid-template-rows:calc\(var\(--dock-action-h,58px\) \+ 7px\) minmax\(0,1fr\)/);
+});
+
 test('AST-054 versions and precaches the complete access assembly', () => {
   const sw=read('service-worker.js');
   const index=read('index.html');
