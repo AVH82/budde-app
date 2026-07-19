@@ -32,7 +32,7 @@ test('reduced motion shortens shutter and dock-control opening', () => {
 
 test('service worker precaches both shutter images at the new build', () => {
   const sw=read('service-worker.js');
-  assert.match(sw, /CACHE_NAME='budde-3-6-50'/);
+  assert.match(sw, /CACHE_NAME='budde-3-6-51'/);
   assert.match(sw, /assets\/frame\/frame-shutter-slat\.png/);
   assert.match(sw, /assets\/frame\/frame-shutter-junction\.png/);
 });

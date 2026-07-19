@@ -1,7 +1,7 @@
 (function(){
-  const FRAME_STYLESHEET='css/frame-system-v2.css?v=ast053';
-  const RELEASE_STYLESHEET='css/ast-012-4.css?v=ast053';
-  const HEADER_STYLESHEET='css/ast-013-2.css?v=ast053';
+  const FRAME_STYLESHEET='css/frame-system-v2.css?v=ast054';
+  const RELEASE_STYLESHEET='css/ast-012-4.css?v=ast054';
+  const HEADER_STYLESHEET='css/ast-013-2.css?v=ast054';
   const FRAME_MOTION_MS=2600;
   const SHUTTER_SLAT_ASPECT=122/797;
   const SHUTTER_COVERAGE_MARGIN=2;
@@ -82,6 +82,23 @@
     controls.className='frameStartupControls';
     controls.setAttribute('aria-label','Choix de connexion');
 
+    const assembly=document.createElement('div');
+    assembly.className='startupAccessAssembly';
+
+    const accessPanel=document.createElement('img');
+    accessPanel.className='startupAccessPanel';
+    accessPanel.src='assets/frame/startup-access-panel.png';
+    accessPanel.alt='';
+    accessPanel.setAttribute('aria-hidden','true');
+
+    const glowNetwork=document.createElement('span');
+    glowNetwork.className='startupAccessGlow startupAccessGlow--network';
+    glowNetwork.setAttribute('aria-hidden','true');
+
+    const glowLocal=document.createElement('span');
+    glowLocal.className='startupAccessGlow startupAccessGlow--local';
+    glowLocal.setAttribute('aria-hidden','true');
+
     const left=document.createElement('div');
     left.className='frameStartupChoice frameStartupChoice--network';
 
@@ -100,7 +117,8 @@
       offline.innerHTML='<img class="frameStartupChoiceAsset" src="assets/frame/local-mode-button.png" alt=""><span class="sr-only">LOCAL MODE — device storage</span>';
       right.appendChild(offline);
     }
-    controls.append(left,right);
+    assembly.append(accessPanel,glowNetwork,glowLocal,left,right);
+    controls.appendChild(assembly);
 
     gate.prepend(top,bottom);
     document.body.appendChild(controls);

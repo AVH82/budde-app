@@ -88,7 +88,7 @@
   user-select:none!important;
 }
 .frameShellTop .settingsTrustModule::before{
-  content:'v3.6.50'!important;
+  content:'v3.6.51'!important;
   position:absolute!important;
   right:5px!important;
   top:5px!important;

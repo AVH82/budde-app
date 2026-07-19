@@ -15,13 +15,10 @@ test('mechanical access controls use both PNG plates and explicit accessible lab
   assert.match(startup(), /id=['"]entryOfflineButton|entryOfflineButton/);
 });
 
-test('plates hinge in opposite vertical directions without the old lateral opening', () => {
-  assert.match(css(), /frameStartupChoice--network\{transform-origin:center top/);
-  assert.match(css(), /frameStartupChoice--local\{transform-origin:center bottom/);
-  assert.match(css(), /rotateX\(96deg\)/);
-  assert.match(css(), /rotateX\(-96deg\)/);
+test('button assets remain fixed and never animate independently', () => {
+  assert.match(css(), /frameStartupChoice>button[^{]*\{[^}]*animation:none!important/s);
   assert.match(css(), /backface-visibility:hidden/);
-  assert.doesNotMatch(css(), /frameStartup(?:Left|Right)Open/);
+  assert.doesNotMatch(css(), /frameStartupNetworkOpen|frameStartupLocalOpen/);
   assert.doesNotMatch(css(), /frameStartupChoice--(?:left|right)/);
 });
 
@@ -37,9 +34,9 @@ test('mechanical plates are precached at the coherent AST-053 build', () => {
   const sw=read('service-worker.js');
   const index=read('index.html');
   const app=read('js/app.js');
-  assert.match(sw, /CACHE_NAME='budde-3-6-50'/);
+  assert.match(sw, /CACHE_NAME='budde-3-6-51'/);
   assert.match(sw, /assets\/frame\/network-mode-button\.png/);
   assert.match(sw, /assets\/frame\/local-mode-button\.png/);
-  assert.match(index, /startup-gate\.js\?v=ast053/);
-  assert.match(app, /APP_VERSION='3\.6\.50'/);
+  assert.match(index, /startup-gate\.js\?v=ast054/);
+  assert.match(app, /APP_VERSION='3\.6\.51'/);
 });
