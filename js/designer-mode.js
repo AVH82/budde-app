@@ -7,7 +7,7 @@
   const STORAGE_KEY='budde-designer-v1';
   const TRUSTMETER_VARS=['dialOffsetX','dialOffsetY','needleOffsetX','needleOffsetY','dialScale','needleScale'];
   const STARTUP_PANEL_VARS=['startupPanelX','startupPanelY','startupPanelWidth','startupPanelHeight','startupPanelScaleX','startupPanelScaleY'];
-  const DEFAULTS={dialOffsetX:0,dialOffsetY:0,needleOffsetX:0,needleOffsetY:0,dialScale:100,needleScale:100,radiationCenterX:50,radiationCenterY:50,startupPanelX:0,startupPanelY:0,startupPanelWidth:100,startupPanelHeight:100,startupPanelScaleX:1,startupPanelScaleY:1};
+  const DEFAULTS={dialOffsetX:0,dialOffsetY:0,needleOffsetX:0,needleOffsetY:0,dialScale:100,needleScale:100,radiationCenterX:50,radiationCenterY:50};
   const DESIGNER_VALUE_KEYS=[...TRUSTMETER_VARS,'radiationCenterX','radiationCenterY',...STARTUP_PANEL_VARS];
   const CSS_MAP={
     dialOffsetX:'--dial-offset-x',
@@ -30,7 +30,7 @@
 
   function cloneValues(values){
     return DESIGNER_VALUE_KEYS.reduce((out,key)=>{
-      out[key]=safeNum(values?.[key],DEFAULTS[key]);
+      out[key]=safeNum(values?.[key],STARTUP_PANEL_VARS.includes(key)?NaN:DEFAULTS[key]);
       return out;
     },{});
   }
@@ -46,7 +46,8 @@
     for(const key of DESIGNER_VALUE_KEYS){
       const present=Object.prototype.hasOwnProperty.call(payload.values,key);
       if(!present&&!STARTUP_PANEL_VARS.includes(key))return null;
-      const n=present?toNum(payload.values[key]):DEFAULTS[key];
+      if(!present)return null;
+      const n=toNum(payload.values[key]);
       if(!Number.isFinite(n)||Math.abs(n)>1000)return null;
       values[key]=n;
     }
@@ -85,7 +86,7 @@
         needleScale:cs.getPropertyValue(CSS_MAP.needleScale),
         radiationCenterX:cs.getPropertyValue(CSS_MAP.radiationCenterX)||'50%',
         radiationCenterY:cs.getPropertyValue(CSS_MAP.radiationCenterY)||'50%',
-        ...Object.fromEntries(STARTUP_PANEL_VARS.map(key=>[key,panelStyle?.getPropertyValue(CSS_MAP[key])||DEFAULTS[key]]))
+        ...Object.fromEntries(STARTUP_PANEL_VARS.map(key=>[key,panelStyle?.getPropertyValue(CSS_MAP[key])]))
       });
     }
 
@@ -142,7 +143,7 @@
       },
       startupPanel:{label:'Startup Gate — panneau bronze',element:startupPanel,reference:startupReference,
         move(values,dx,dy){values.startupPanelX+=dx;values.startupPanelY+=dy},scale(){},
-        reset(values){STARTUP_PANEL_VARS.forEach(key=>{values[key]=DEFAULTS[key]})}}
+        reset(){STARTUP_PANEL_VARS.forEach(key=>startupPanel()?.style.removeProperty(CSS_MAP[key]))}}
     };
     state.targets=designerTargets;
 
@@ -151,8 +152,12 @@
       return {x:rect?.width?dx/rect.width*100:0,y:rect?.height?dy/rect.height*100:0};
     }
     function targetDef(){return state.targets[state.target]||state.targets.trustmeterGroup}
-    function resetCurrentTarget(){const next=cloneValues(state.values);targetDef().reset(next,state.initial);apply(next)}
-    function restoreProductionValues(){clearDesignerOverrides();state.initial=readRendered();apply(state.initial)}
+    function rereadRenderedValues(){state.values=readRendered();updatePanel();scheduleMeasure()}
+    function resetCurrentTarget(){
+      if(state.target==='startupPanel'){targetDef().reset();rereadRenderedValues();return}
+      const next=cloneValues(state.values);targetDef().reset(next,state.initial);apply(next)
+    }
+    function restoreProductionValues(){rereadRenderedValues()}
 
     function setGroupInputs(){
       const v=state.values;

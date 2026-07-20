@@ -138,8 +138,6 @@
 
     gate.prepend(top,bottom);
     document.body.appendChild(controls);
-    syncStartupControlsToFooter();
-    requestAnimationFrame(syncStartupControlsToFooter);
     if(legacyActions)legacyActions.hidden=true;
 
     return gate;
@@ -147,33 +145,6 @@
 
   function getControls(){
     return document.querySelector('.frameStartupControls');
-  }
-
-  function syncStartupControlsToFooter(){
-    const footer=document.querySelector('.frameShellBottom');
-    const controls=getControls();
-    if(!footer||!controls)return;
-
-    const candidates=[footer,footer.querySelector('.dockActions'),footer.querySelector('.nav')]
-      .filter(Boolean)
-      .map(element=>element.getBoundingClientRect())
-      .filter(rect=>rect.width>0&&rect.height>0);
-    if(!candidates.length)return;
-
-    const left=Math.max(0,Math.min(...candidates.map(rect=>rect.left)));
-    const top=Math.max(0,Math.min(...candidates.map(rect=>rect.top)));
-    const right=Math.min(window.innerWidth,Math.max(...candidates.map(rect=>rect.right)));
-    const bottom=Math.min(window.innerHeight,Math.max(...candidates.map(rect=>rect.bottom)));
-
-    controls.style.left=`${left}px`;
-    controls.style.bottom=`${Math.max(0,window.innerHeight-bottom)}px`;
-    controls.style.width=`${Math.max(0,right-left)}px`;
-    controls.style.height=`${Math.max(0,bottom-top)}px`;
-  }
-
-  function refreshStartupControlsBox(){
-    syncStartupControlsToFooter();
-    requestAnimationFrame(syncStartupControlsToFooter);
   }
 
   function showBuddyStatus(message,state='neutral'){
@@ -247,10 +218,6 @@
     ensureStylesheet();
     const gate=buildFrameStartup();
     showGate(gate);
-    window.addEventListener('resize',refreshStartupControlsBox);
-    window.addEventListener('orientationchange',refreshStartupControlsBox);
-    refreshStartupControlsBox();
-
     [0,100,350,800,1500,3000].forEach(delay=>{
       setTimeout(()=>{
         if(gate?.dataset.userChoice!=='1')showGate(gate);
