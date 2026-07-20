@@ -10,6 +10,14 @@
     startupPanelScaleX:1,
     startupPanelScaleY:1
   };
+  const STARTUP_CSS_VARS={
+    startupPanelX:'--startup-panel-x',
+    startupPanelY:'--startup-panel-y',
+    startupPanelWidth:'--startup-panel-width',
+    startupPanelHeight:'--startup-panel-height',
+    startupPanelScaleX:'--startup-panel-scale-x',
+    startupPanelScaleY:'--startup-panel-scale-y'
+  };
   let resizeObserver=null;
 
   function ensureStyle(){
@@ -134,6 +142,17 @@
     controls.style.setProperty('max-height',`${height}px`,'important');
   }
 
+  function applyProductionVarsToPanel(){
+    const panel=document.querySelector('.startupAccessPanel');
+    if(!panel)return false;
+    Object.entries(STARTUP_PRODUCTION_VALUES).forEach(([key,value])=>{
+      const cssVar=STARTUP_CSS_VARS[key];
+      const renderedValue=key.includes('Scale')?String(value):`${value}%`;
+      panel.style.setProperty(cssVar,renderedValue);
+    });
+    return true;
+  }
+
   function syncDesignerProductionValues(){
     if(!DESIGNER)return;
     const designer=window.BuddeDesignerMode;
@@ -165,7 +184,12 @@
     ensureStyle();
     syncToDock();
     observeDock();
-    requestAnimationFrame(syncToDock);
+    applyProductionVarsToPanel();
+    requestAnimationFrame(()=>{
+      syncToDock();
+      applyProductionVarsToPanel();
+      syncDesignerProductionValues();
+    });
     if(DESIGNER){
       const controls=document.querySelector('.frameStartupControls');
       if(controls){controls.hidden=false;controls.classList.remove('frameStartupControls--opening');controls.querySelector('.startupAccessRotor')?.classList.remove('is-open');}
@@ -185,5 +209,5 @@
   window.addEventListener('resize',refresh);
   window.addEventListener('orientationchange',refresh);
   document.addEventListener('click',keepGateOpen,true);
-  [0,100,350,800,1500,3000].forEach(delay=>setTimeout(refresh,delay));
+  [0,50,100,250,500,800,1500,3000].forEach(delay=>setTimeout(refresh,delay));
 })();
