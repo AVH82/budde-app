@@ -154,11 +154,21 @@
     const controls=getControls();
     if(!footer||!controls)return;
 
-    const rect=footer.getBoundingClientRect();
-    controls.style.left=`${rect.left}px`;
-    controls.style.bottom=`${Math.max(0,window.innerHeight-rect.bottom)}px`;
-    controls.style.width=`${rect.width}px`;
-    controls.style.height=`${rect.height}px`;
+    const candidates=[footer,footer.querySelector('.dockActions'),footer.querySelector('.nav')]
+      .filter(Boolean)
+      .map(element=>element.getBoundingClientRect())
+      .filter(rect=>rect.width>0&&rect.height>0);
+    if(!candidates.length)return;
+
+    const left=Math.max(0,Math.min(...candidates.map(rect=>rect.left)));
+    const top=Math.max(0,Math.min(...candidates.map(rect=>rect.top)));
+    const right=Math.min(window.innerWidth,Math.max(...candidates.map(rect=>rect.right)));
+    const bottom=Math.min(window.innerHeight,Math.max(...candidates.map(rect=>rect.bottom)));
+
+    controls.style.left=`${left}px`;
+    controls.style.bottom=`${Math.max(0,window.innerHeight-bottom)}px`;
+    controls.style.width=`${Math.max(0,right-left)}px`;
+    controls.style.height=`${Math.max(0,bottom-top)}px`;
   }
 
   function refreshStartupControlsBox(){
