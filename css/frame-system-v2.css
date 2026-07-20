@@ -176,7 +176,19 @@
   display:grid;
   place-items:center;
 }
+.frameStartupChoice::before{
+  content:"";
+  position:absolute;
+  inset:2px 0;
+  z-index:0;
+  border-radius:clamp(10px,3vw,16px);
+  background:rgba(24,18,11,.42);
+  box-shadow:inset 0 3px 8px rgba(0,0,0,.78),inset 0 -1px 2px rgba(231,190,119,.2),0 1px 1px rgba(236,197,126,.14);
+  pointer-events:none;
+}
 .frameStartupChoice>button{
+  position:relative!important;
+  z-index:1;
   width:100%!important;
   height:100%!important;
   min-width:0!important;
@@ -194,31 +206,28 @@
   border-radius:0!important;
   background:transparent!important;
   box-shadow:none!important;
+  color:transparent!important;
+  font-size:0!important;
+  line-height:0!important;
+  text-indent:-9999px!important;
+  overflow:hidden!important;
+  background-repeat:no-repeat!important;
+  background-position:center!important;
+  background-size:contain!important;
   cursor:pointer;
 }
+.frameStartupChoice--network>button{background-image:url('../assets/frame/network-mode-button.png')!important;}
+.frameStartupChoice--local>button{background-image:url('../assets/frame/local-mode-button.png')!important;}
 @media(max-width:340px){
   .startupAccessChoices{width:calc(100% - 24px);gap:6px;}
 }
-.frameStartupChoiceAsset{display:block;width:100%;height:100%;object-fit:contain;transition:filter 140ms ease,transform 100ms ease;}
-.sr-only{
-  position:absolute!important;
-  width:1px!important;
-  height:1px!important;
-  padding:0!important;
-  margin:-1px!important;
-  overflow:hidden!important;
-  clip:rect(0,0,0,0)!important;
-  clip-path:inset(50%)!important;
-  white-space:nowrap!important;
-  border:0!important;
-}
-.frameStartupChoice>button:hover .frameStartupChoiceAsset,
-.frameStartupChoice>button:focus-visible .frameStartupChoiceAsset{filter:brightness(1.05) drop-shadow(0 0 5px rgba(157,255,69,.35));}
+.frameStartupChoice>button:hover,
+.frameStartupChoice>button:focus-visible{filter:brightness(1.05) drop-shadow(0 0 5px rgba(157,255,69,.35));}
 .frameStartupChoice>button:focus-visible{outline:2px solid var(--terminal-green)!important;outline-offset:2px;}
 .frameStartupControls--selected-network .startupAccessGlow--network,
 .frameStartupControls--selected-local .startupAccessGlow--local{opacity:1;}
-.frameStartupControls--selected-network .frameStartupChoice--network .frameStartupChoiceAsset,
-.frameStartupControls--selected-local .frameStartupChoice--local .frameStartupChoiceAsset{filter:brightness(1.08);transform:translateY(2px) scale(.99);}
+.frameStartupControls--selected-network .frameStartupChoice--network>button,
+.frameStartupControls--selected-local .frameStartupChoice--local>button{filter:brightness(1.08);}
 
 /* Navigation is fixed; the access assembly alone uncovers it. */
 .frameShellBottom .nav,

@@ -14,9 +14,9 @@ test('AST-051 version, cache and cache-busting are coherent', () => {
   for (const source of [app(), index(), sw(), startup(), read('css/ast-012-4.css'), read('css/frame-core.css')]) {
     for (const token of forbidden) assert.equal(source.includes(token), false, `unexpected legacy token ${token}`);
   }
-  assert.match(app(), /const APP_VERSION='3\.6\.54'/);
-  assert.match(sw(), /const CACHE_NAME='budde-3-6-54'/);
-  assert.match(index(), /v=ast057/);
+  assert.match(app(), /const APP_VERSION='3\.6\.55'/);
+  assert.match(sw(), /const CACHE_NAME='budde-3-6-55'/);
+  assert.match(index(), /v=ast058/);
 });
 
 test('AST-051 debug build and layer diagnostics are URL gated', () => {
