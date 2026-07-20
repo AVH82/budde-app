@@ -5,3 +5,40 @@ html.designerMode .designer-startup-field{display:none}html.designerMode .design
 html.designerMode .frameStartupControls{display:block!important;visibility:visible!important;pointer-events:auto!important;}
 html.designerMode .startupAccessRotor{transform:rotateX(0deg)!important;transition:none!important;}
 html.designerMode .startupAccessPanel{pointer-events:auto!important;z-index:3!important;cursor:move!important;}
+
+/* PR242 — Startup access glow: voltage drift at rest, stronger response on hover and click. */
+@keyframes startupVoltageDrift{
+  0%,100%{opacity:.52;filter:blur(7px) brightness(.94) saturate(1.02)}
+  18%{opacity:.45;filter:blur(7.5px) brightness(.88) saturate(.98)}
+  37%{opacity:.58;filter:blur(8px) brightness(1.02) saturate(1.08)}
+  61%{opacity:.49;filter:blur(7px) brightness(.91) saturate(1.01)}
+  79%{opacity:.62;filter:blur(8.5px) brightness(1.08) saturate(1.12)}
+}
+@keyframes startupGlowPulse{
+  0%{opacity:.64;filter:blur(7px) brightness(1.05) saturate(1.08)}
+  42%{opacity:1;filter:blur(10px) brightness(1.55) saturate(1.35)}
+  100%{opacity:.72;filter:blur(8px) brightness(1.18) saturate(1.16)}
+}
+.startupAccessGlow{
+  background:radial-gradient(ellipse at center,rgba(215,255,164,.76) 0,rgba(157,255,69,.48) 30%,rgba(96,255,92,.22) 56%,transparent 78%)!important;
+  box-shadow:none!important;
+  filter:blur(7px) brightness(.94) saturate(1.02);
+  opacity:.52;
+  animation:startupVoltageDrift 3.8s steps(1,end) infinite;
+  transition:opacity 140ms ease,filter 140ms ease!important;
+}
+.frameStartupChoice:hover + .startupAccessGlow,
+.frameStartupChoice:focus-within + .startupAccessGlow{opacity:.72;filter:blur(8px) brightness(1.18) saturate(1.14)}
+.frameStartupControls--selected-network .startupAccessGlow--network,
+.frameStartupControls--selected-local .startupAccessGlow--local{
+  animation:startupGlowPulse 220ms cubic-bezier(.2,.8,.2,1) both!important;
+}
+.frameStartupChoice>button:hover,
+.frameStartupChoice>button:focus-visible{filter:brightness(1.12) drop-shadow(0 0 4px rgba(157,255,69,.55)) drop-shadow(0 0 10px rgba(96,255,92,.32))!important;}
+.frameStartupControls--selected-network .frameStartupChoice--network>button,
+.frameStartupControls--selected-local .frameStartupChoice--local>button{filter:brightness(1.28) drop-shadow(0 0 6px rgba(190,255,105,.82)) drop-shadow(0 0 14px rgba(96,255,92,.52))!important;}
+@media(prefers-reduced-motion:reduce){
+  .startupAccessGlow{animation:none!important;opacity:.56;filter:blur(7px) brightness(1)}
+  .frameStartupControls--selected-network .startupAccessGlow--network,
+  .frameStartupControls--selected-local .startupAccessGlow--local{animation:none!important;opacity:.82;filter:blur(9px) brightness(1.3)}
+}
