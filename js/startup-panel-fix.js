@@ -6,52 +6,63 @@
     const style=document.createElement('style');
     style.id=STYLE_ID;
     style.textContent=`
+      /* The bronze PNG is the only full-surface layer. */
       .startupAccessFace--front::before{
-        content:"";
-        position:absolute;
-        inset:0;
-        z-index:0;
-        pointer-events:none;
-        background:
-          linear-gradient(180deg,rgba(8,8,6,.96),rgba(13,11,7,.98)),
-          radial-gradient(ellipse at center,rgba(66,54,31,.24),transparent 68%);
-        box-shadow:
-          inset 0 0 0 1px rgba(188,151,84,.28),
-          inset 0 10px 24px rgba(0,0,0,.72),
-          inset 0 -12px 28px rgba(0,0,0,.82);
+        content:none!important;
+        display:none!important;
+        background:none!important;
+        box-shadow:none!important;
       }
-      .startupAccessPanel{z-index:1!important;}
-      .startupAccessChoices{z-index:3!important;}
+      .startupAccessPanel{
+        position:absolute!important;
+        inset:0!important;
+        width:100%!important;
+        height:100%!important;
+        object-fit:fill!important;
+        z-index:0!important;
+      }
+      .startupAccessChoices{z-index:2!important;}
+
+      /* Keep only a soft dark shadow behind each button for legibility. */
       .frameStartupChoice::before{
-        background:linear-gradient(180deg,rgba(10,10,8,.98),rgba(4,5,3,.99))!important;
+        background:transparent!important;
         box-shadow:
-          inset 0 4px 10px rgba(0,0,0,.9),
-          inset 0 -1px 2px rgba(218,179,105,.18),
-          0 1px 1px rgba(224,184,110,.12)!important;
+          0 8px 18px rgba(0,0,0,.88),
+          0 0 14px rgba(0,0,0,.72)!important;
       }
+
+      /* The green glow remains off until a mode is selected. */
+      .startupAccessGlow{opacity:0!important;}
+      .frameStartupControls--selected-network .startupAccessGlow--network,
+      .frameStartupControls--selected-local .startupAccessGlow--local{opacity:1!important;}
     `;
     document.head.appendChild(style);
   }
 
-  function syncPanelToBlackFrame(){
-    const frame=document.querySelector('.frameShellBottom');
+  function syncPanelToNavigationBand(){
+    const navigationBand=document.querySelector('.frameShellBottom');
     const controls=document.querySelector('.frameStartupControls');
-    if(!frame||!controls)return;
+    if(!navigationBand||!controls)return;
 
-    const rect=frame.getBoundingClientRect();
+    const rect=navigationBand.getBoundingClientRect();
     if(rect.width<=0||rect.height<=0)return;
 
-    controls.style.left=`${Math.max(0,rect.left)}px`;
-    controls.style.top=`${Math.max(0,rect.top)}px`;
+    const left=Math.max(0,rect.left);
+    const top=Math.max(0,rect.top);
+    const right=Math.min(window.innerWidth,rect.right);
+    const bottom=Math.min(window.innerHeight,rect.bottom);
+
+    controls.style.left=`${left}px`;
+    controls.style.top=`${top}px`;
     controls.style.bottom='auto';
-    controls.style.width=`${Math.min(window.innerWidth,rect.right)-Math.max(0,rect.left)}px`;
-    controls.style.height=`${Math.min(window.innerHeight,rect.bottom)-Math.max(0,rect.top)}px`;
+    controls.style.width=`${Math.max(0,right-left)}px`;
+    controls.style.height=`${Math.max(0,bottom-top)}px`;
   }
 
   function refresh(){
     ensureSurfaceStyle();
-    syncPanelToBlackFrame();
-    requestAnimationFrame(syncPanelToBlackFrame);
+    syncPanelToNavigationBand();
+    requestAnimationFrame(syncPanelToNavigationBand);
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refresh,{once:true});
