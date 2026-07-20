@@ -9,6 +9,14 @@
     const style=document.createElement('style');
     style.id=STYLE_ID;
     style.textContent=`
+      .frameStartupControls{
+        --startup-panel-x:-1.6%;
+        --startup-panel-y:-69%;
+        --startup-panel-width:103.7%;
+        --startup-panel-height:228%;
+        --startup-panel-scale-x:1;
+        --startup-panel-scale-y:1;
+      }
       .frameStartupControls,
       .startupAccessScene,
       .startupAccessRotor,
@@ -42,10 +50,10 @@
         display:block!important;
         visibility:visible!important;
         position:absolute!important;
-        left:var(--startup-panel-x,0%)!important;
-        top:var(--startup-panel-y,0%)!important;
-        width:var(--startup-panel-width,100%)!important;
-        height:var(--startup-panel-height,100%)!important;
+        left:var(--startup-panel-x,-1.6%)!important;
+        top:var(--startup-panel-y,-69%)!important;
+        width:var(--startup-panel-width,103.7%)!important;
+        height:var(--startup-panel-height,228%)!important;
         min-width:0!important;
         min-height:0!important;
         max-width:none!important;
@@ -67,16 +75,18 @@
         height:100%!important;
         min-height:0!important;
         z-index:2!important;
-        display:grid!important;
-        grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
-        grid-template-rows:1fr!important;
-        align-items:center!important;
-        justify-items:center!important;
+        display:block!important;
       }
       .frameStartupChoice{
-        align-self:center!important;
-        justify-self:center!important;
+        position:absolute!important;
+        top:50%!important;
+        margin:0!important;
+        align-self:auto!important;
+        justify-self:auto!important;
+        transform:translate(-50%,-50%)!important;
       }
+      .frameStartupChoice:nth-child(1){left:25%!important;}
+      .frameStartupChoice:nth-child(2){left:75%!important;}
       .frameStartupChoice::before{
         background:transparent!important;
         box-shadow:0 8px 18px rgba(0,0,0,.88),0 0 14px rgba(0,0,0,.72)!important;
