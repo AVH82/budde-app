@@ -80,9 +80,18 @@
 
 /* Portaled directly under body so this component can truly cover the dock. */
 .frameStartupControls{
+  --startup-panel-x:-1.6%;
+  --startup-panel-y:-69%;
+  --startup-panel-width:103.7%;
+  --startup-panel-height:228%;
+  --startup-panel-scale-x:1;
+  --startup-panel-scale-y:1;
   position:fixed;
-  left:0;
-  bottom:0;
+  left:50%;
+  bottom:env(safe-area-inset-bottom);
+  width:var(--frame-shell-w);
+  height:var(--nav-h);
+  transform:translateX(-50%);
   z-index:var(--frame-z-startup);
   overflow:visible;
   pointer-events:auto;
@@ -120,6 +129,7 @@
   isolation:isolate;
   transform:rotateX(0deg);
   background:transparent;
+  overflow:hidden;
 }
 .startupAccessFace--back{
   transform:rotateX(180deg);
@@ -128,11 +138,15 @@
 }
 .startupAccessPanel{
   position:absolute;
-  inset:0;
-  width:100%;
-  height:100%;
+  left:var(--startup-panel-x);
+  top:var(--startup-panel-y);
+  width:var(--startup-panel-width);
+  height:var(--startup-panel-height);
   display:block;
   object-fit:fill;
+  object-position:center center;
+  transform:scaleX(var(--startup-panel-scale-x)) scaleY(var(--startup-panel-scale-y));
+  transform-origin:center center;
   z-index:0;
   pointer-events:none;
   backface-visibility:hidden;
