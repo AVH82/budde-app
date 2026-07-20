@@ -3,6 +3,10 @@
   const RELEASE_STYLESHEET='css/ast-012-4.css?v=ast058';
   const HEADER_STYLESHEET='css/ast-013-2.css?v=ast058';
   const STARTUP_ACCESS_PANEL='assets/frame/startup-access-panel.png?v=ast058';
+  const ACCESS_FLIP_MS=850;
+  const ACCESS_REDUCED_FLIP_MS=120;
+  const ACCESS_PRESS_DELAY_MS=190;
+  const ACCESS_FALLBACK_MARGIN_MS=250;
   const SHUTTER_SLAT_ASPECT=122/797;
   const SHUTTER_COVERAGE_MARGIN=2;
   let awaitingGoogleAuth=false;
@@ -204,18 +208,29 @@
     const rotor=controls?.querySelector('.startupAccessRotor');
     if(!rotor)return;
     let cleaned=false;
+    let fallbackTimer=null;
     const cleanup=()=>{
       if(cleaned)return;
       cleaned=true;
+      if(fallbackTimer!==null)clearTimeout(fallbackTimer);
       document.body.classList.remove('entryGateOpening');
-      controls.hidden=true;
+      if(controls){
+        controls.hidden=true;
+        controls.classList.remove('frameStartupControls--opening');
+      }
       gate.hidden=true;
       gate.classList.remove('frameStartup--opening','entryGate--opening');
     };
-    rotor.addEventListener('transitionend',event=>{
-      if(event.target===rotor&&event.propertyName==='transform')cleanup();
-    },{once:true});
-    rotor.classList.add('is-open');
+    const reducedMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const flipDuration=reducedMotion?ACCESS_REDUCED_FLIP_MS:ACCESS_FLIP_MS;
+    const fallbackDelay=ACCESS_PRESS_DELAY_MS+flipDuration+ACCESS_FALLBACK_MARGIN_MS;
+    fallbackTimer=setTimeout(cleanup,fallbackDelay);
+    setTimeout(()=>{
+      rotor.addEventListener('transitionend',event=>{
+        if(event.target===rotor&&event.propertyName==='transform')cleanup();
+      },{once:true});
+      rotor.classList.add('is-open');
+    },ACCESS_PRESS_DELAY_MS);
   }
 
   function prepare(){

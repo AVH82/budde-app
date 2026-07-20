@@ -64,13 +64,32 @@ test('startup controls track the real footer box and viewport changes', () => {
   assert.match(startup(), /addEventListener\('orientationchange',refreshStartupControlsBox\)/);
 });
 
-test('selection cleans up exclusively from the rotor transitionend', () => {
-  assert.match(startup(), /addEventListener\('transitionend'/);
-  assert.match(startup(), /propertyName==='transform'/);
-  assert.doesNotMatch(startup(), /setTimeout\(cleanup|fallbackMs|ACCESS_FLIP_MS/);
-  assert.match(startup(), /gate\.hidden=true/);
+test('selection cleanup combines transitionend with an idempotent safety fallback', () => {
+  const source=startup();
+  assert.match(source, /let cleaned=false/);
+  assert.match(source, /if\(cleaned\)return;[\s\S]*cleaned=true/);
+  assert.match(source, /let fallbackTimer=null/);
+  assert.match(source, /if\(fallbackTimer!==null\)clearTimeout\(fallbackTimer\)/);
+  assert.match(source, /addEventListener\('transitionend'/);
+  assert.match(source, /propertyName==='transform'/);
+  assert.match(source, /fallbackTimer=setTimeout\(cleanup,fallbackDelay\)/);
+  assert.ok(source.indexOf("addEventListener('transitionend'") < source.indexOf("rotor.classList.add('is-open')"));
+  assert.match(source, /gate\.hidden=true/);
+  assert.match(source, /controls\.classList\.remove\('frameStartupControls--opening'\)/);
   assert.match(css(), /startupAccessRotor\{transition-duration:120ms!important/);
   assert.doesNotMatch(read('js/app.js'), /setTimeout\(finishGate/);
+});
+
+test('the flip preserves its mechanical press pause and reduced-motion-aware timing', () => {
+  const source=startup();
+  assert.match(source, /const ACCESS_FLIP_MS=850/);
+  assert.match(source, /const ACCESS_REDUCED_FLIP_MS=120/);
+  assert.match(source, /const ACCESS_PRESS_DELAY_MS=19[0-9]/);
+  assert.match(source, /const ACCESS_FALLBACK_MARGIN_MS=250/);
+  assert.match(source, /prefers-reduced-motion: reduce/);
+  assert.match(source, /flipDuration=reducedMotion\?ACCESS_REDUCED_FLIP_MS:ACCESS_FLIP_MS/);
+  assert.match(source, /fallbackDelay=ACCESS_PRESS_DELAY_MS\+flipDuration\+ACCESS_FALLBACK_MARGIN_MS/);
+  assert.match(source, /setTimeout\(\(\)=>\{[\s\S]*?rotor\.classList\.add\('is-open'\);\s*\},ACCESS_PRESS_DELAY_MS\)/);
 });
 
 test('AST-058 versions and uniquely precaches the corrected panel', () => {
