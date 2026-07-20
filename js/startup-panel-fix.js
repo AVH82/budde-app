@@ -2,6 +2,14 @@
   const STYLE_ID='startup-panel-direct-stretch';
   const params=new URLSearchParams(window.location.search||'');
   const DESIGNER=params.get('designer')==='1'||params.get('debugDesigner')==='1';
+  const STARTUP_PRODUCTION_VALUES={
+    startupPanelX:-1.6,
+    startupPanelY:-69,
+    startupPanelWidth:103.7,
+    startupPanelHeight:228,
+    startupPanelScaleX:1,
+    startupPanelScaleY:1
+  };
   let resizeObserver=null;
 
   function ensureStyle(){
@@ -126,6 +134,25 @@
     controls.style.setProperty('max-height',`${height}px`,'important');
   }
 
+  function syncDesignerProductionValues(){
+    if(!DESIGNER)return;
+    const designer=window.BuddeDesignerMode;
+    if(!designer?.active||typeof designer.getValues!=='function'||typeof designer.setValues!=='function')return;
+
+    const state=designer._state;
+    const startupTarget=state?.targets?.startupPanel;
+    if(startupTarget&&!startupTarget.__productionResetPatched){
+      startupTarget.reset=values=>Object.assign(values,STARTUP_PRODUCTION_VALUES);
+      startupTarget.__productionResetPatched=true;
+    }
+
+    if(state?.initial)Object.assign(state.initial,STARTUP_PRODUCTION_VALUES);
+
+    const current=designer.getValues();
+    const stillLegacyDefaults=current.startupPanelX===0&&current.startupPanelY===0&&current.startupPanelWidth===100&&current.startupPanelHeight===100&&current.startupPanelScaleX===1&&current.startupPanelScaleY===1;
+    if(stillLegacyDefaults)designer.setValues({...current,...STARTUP_PRODUCTION_VALUES});
+  }
+
   function observeDock(){
     if(resizeObserver)return;
     const dock=document.querySelector('.frameShellBottom');
@@ -144,6 +171,7 @@
       if(controls){controls.hidden=false;controls.classList.remove('frameStartupControls--opening');controls.querySelector('.startupAccessRotor')?.classList.remove('is-open');}
       const gate=document.getElementById('entryGate');
       if(gate){gate.hidden=false;gate.classList.remove('frameStartup--opening','entryGate--opening');}
+      syncDesignerProductionValues();
     }
   }
 
