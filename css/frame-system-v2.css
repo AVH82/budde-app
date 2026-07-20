@@ -92,11 +92,16 @@
 .startupAccessScene{
   position:absolute;
   inset:0;
+  width:100%;
+  height:100%;
   perspective:1000px;
+  perspective-origin:center center;
 }
 .startupAccessRotor{
   position:absolute;
   inset:0;
+  width:100%;
+  height:100%;
   transform-style:preserve-3d;
   transform-origin:center center;
   transition:transform 850ms cubic-bezier(.22,.75,.18,1);
@@ -106,21 +111,19 @@
 .startupAccessFace{
   position:absolute;
   inset:0;
+  width:100%;
+  height:100%;
   backface-visibility:hidden;
   -webkit-backface-visibility:hidden;
 }
 .startupAccessFace--front{
   isolation:isolate;
-  display:grid;
-  grid-template-columns:1fr 1fr;
-  align-items:end;
-  gap:clamp(6px,1.5vw,10px);
-  padding:clamp(12px,3vw,18px) clamp(14px,4vw,22px) calc(env(safe-area-inset-bottom) + clamp(10px,2.5vw,16px));
-  box-sizing:border-box;
   transform:rotateX(0deg);
+  background:transparent;
 }
 .startupAccessFace--back{
   transform:rotateX(180deg);
+  background:transparent;
   pointer-events:none;
 }
 .startupAccessPanel{
@@ -128,19 +131,32 @@
   inset:0;
   width:100%;
   height:100%;
+  display:block;
   object-fit:fill;
   z-index:0;
   pointer-events:none;
   backface-visibility:hidden;
   -webkit-backface-visibility:hidden;
 }
+.startupAccessChoices{
+  position:absolute;
+  z-index:1;
+  left:50%;
+  top:50%;
+  transform:translate(-50%,-50%);
+  width:calc(100% - clamp(32px,8vw,52px));
+  max-width:100%;
+  display:grid;
+  grid-template-columns:minmax(0,1fr) minmax(0,1fr);
+  align-items:center;
+  justify-content:center;
+  gap:clamp(8px,2vw,14px);
+}
 .startupAccessGlow{
   position:relative;
   z-index:1;
-  grid-row:1;
-  align-self:end;
   width:100%;
-  height:clamp(58px,42%,88px);
+  height:100%;
   border-radius:16px;
   opacity:0;
   pointer-events:none;
@@ -149,21 +165,21 @@
   box-shadow:0 0 12px rgba(157,255,69,.72),0 0 28px rgba(157,255,69,.45),inset 0 0 18px rgba(215,255,164,.8);
   transition:opacity 120ms ease;
 }
-.startupAccessGlow--network{grid-column:1;}
-.startupAccessGlow--local{grid-column:2;}
+.startupAccessGlow--network,.frameStartupChoice--network{grid-column:1;grid-row:1;}
+.startupAccessGlow--local,.frameStartupChoice--local{grid-column:2;grid-row:1;}
 .frameStartupChoice{
   position:relative;
   z-index:2;
-  grid-row:1;
-  height:clamp(58px,42%,88px);
-  align-self:end;
+  width:100%;
   min-width:0;
+  height:clamp(54px,14vw,78px);
+  display:grid;
+  place-items:center;
 }
-.frameStartupChoice--network{grid-column:1;}
-.frameStartupChoice--local{grid-column:2;}
 .frameStartupChoice>button{
   width:100%!important;
   height:100%!important;
+  min-width:0!important;
   min-height:0!important;
   display:grid!important;
   place-items:center!important;
@@ -173,11 +189,15 @@
   animation:none!important;
   pointer-events:auto!important;
   padding:0!important;
+  margin:0!important;
   border:0!important;
   border-radius:0!important;
   background:transparent!important;
   box-shadow:none!important;
   cursor:pointer;
+}
+@media(max-width:340px){
+  .startupAccessChoices{width:calc(100% - 24px);gap:6px;}
 }
 .frameStartupChoiceAsset{display:block;width:100%;height:100%;object-fit:contain;transition:filter 140ms ease,transform 100ms ease;}
 .sr-only{
