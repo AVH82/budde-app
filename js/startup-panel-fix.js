@@ -1,5 +1,5 @@
 (function(){
-  const STYLE_ID='startup-panel-background-owns-height';
+  const STYLE_ID='startup-panel-direct-stretch';
   let resizeObserver=null;
 
   function ensureStyle(){
@@ -12,6 +12,7 @@
       .startupAccessRotor,
       .startupAccessFace{
         box-sizing:border-box!important;
+        background:transparent!important;
       }
       .startupAccessScene,
       .startupAccessRotor,
@@ -27,34 +28,34 @@
       }
       .startupAccessScene{perspective:1000px!important;}
       .startupAccessRotor{transform-origin:center center!important;}
-
-      /* The face owns the full dock height. The PNG is used as an extensible
-         surface, not as an image whose height is derived from the buttons. */
-      .startupAccessFace--front{
-        overflow:hidden!important;
-        background:transparent!important;
-      }
+      .startupAccessFace--front{overflow:hidden!important;}
       .startupAccessFace--front::before{
-        content:""!important;
-        display:block!important;
-        position:absolute!important;
-        inset:0!important;
-        z-index:0!important;
-        pointer-events:none!important;
-        background-image:url("../assets/frame/startup-access-panel.png?v=ast058")!important;
-        background-repeat:no-repeat!important;
-        background-position:center center!important;
-        background-size:100% 245%!important;
+        content:none!important;
+        display:none!important;
+        background:none!important;
         box-shadow:none!important;
       }
 
-      /* Disable the legacy IMG: the extensible face background is authoritative. */
       .startupAccessPanel{
-        display:none!important;
-        visibility:hidden!important;
+        display:block!important;
+        visibility:visible!important;
+        position:absolute!important;
+        inset:0!important;
+        width:100%!important;
+        height:100%!important;
+        min-width:100%!important;
+        min-height:100%!important;
+        max-width:none!important;
+        max-height:none!important;
+        object-fit:fill!important;
+        object-position:center center!important;
+        transform:none!important;
+        margin:0!important;
+        padding:0!important;
+        z-index:0!important;
+        pointer-events:none!important;
       }
 
-      /* Buttons are an overlay and never participate in panel sizing. */
       .startupAccessChoices{
         position:absolute!important;
         inset:0!important;
@@ -76,7 +77,6 @@
         background:transparent!important;
         box-shadow:0 8px 18px rgba(0,0,0,.88),0 0 14px rgba(0,0,0,.72)!important;
       }
-
       .startupAccessGlow{opacity:0!important;}
       .frameStartupControls--selected-network .startupAccessGlow--network,
       .frameStartupControls--selected-local .startupAccessGlow--local{opacity:1!important;}
@@ -126,7 +126,6 @@
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refresh,{once:true});
   else refresh();
-
   window.addEventListener('resize',refresh);
   window.addEventListener('orientationchange',refresh);
   [0,100,350,800,1500,3000].forEach(delay=>setTimeout(refresh,delay));
