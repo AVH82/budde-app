@@ -14,7 +14,7 @@ test('startup gate uses the versioned alpha PNG as a real image', () => {
   assert.ok([4,6].includes(png[25]), `PNG color type ${png[25]} must contain alpha`);
   assert.match(startup(), /createElement\('img'\)/);
   assert.match(startup(), /accessPanel\.className='startupAccessPanel'/);
-  assert.match(startup(), /assets\/frame\/startup-access-panel\.png\?v=ast057/);
+  assert.match(startup(), /assets\/frame\/startup-access-panel\.png\?v=ast058/);
   assert.match(css(), /\.startupAccessPanel\{[^}]*display:block/s);
   assert.doesNotMatch(css(), /border-image/);
 });
@@ -42,6 +42,19 @@ test('centered choices align glows and buttons in equal cells and layer order', 
   assert.match(css(), /\.frameStartupChoice\{[^}]*z-index:2;[^}]*width:100%;[^}]*height:clamp\(54px,14vw,78px\)/s);
 });
 
+
+test('button labels cannot leak into the visual assembly', () => {
+  assert.equal((startup().match(/replaceChildren\(\)/g)||[]).length, 2);
+  assert.doesNotMatch(startup(), /frameStartupChoiceAsset|sr-only/);
+  assert.match(css(), /\.frameStartupChoice>button\{[^}]*color:transparent!important;[^}]*font-size:0!important;[^}]*text-indent:-9999px!important/s);
+  assert.match(css(), /frameStartupChoice--network>button\{background-image:url\('\.\.\/assets\/frame\/network-mode-button\.png'\)!important/);
+  assert.match(css(), /frameStartupChoice--local>button\{background-image:url\('\.\.\/assets\/frame\/local-mode-button\.png'\)!important/);
+});
+
+test('each button is seated in a recessed plate mounting', () => {
+  assert.match(css(), /\.frameStartupChoice::before\{[^}]*background:rgba\(24,18,11,\.42\);[^}]*box-shadow:inset/s);
+});
+
 test('startup controls track the real footer box and viewport changes', () => {
   assert.match(startup(), /querySelector\('\.frameShellBottom'\)/);
   assert.match(startup(), /footer\.getBoundingClientRect\(\)/);
@@ -51,19 +64,21 @@ test('startup controls track the real footer box and viewport changes', () => {
   assert.match(startup(), /addEventListener\('orientationchange',refreshStartupControlsBox\)/);
 });
 
-test('selection cleans up from transitionend with reduced-motion fallback', () => {
+test('selection cleans up exclusively from the rotor transitionend', () => {
   assert.match(startup(), /addEventListener\('transitionend'/);
   assert.match(startup(), /propertyName==='transform'/);
-  assert.match(startup(), /prefers-reduced-motion: reduce/);
+  assert.doesNotMatch(startup(), /setTimeout\(cleanup|fallbackMs|ACCESS_FLIP_MS/);
+  assert.match(startup(), /gate\.hidden=true/);
   assert.match(css(), /startupAccessRotor\{transition-duration:120ms!important/);
+  assert.doesNotMatch(read('js/app.js'), /setTimeout\(finishGate/);
 });
 
-test('AST-057 versions and uniquely precaches the corrected panel', () => {
+test('AST-058 versions and uniquely precaches the corrected panel', () => {
   const sw=read('service-worker.js'); const index=read('index.html'); const app=read('js/app.js');
-  assert.match(app, /APP_VERSION='3\.6\.54'/);
-  assert.match(sw, /CACHE_NAME='budde-3-6-54'/);
-  assert.equal((sw.match(/assets\/frame\/startup-access-panel\.png\?v=ast057/g)||[]).length,1);
-  assert.doesNotMatch(`${startup()}\n${sw}`, /startup-access-panel\.png\?v=ast05[56]/);
-  assert.match(index, /frame-system-v2\.css\?v=ast057/);
-  assert.match(index, /startup-gate\.js\?v=ast057/);
+  assert.match(app, /APP_VERSION='3\.6\.55'/);
+  assert.match(sw, /CACHE_NAME='budde-3-6-55'/);
+  assert.equal((sw.match(/assets\/frame\/startup-access-panel\.png\?v=ast058/g)||[]).length,1);
+  assert.doesNotMatch(`${startup()}\n${sw}`, /startup-access-panel\.png\?v=ast05[5-7]/);
+  assert.match(index, /frame-system-v2\.css\?v=ast058/);
+  assert.match(index, /startup-gate\.js\?v=ast058/);
 });

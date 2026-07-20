@@ -7,8 +7,8 @@ const startup = () => read('js/startup-gate.js');
 const css = () => read('css/frame-system-v2.css');
 
 test('mechanical access controls use both PNG plates and explicit accessible labels', () => {
-  assert.match(startup(), /assets\/frame\/network-mode-button\.png/);
-  assert.match(startup(), /assets\/frame\/local-mode-button\.png/);
+  assert.match(css(), /assets\/frame\/network-mode-button\.png/);
+  assert.match(css(), /assets\/frame\/local-mode-button\.png/);
   assert.match(startup(), /NETWORK MODE — cloud synchronization/);
   assert.match(startup(), /LOCAL MODE — device storage/);
   assert.match(startup(), /id=['"]entryGoogleButton|entryGoogleButton/);
@@ -34,9 +34,9 @@ test('mechanical plates are precached at the coherent AST-053 build', () => {
   const sw=read('service-worker.js');
   const index=read('index.html');
   const app=read('js/app.js');
-  assert.match(sw, /CACHE_NAME='budde-3-6-54'/);
+  assert.match(sw, /CACHE_NAME='budde-3-6-55'/);
   assert.match(sw, /assets\/frame\/network-mode-button\.png/);
   assert.match(sw, /assets\/frame\/local-mode-button\.png/);
-  assert.match(index, /startup-gate\.js\?v=ast057/);
-  assert.match(app, /APP_VERSION='3\.6\.54'/);
+  assert.match(index, /startup-gate\.js\?v=ast058/);
+  assert.match(app, /APP_VERSION='3\.6\.55'/);
 });
