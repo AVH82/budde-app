@@ -7,6 +7,9 @@
     style.id=STYLE_ID;
     style.textContent=`
       /* The bronze PNG is the only full-surface layer. */
+      .startupAccessFace--front{
+        overflow:hidden!important;
+      }
       .startupAccessFace--front::before{
         content:none!important;
         display:none!important;
@@ -15,10 +18,16 @@
       }
       .startupAccessPanel{
         position:absolute!important;
-        inset:0!important;
+        left:0!important;
+        top:50%!important;
+        right:auto!important;
+        bottom:auto!important;
         width:100%!important;
         height:100%!important;
         object-fit:fill!important;
+        object-position:center!important;
+        transform:translateY(-50%) scaleY(2.15)!important;
+        transform-origin:center center!important;
         z-index:0!important;
       }
       .startupAccessChoices{z-index:2!important;}
