@@ -1,9 +1,11 @@
 (function(){
-  const FRAME_STYLESHEET='css/frame-system-v2.css?v=ast056';
-  const RELEASE_STYLESHEET='css/ast-012-4.css?v=ast056';
-  const HEADER_STYLESHEET='css/ast-013-2.css?v=ast056';
-  const STARTUP_ACCESS_PANEL='assets/frame/startup-access-panel.png?v=ast056';
-  const FRAME_MOTION_MS=2600;
+  const FRAME_STYLESHEET='css/frame-system-v2.css?v=ast057';
+  const RELEASE_STYLESHEET='css/ast-012-4.css?v=ast057';
+  const HEADER_STYLESHEET='css/ast-013-2.css?v=ast057';
+  const STARTUP_ACCESS_PANEL='assets/frame/startup-access-panel.png?v=ast057';
+  const ACCESS_FLIP_MS=850;
+  const ACCESS_REDUCED_FLIP_MS=120;
+  const ACCESS_PRESS_DELAY_MS=200;
   const SHUTTER_SLAT_ASPECT=122/797;
   const SHUTTER_COVERAGE_MARGIN=2;
   let awaitingGoogleAuth=false;
@@ -98,6 +100,9 @@
     accessPanel.alt='';
     accessPanel.setAttribute('aria-hidden','true');
 
+    const choices=document.createElement('div');
+    choices.className='startupAccessChoices';
+
     const glowNetwork=document.createElement('span');
     glowNetwork.className='startupAccessGlow startupAccessGlow--network';
     glowNetwork.setAttribute('aria-hidden','true');
@@ -124,7 +129,8 @@
       offline.innerHTML='<img class="frameStartupChoiceAsset" src="assets/frame/local-mode-button.png" alt=""><span class="sr-only">LOCAL MODE — device storage</span>';
       right.appendChild(offline);
     }
-    front.append(accessPanel,glowNetwork,glowLocal,left,right);
+    choices.append(glowNetwork,glowLocal,left,right);
+    front.append(accessPanel,choices);
     rotor.append(front,back);
     scene.appendChild(rotor);
     controls.appendChild(scene);
@@ -197,11 +203,24 @@
     controls?.classList.add('frameStartupControls--opening');
     controls?.querySelectorAll('button').forEach(button=>{button.disabled=true;});
     document.body.classList.add('entryGateOpening');
-    setTimeout(()=>controls?.querySelector('.startupAccessRotor')?.classList.add('is-open'),200);
-    setTimeout(()=>{
+    const rotor=controls?.querySelector('.startupAccessRotor');
+    if(!rotor)return;
+    let cleaned=false;
+    const cleanup=()=>{
+      if(cleaned)return;
+      cleaned=true;
       document.body.classList.remove('entryGateOpening');
-      if(controls)controls.hidden=true;
-    },FRAME_MOTION_MS);
+      controls.hidden=true;
+    };
+    const reducedMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    const fallbackMs=ACCESS_PRESS_DELAY_MS+(reducedMotion?ACCESS_REDUCED_FLIP_MS:ACCESS_FLIP_MS)+100;
+    setTimeout(()=>{
+      rotor.addEventListener('transitionend',event=>{
+        if(event.target===rotor&&event.propertyName==='transform')cleanup();
+      },{once:true});
+      rotor.classList.add('is-open');
+    },ACCESS_PRESS_DELAY_MS);
+    setTimeout(cleanup,fallbackMs);
   }
 
   function prepare(){
