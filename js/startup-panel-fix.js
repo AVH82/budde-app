@@ -1,5 +1,7 @@
 (function(){
   const STYLE_ID='startup-panel-direct-stretch';
+  const params=new URLSearchParams(window.location.search||'');
+  const DESIGNER=params.get('designer')==='1'||params.get('debugDesigner')==='1';
   let resizeObserver=null;
 
   function ensureStyle(){
@@ -40,16 +42,18 @@
         display:block!important;
         visibility:visible!important;
         position:absolute!important;
-        inset:0!important;
-        width:100%!important;
-        height:100%!important;
-        min-width:100%!important;
-        min-height:100%!important;
+        left:var(--startup-panel-x,0%)!important;
+        top:var(--startup-panel-y,0%)!important;
+        width:var(--startup-panel-width,100%)!important;
+        height:var(--startup-panel-height,100%)!important;
+        min-width:0!important;
+        min-height:0!important;
         max-width:none!important;
         max-height:none!important;
         object-fit:fill!important;
         object-position:center center!important;
-        transform:none!important;
+        transform:scaleX(var(--startup-panel-scale-x,1)) scaleY(var(--startup-panel-scale-y,1))!important;
+        transform-origin:center center!important;
         margin:0!important;
         padding:0!important;
         z-index:0!important;
@@ -80,6 +84,9 @@
       .startupAccessGlow{opacity:0!important;}
       .frameStartupControls--selected-network .startupAccessGlow--network,
       .frameStartupControls--selected-local .startupAccessGlow--local{opacity:1!important;}
+      html.designerMode .frameStartupControls{display:block!important;visibility:visible!important;pointer-events:auto!important;}
+      html.designerMode .startupAccessRotor{transform:rotateY(0deg)!important;transition:none!important;}
+      html.designerMode .startupAccessPanel{pointer-events:auto!important;z-index:3!important;cursor:move!important;}
     `;
     document.head.appendChild(style);
   }
@@ -122,11 +129,23 @@
     syncToDock();
     observeDock();
     requestAnimationFrame(syncToDock);
+    if(DESIGNER){
+      const controls=document.querySelector('.frameStartupControls');
+      if(controls){controls.hidden=false;controls.classList.remove('frameStartupControls--opening');controls.querySelector('.startupAccessRotor')?.classList.remove('is-open');}
+      const gate=document.getElementById('entryGate');
+      if(gate){gate.hidden=false;gate.classList.remove('frameStartup--opening','entryGate--opening');}
+    }
+  }
+
+  function keepGateOpen(event){
+    if(!DESIGNER||!event.target.closest?.('.frameStartupChoiceButton'))return;
+    event.preventDefault();event.stopImmediatePropagation();refresh();
   }
 
   if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',refresh,{once:true});
   else refresh();
   window.addEventListener('resize',refresh);
   window.addEventListener('orientationchange',refresh);
+  document.addEventListener('click',keepGateOpen,true);
   [0,100,350,800,1500,3000].forEach(delay=>setTimeout(refresh,delay));
 })();

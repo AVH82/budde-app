@@ -66,7 +66,9 @@ function runDesigner(search = '') {
     '.settingsTrustAsset--dial': makeElement(new Set(), { left: 10, top: 10, width: 60, height: 60 }),
     '.settingsTrustNeedle': makeElement(new Set(), { left: 20, top: 20, width: 40, height: 40 }),
     '.settingsTrustAsset--radiation': makeElement(new Set(), { left: 15, top: 15, width: 70, height: 70 }),
-    '.settingsTrustViewport': makeElement(new Set(), { left: 0, top: 0, width: 100, height: 100 })
+    '.settingsTrustViewport': makeElement(new Set(), { left: 0, top: 0, width: 100, height: 100 }),
+    '.startupAccessPanel': makeElement(new Set(), { left: 0, top: 700, width: 100, height: 100 }),
+    '.frameShellBottom': makeElement(new Set(), { left: 0, top: 700, width: 200, height: 100 })
   };
   const body = makeElement(classSet);
   const html = { classList: makeClassList(classSet) };
@@ -98,6 +100,8 @@ function runDesigner(search = '') {
 const fullValues = (overrides = {}) => ({
   dialOffsetX: 8.3, dialOffsetY: 0.2, needleOffsetX: 5.3, needleOffsetY: 0,
   dialScale: 168.49, needleScale: 64.022, radiationCenterX: 50.946, radiationCenterY: 47.662,
+  startupPanelX: 0, startupPanelY: 0, startupPanelWidth: 100, startupPanelHeight: 100,
+  startupPanelScaleX: 1, startupPanelScaleY: 1,
   ...overrides
 });
 
@@ -246,6 +250,32 @@ test('AST-049 live CSS includes trustmeter and radiation without calc multiplica
   assert.doesNotMatch(cssText, /calc\([^)]*\*/);
 });
 
+test('Startup panel is independently movable, resettable and exported with unitless scales', () => {
+  const { context } = runDesigner('?designer=1');
+  const api = context.window.BuddeDesignerMode;
+  api.setValues(fullValues({ startupPanelWidth: 140, startupPanelHeight: 220, startupPanelScaleX: 1.2, startupPanelScaleY: 1.8 }));
+  api.selectTarget('startupPanel');
+  api.moveSelected(5, -7);
+  assert.equal(api.getValues().startupPanelX, 5);
+  assert.equal(api.getValues().startupPanelY, -7);
+  const output = api.makeCss(api.getValues());
+  assert.match(output, /--startup-panel-width: 140%;/);
+  assert.match(output, /--startup-panel-scale-x: 1\.2;/);
+  assert.doesNotMatch(output, /--startup-panel-scale-[xy]: [^;]*%/);
+  api.reset();
+  assert.equal(api.getValues().startupPanelHeight, 100);
+  assert.equal(api.getValues().startupPanelScaleY, 1);
+});
+
+test('Designer v1 JSON without startup values receives backward-compatible defaults', () => {
+  const { context } = runDesigner('?designer=1');
+  const legacy = fullValues();
+  Object.keys(legacy).filter(key => key.startsWith('startupPanel')).forEach(key => delete legacy[key]);
+  const parsed = context.window.BuddeDesignerMode.validatePayload({ version: 1, target: 'trustmeterDial', values: legacy });
+  assert.equal(parsed.values.startupPanelWidth, 100);
+  assert.equal(parsed.values.startupPanelScaleX, 1);
+});
+
 test('AST-049 close cleans debug state and only designer overrides', () => {
   const { context, classSet, moduleClasses, moduleStyle, listeners } = runDesigner('?designer=1');
   const api = context.window.BuddeDesignerMode;
@@ -263,9 +293,9 @@ test('AST-049 close cleans debug state and only designer overrides', () => {
 });
 
 test('AST-049 files are loaded and version/cache stay on PR #216 values', () => {
-  assert.match(index(), /css\/designer-mode\.css\?v=ast058/);
-  assert.match(index(), /js\/designer-mode\.js\?v=ast058/);
+  assert.match(index(), /css\/designer-mode\.css\?v=ast062/);
+  assert.match(index(), /js\/designer-mode\.js\?v=ast062/);
   assert.match(css(), /\.designer-panel/);
   assert.match(app(), /const APP_VERSION='3\.6\.55'/);
-  assert.match(fs.readFileSync('service-worker.js', 'utf8'), /const CACHE_NAME='budde-3-6-55'/);
+  assert.match(fs.readFileSync('service-worker.js', 'utf8'), /const CACHE_NAME='budde-3-6-55-ast062'/);
 });

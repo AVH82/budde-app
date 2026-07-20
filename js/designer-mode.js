@@ -6,7 +6,9 @@
   const LOG='[DesignerMode]';
   const STORAGE_KEY='budde-designer-v1';
   const TRUSTMETER_VARS=['dialOffsetX','dialOffsetY','needleOffsetX','needleOffsetY','dialScale','needleScale'];
-  const DESIGNER_VALUE_KEYS=[...TRUSTMETER_VARS,'radiationCenterX','radiationCenterY'];
+  const STARTUP_PANEL_VARS=['startupPanelX','startupPanelY','startupPanelWidth','startupPanelHeight','startupPanelScaleX','startupPanelScaleY'];
+  const DEFAULTS={dialOffsetX:0,dialOffsetY:0,needleOffsetX:0,needleOffsetY:0,dialScale:100,needleScale:100,radiationCenterX:50,radiationCenterY:50,startupPanelX:0,startupPanelY:0,startupPanelWidth:100,startupPanelHeight:100,startupPanelScaleX:1,startupPanelScaleY:1};
+  const DESIGNER_VALUE_KEYS=[...TRUSTMETER_VARS,'radiationCenterX','radiationCenterY',...STARTUP_PANEL_VARS];
   const CSS_MAP={
     dialOffsetX:'--dial-offset-x',
     dialOffsetY:'--dial-offset-y',
@@ -15,7 +17,7 @@
     dialScale:'--dial-scale',
     needleScale:'--needle-scale',
     radiationCenterX:'--radiation-visible-center-x',
-    radiationCenterY:'--radiation-visible-center-y'
+    radiationCenterY:'--radiation-visible-center-y',startupPanelX:'--startup-panel-x',startupPanelY:'--startup-panel-y',startupPanelWidth:'--startup-panel-width',startupPanelHeight:'--startup-panel-height',startupPanelScaleX:'--startup-panel-scale-x',startupPanelScaleY:'--startup-panel-scale-y'
   };
 
   const toNum=value=>{
@@ -28,22 +30,23 @@
 
   function cloneValues(values){
     return DESIGNER_VALUE_KEYS.reduce((out,key)=>{
-      out[key]=safeNum(values?.[key]);
+      out[key]=safeNum(values?.[key],DEFAULTS[key]);
       return out;
     },{});
   }
 
   function makeCss(values){
     const v=cloneValues(values);
-    return DESIGNER_VALUE_KEYS.map(key=>`${CSS_MAP[key]}: ${pct(v[key])};`).join('\n');
+    return DESIGNER_VALUE_KEYS.map(key=>`${CSS_MAP[key]}: ${STARTUP_PANEL_VARS.includes(key)&&key.includes('Scale')?v[key]:pct(v[key])};`).join('\n');
   }
 
   function validatePayload(payload){
     if(!payload||payload.version!==1||typeof payload.values!=='object'||Array.isArray(payload.values))return null;
     const values={};
     for(const key of DESIGNER_VALUE_KEYS){
-      if(!Object.prototype.hasOwnProperty.call(payload.values,key))return null;
-      const n=toNum(payload.values[key]);
+      const present=Object.prototype.hasOwnProperty.call(payload.values,key);
+      if(!present&&!STARTUP_PANEL_VARS.includes(key))return null;
+      const n=present?toNum(payload.values[key]):DEFAULTS[key];
       if(!Number.isFinite(n)||Math.abs(n)>1000)return null;
       values[key]=n;
     }
@@ -65,11 +68,14 @@
     const needle=()=>document.querySelector('.settingsTrustNeedle');
     const radiation=()=>document.querySelector('.settingsTrustAsset--radiation');
     const reference=()=>document.querySelector('.settingsTrustViewport')||module();
+    const startupPanel=()=>document.querySelector('.startupAccessPanel');
+    const startupReference=()=>document.querySelector('.frameShellBottom')||document.querySelector('.frameStartupControls');
 
     function readRendered(){
       const el=module();
       if(!el)return cloneValues(state.values||state.initial||{});
       const cs=getComputedStyle(el);
+      const panelStyle=startupPanel()?getComputedStyle(startupPanel()):null;
       return cloneValues({
         dialOffsetX:cs.getPropertyValue(CSS_MAP.dialOffsetX),
         dialOffsetY:cs.getPropertyValue(CSS_MAP.dialOffsetY),
@@ -78,21 +84,25 @@
         dialScale:cs.getPropertyValue(CSS_MAP.dialScale),
         needleScale:cs.getPropertyValue(CSS_MAP.needleScale),
         radiationCenterX:cs.getPropertyValue(CSS_MAP.radiationCenterX)||'50%',
-        radiationCenterY:cs.getPropertyValue(CSS_MAP.radiationCenterY)||'50%'
+        radiationCenterY:cs.getPropertyValue(CSS_MAP.radiationCenterY)||'50%',
+        ...Object.fromEntries(STARTUP_PANEL_VARS.map(key=>[key,panelStyle?.getPropertyValue(CSS_MAP[key])||DEFAULTS[key]]))
       });
     }
 
     function clearDesignerOverrides(){
       const el=module();
       if(!el)return;
-      Object.values(CSS_MAP).forEach(cssVar=>el.style.removeProperty(cssVar));
+      Object.entries(CSS_MAP).forEach(([key,cssVar])=>(STARTUP_PANEL_VARS.includes(key)?startupPanel():el)?.style.removeProperty(cssVar));
     }
 
     function apply(values){
       const el=module();
       if(!el)return;
       state.values=cloneValues(values);
-      DESIGNER_VALUE_KEYS.forEach(key=>el.style.setProperty(CSS_MAP[key],pct(state.values[key])));
+      DESIGNER_VALUE_KEYS.forEach(key=>{
+        const target=STARTUP_PANEL_VARS.includes(key)?startupPanel():el;
+        target?.style.setProperty(CSS_MAP[key],STARTUP_PANEL_VARS.includes(key)&&key.includes('Scale')?state.values[key]:pct(state.values[key]));
+      });
       updatePanel();
       scheduleMeasure();
     }
@@ -129,12 +139,15 @@
         move(values,dx,dy){values.radiationCenterX-=dx;values.radiationCenterY-=dy},
         scale(){},
         reset(values,initial){values.radiationCenterX=initial.radiationCenterX;values.radiationCenterY=initial.radiationCenterY}
-      }
+      },
+      startupPanel:{label:'Startup Gate — panneau bronze',element:startupPanel,reference:startupReference,
+        move(values,dx,dy){values.startupPanelX+=dx;values.startupPanelY+=dy},scale(){},
+        reset(values){STARTUP_PANEL_VARS.forEach(key=>{values[key]=DEFAULTS[key]})}}
     };
     state.targets=designerTargets;
 
     function pxToPct(dx,dy){
-      const rect=reference()?.getBoundingClientRect();
+      const rect=targetDef().reference()?.getBoundingClientRect();
       return {x:rect?.width?dx/rect.width*100:0,y:rect?.height?dy/rect.height*100:0};
     }
     function targetDef(){return state.targets[state.target]||state.targets.trustmeterGroup}
@@ -144,10 +157,14 @@
     function setGroupInputs(){
       const v=state.values;
       if(!state.panel||!v)return;
-      state.panel.querySelector('[data-field=x]').value=state.target==='radiation'?v.radiationCenterX:state.target==='trustmeterNeedle'?v.needleOffsetX:v.dialOffsetX;
-      state.panel.querySelector('[data-field=y]').value=state.target==='radiation'?v.radiationCenterY:state.target==='trustmeterNeedle'?v.needleOffsetY:v.dialOffsetY;
+      const startup=state.target==='startupPanel';
+      state.panel.classList.toggle('designer-panel--startup',startup);
+      state.panel.querySelector('[data-field=x]').value=startup?v.startupPanelX:state.target==='radiation'?v.radiationCenterX:state.target==='trustmeterNeedle'?v.needleOffsetX:v.dialOffsetX;
+      state.panel.querySelector('[data-field=y]').value=startup?v.startupPanelY:state.target==='radiation'?v.radiationCenterY:state.target==='trustmeterNeedle'?v.needleOffsetY:v.dialOffsetY;
       state.panel.querySelector('[data-field=scale]').value=Math.round((v.dialScale/state.initial.dialScale)*1000)/1000;
       state.panel.querySelector('[data-field=step]').value=state.step;
+      const fields={width:'startupPanelWidth',height:'startupPanelHeight',scaleX:'startupPanelScaleX',scaleY:'startupPanelScaleY'};
+      Object.entries(fields).forEach(([field,key])=>{state.panel.querySelector(`[data-field=${field}]`).value=v[key]});
     }
     function updatePanel(){if(!state.panel)return;setGroupInputs();state.panel.querySelector('.designer-live-css').value=makeCss(state.values)}
     function scheduleMeasure(){if(state.raf)return;state.raf=requestAnimationFrame(()=>{state.raf=0;measure()})}
@@ -155,7 +172,9 @@
     function measure(){
       if(!state.panel)return;
       const mask=module()?.getBoundingClientRect(), d=dial()?.getBoundingClientRect(), n=needle()?.getBoundingClientRect(), t=targetDef().element()?.getBoundingClientRect();
-      if(!mask||!d||!n||!t)return;
+      if(!t)return;
+      if(state.target==='startupPanel'){const dock=startupReference()?.getBoundingClientRect();if(!dock)return;state.panel.querySelector('.designer-measures').textContent=`Référence: dock (${dock.width.toFixed(1)}×${dock.height.toFixed(1)} px)\nPanel: ${t.width.toFixed(1)}×${t.height.toFixed(1)} px\nPosition: ${state.values.startupPanelX.toFixed(3)}%, ${state.values.startupPanelY.toFixed(3)}%`;drawGuides(dock,null,null,t);return}
+      if(!mask||!d||!n)return;
       const origin=getComputedStyle(needle()).transformOrigin.split(' ');
       const mc=center(mask),dc=center(d),pc={x:n.left+safeNum(origin[0],n.width*.245),y:n.top+n.height*.674};
       state.panel.querySelector('.designer-measures').textContent=`Référence offsets: viewport Trustmeter (${Math.round((reference()?.getBoundingClientRect()?.width)||0)}×${Math.round((reference()?.getBoundingClientRect()?.height)||0)} px)\nMasque: ${mc.x.toFixed(1)}, ${mc.y.toFixed(1)} px\nCadran: ${dc.x.toFixed(1)}, ${dc.y.toFixed(1)} px\nPivot: ${pc.x.toFixed(1)}, ${pc.y.toFixed(1)} px\nΔ cadran/pivot: ${(dc.x-pc.x).toFixed(1)}, ${(dc.y-pc.y).toFixed(1)} px\nCible: ${t.width.toFixed(1)}×${t.height.toFixed(1)} px\nÉchelle: ${state.values.dialScale.toFixed(3)}% / ${state.values.needleScale.toFixed(3)}%\nRadioactivité: ${state.values.radiationCenterX.toFixed(3)}%, ${state.values.radiationCenterY.toFixed(3)}%`;
@@ -166,6 +185,7 @@
       if(!state.overlay)return;
       state.overlay.innerHTML='';
       if(!state.guides)return;
+      if(state.target==='startupPanel'){guide('dock',mask,'#ff9f0a');guide('panel',t,'#5ee9ff');const c=center(t),p=document.createElement('div');p.className='designer-panel-center';p.style.cssText=`left:${c.x}px;top:${c.y}px`;state.overlay.appendChild(p);return}
       guide('mask',mask,'#ff3b30');guide('dial',d,'#40ff76');guide('target',t,'#d6ff55');
       const r=rotor()?.getBoundingClientRect();if(r)guide('rotor',r,'#ff9f0a');
       const p=document.createElement('div');p.className='designer-pivot';p.style.cssText=`left:${n.left+n.width*.245}px;top:${n.top+n.height*.674}px`;state.overlay.appendChild(p);
@@ -184,7 +204,7 @@
     function buildPanel(){
       const panel=document.createElement('section');
       panel.className='designer-panel';
-      panel.innerHTML=`<header><strong>Designer Mode</strong><button class="designer-toggle" type="button" aria-expanded="true" aria-label="Replier Designer Mode">▾</button></header><div class="designer-body"><label>Cible<select data-field="target">${Object.entries(state.targets).map(([k,t])=>`<option value="${k}">${t.label}</option>`).join('')}</select></label><div class="designer-grid"><label>X %<input data-field="x" type="number" step="0.1"></label><label>Y %<input data-field="y" type="number" step="0.1"></label><label>Échelle globale<input data-field="scale" type="number" step="0.001"></label><label>Pas<select data-field="step"><option>0.1</option><option selected>0.5</option><option>1.0</option></select></label></div><div class="designer-actions"><button data-act="minus">−</button><button data-act="plus">+</button><button data-act="settings">Afficher Paramètres</button><button data-act="trust">Afficher Trustmeter</button></div><label><input data-field="guides" type="checkbox" checked> Guides</label><label><input data-field="instant" type="checkbox"> Rotation 3D instantanée</label><textarea class="designer-live-css" readonly></textarea><div class="designer-actions"><button data-act="copy">Copier les variables CSS</button><button data-act="reset">Réinitialiser la cible</button><button data-act="prod">Valeurs CSS de production</button><button data-act="export">Exporter JSON</button><button data-act="import">Importer JSON</button><button data-act="save">Sauvegarder localement</button><button data-act="restore">Restaurer</button><button data-act="clear">Effacer</button></div><textarea class="designer-import" placeholder="Coller un JSON Designer Mode"></textarea><pre class="designer-measures"></pre><p class="designer-status" role="status"></p></div>`;
+      panel.innerHTML=`<header><strong>Designer Mode</strong><button class="designer-toggle" type="button" aria-expanded="true" aria-label="Replier Designer Mode">▾</button></header><div class="designer-body"><label>Cible<select data-field="target">${Object.entries(state.targets).map(([k,t])=>`<option value="${k}">${t.label}</option>`).join('')}</select></label><div class="designer-grid"><label>X %<input data-field="x" type="number" step="0.1"></label><label>Y %<input data-field="y" type="number" step="0.1"></label><label class="designer-global-scale">Échelle globale<input data-field="scale" type="number" step="0.001"></label><label class="designer-startup-field">Largeur %<input data-field="width" type="number" step="0.1"></label><label class="designer-startup-field">Hauteur %<input data-field="height" type="number" step="0.1"></label><label class="designer-startup-field">Scale X<input data-field="scaleX" type="number" step="0.001"></label><label class="designer-startup-field">Scale Y<input data-field="scaleY" type="number" step="0.001"></label><label>Pas<select data-field="step"><option>0.1</option><option selected>0.5</option><option>1.0</option></select></label></div><div class="designer-actions"><button data-act="minus">−</button><button data-act="plus">+</button><button data-act="settings">Afficher Paramètres</button><button data-act="trust">Afficher Trustmeter</button></div><label><input data-field="guides" type="checkbox" checked> Guides</label><label><input data-field="instant" type="checkbox"> Rotation 3D instantanée</label><textarea class="designer-live-css" readonly></textarea><div class="designer-actions"><button data-act="copy">Copier les variables CSS</button><button data-act="reset">Réinitialiser la cible</button><button data-act="prod">Valeurs CSS de production</button><button data-act="export">Exporter JSON</button><button data-act="import">Importer JSON</button><button data-act="save">Sauvegarder localement</button><button data-act="restore">Restaurer</button><button data-act="clear">Effacer</button></div><textarea class="designer-import" placeholder="Coller un JSON Designer Mode"></textarea><pre class="designer-measures"></pre><p class="designer-status" role="status"></p></div>`;
       document.body.appendChild(panel);
       state.panel=panel;
       return panel;
@@ -202,7 +222,7 @@
       document.body.appendChild(state.overlay);
       const panel=buildPanel();
       panel.addEventListener('input',e=>{const f=e.target.dataset.field;if(f==='target')selectTarget(e.target.value);if(f==='step')state.step=safeNum(e.target.value,state.step);if(f==='guides'){state.guides=e.target.checked;scheduleMeasure()}if(f==='instant')state.instant=e.target.checked});
-      panel.addEventListener('change',e=>{const f=e.target.dataset.field;const next=cloneValues(state.values);if(f==='x'){if(state.target==='radiation')next.radiationCenterX=safeNum(e.target.value,next.radiationCenterX);else if(state.target==='trustmeterNeedle')next.needleOffsetX=safeNum(e.target.value,next.needleOffsetX);else{const previous=next.dialOffsetX;next.dialOffsetX=safeNum(e.target.value,next.dialOffsetX);if(state.target==='trustmeterGroup')next.needleOffsetX+=next.dialOffsetX-previous}}if(f==='y'){if(state.target==='radiation')next.radiationCenterY=safeNum(e.target.value,next.radiationCenterY);else if(state.target==='trustmeterNeedle')next.needleOffsetY=safeNum(e.target.value,next.needleOffsetY);else{const previous=next.dialOffsetY;next.dialOffsetY=safeNum(e.target.value,next.dialOffsetY);if(state.target==='trustmeterGroup')next.needleOffsetY+=next.dialOffsetY-previous}}if(f==='scale')targetDef().scale(next,safeNum(e.target.value,1));apply(next)});
+      panel.addEventListener('change',e=>{const f=e.target.dataset.field;const next=cloneValues(state.values);if(f==='x'){if(state.target==='startupPanel')next.startupPanelX=safeNum(e.target.value,next.startupPanelX);else if(state.target==='radiation')next.radiationCenterX=safeNum(e.target.value,next.radiationCenterX);else if(state.target==='trustmeterNeedle')next.needleOffsetX=safeNum(e.target.value,next.needleOffsetX);else{const previous=next.dialOffsetX;next.dialOffsetX=safeNum(e.target.value,next.dialOffsetX);if(state.target==='trustmeterGroup')next.needleOffsetX+=next.dialOffsetX-previous}}if(f==='y'){if(state.target==='startupPanel')next.startupPanelY=safeNum(e.target.value,next.startupPanelY);else if(state.target==='radiation')next.radiationCenterY=safeNum(e.target.value,next.radiationCenterY);else if(state.target==='trustmeterNeedle')next.needleOffsetY=safeNum(e.target.value,next.needleOffsetY);else{const previous=next.dialOffsetY;next.dialOffsetY=safeNum(e.target.value,next.dialOffsetY);if(state.target==='trustmeterGroup')next.needleOffsetY+=next.dialOffsetY-previous}}if(f==='scale')targetDef().scale(next,safeNum(e.target.value,1));const startupFields={width:'startupPanelWidth',height:'startupPanelHeight',scaleX:'startupPanelScaleX',scaleY:'startupPanelScaleY'};if(startupFields[f])next[startupFields[f]]=safeNum(e.target.value,next[startupFields[f]]);apply(next)});
       panel.addEventListener('click',async e=>{const a=e.target.dataset.act;if(!a)return;if(a==='minus')nudge('x',-1);if(a==='plus')nudge('x',1);if(a==='settings')forceFace('settings');if(a==='trust')forceFace('trust');if(a==='copy'){await copy(makeCss(state.values));status('CSS copié')}if(a==='reset')resetCurrentTarget();if(a==='prod')restoreProductionValues();if(a==='export'){await copy(JSON.stringify(exportJson(),null,2));status('JSON copié')}if(a==='import'){let payload=null;try{payload=validatePayload(JSON.parse(panel.querySelector('.designer-import').value||'null'))}catch(error){console.warn(LOG,'import rejected',error)}if(!payload){status('JSON rejeté');return}selectTarget(payload.target);apply(payload.values);status('JSON importé')}if(a==='save'){localStorage.setItem(STORAGE_KEY,JSON.stringify(exportJson()));status('Sauvegardé')}if(a==='restore'){let payload=null;try{payload=validatePayload(JSON.parse(localStorage.getItem(STORAGE_KEY)||'null'))}catch(error){console.warn(LOG,'restore rejected',error)}if(payload){selectTarget(payload.target);apply(payload.values);status('Restauré')}}if(a==='clear'){localStorage.removeItem(STORAGE_KEY);status('Effacé')}});
       panel.querySelector('.designer-toggle').onclick=()=>{state.collapsed=!state.collapsed;syncCollapse()};
       document.addEventListener('pointerdown',onPointerDown,{passive:false});document.addEventListener('pointermove',onPointerMove,{passive:false});document.addEventListener('pointerup',endDrag);document.addEventListener('pointercancel',endDrag);document.addEventListener('keydown',handleKey);window.addEventListener('resize',scheduleMeasure);window.addEventListener('orientationchange',scheduleMeasure);
@@ -224,6 +244,6 @@
   }
 
   window.BuddeDesignerMode=createDesignerMode();
-  window.BuddeDesignerModeUtils={makeCss,validatePayload,cloneValues,TRUSTMETER_VARS,DESIGNER_VALUE_KEYS,CSS_MAP};
+  window.BuddeDesignerModeUtils={makeCss,validatePayload,cloneValues,TRUSTMETER_VARS,STARTUP_PANEL_VARS,DESIGNER_VALUE_KEYS,CSS_MAP};
   if(ACTIVE){if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>window.BuddeDesignerMode.open(),{once:true});else window.BuddeDesignerMode.open()}
 })();
