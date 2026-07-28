@@ -1,6 +1,6 @@
 (function(){
   const CONFIRM_MS=500;
-  const COLLAPSE_MS=420;
+  const COLLAPSE_MS=520;
   const PAUSE_MS=160;
   const SHUTTER_MS=2600;
   let networkPending=false;
@@ -30,9 +30,18 @@
       html,body{background:#000!important;}
       .frameStartupControls{
         bottom:calc(var(--startup-dock-offset, calc(var(--nav-h) + env(safe-area-inset-bottom))) - 2px)!important;
-        height:clamp(68px,18vw,88px)!important;
+        height:clamp(72px,19vw,92px)!important;
         min-height:0!important;
         z-index:390!important;
+        opacity:1!important;
+        visibility:visible!important;
+        transition:transform ${COLLAPSE_MS}ms cubic-bezier(.32,.02,.18,1)!important;
+        will-change:transform;
+      }
+      .frameStartupControls.frameStartupControls--opening{
+        transform:translate(-50%,calc(var(--startup-dock-offset, calc(var(--nav-h) + env(safe-area-inset-bottom))) + 10px))!important;
+        opacity:1!important;
+        visibility:visible!important;
       }
       .frameShutter--bottom{
         bottom:calc(var(--startup-dock-offset, calc(var(--nav-h) + env(safe-area-inset-bottom))) - 2px)!important;
@@ -41,15 +50,19 @@
       }
       .frameShellBottom.pipDock{z-index:400!important;}
       .startupAccessScene,.startupAccessRotor,.startupAccessFace{height:100%!important;}
+      .startupAccessRotor,.startupAccessRotor.is-open{
+        transform:none!important;
+        transition:none!important;
+      }
       .startupAccessChoices{
-        inset:0 clamp(18px,5vw,28px)!important;
+        inset:0 4px 0 12px!important;
         width:auto!important;
         height:100%!important;
         top:0!important;
         left:0!important;
         transform:none!important;
         grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
-        gap:clamp(12px,3vw,18px)!important;
+        gap:clamp(10px,2.5vw,14px)!important;
         overflow:visible!important;
       }
       .frameStartupChoice{
@@ -58,38 +71,45 @@
         min-width:0!important;
         overflow:hidden!important;
         border-radius:12px!important;
+        opacity:1!important;
       }
       .frameStartupChoice>button{
+        position:relative!important;
+        z-index:2!important;
         width:100%!important;
         height:100%!important;
         background-size:100% 100%!important;
         background-position:center!important;
         filter:none!important;
+        opacity:1!important;
+        visibility:visible!important;
       }
       .startupAccessGlow{display:none!important;}
       .frameStartupChoice::after{
         content:"";
         position:absolute;
-        z-index:0;
+        z-index:3;
         inset:8px;
         border-radius:9px;
-        opacity:.68;
+        opacity:.58;
         pointer-events:none;
-        background:linear-gradient(180deg,rgba(185,255,103,.32),rgba(115,211,46,.15));
-        box-shadow:inset 0 0 18px rgba(215,255,164,.86);
-        animation:startupContainedFlicker 1350ms steps(2,end) infinite;
+        background:radial-gradient(ellipse at center,rgba(205,255,126,.52) 0,rgba(157,255,69,.28) 48%,rgba(115,211,46,.08) 76%,transparent 100%);
+        box-shadow:inset 0 0 16px rgba(225,255,184,.9),inset 0 0 30px rgba(157,255,69,.34);
+        mix-blend-mode:screen;
+        animation:startupContainedFlicker 1250ms steps(2,end) infinite;
       }
       .frameStartupControls--selected-network .frameStartupChoice--network::after,
       .frameStartupControls--selected-local .frameStartupChoice--local::after{
-        opacity:.95;
-        box-shadow:inset 0 0 22px rgba(225,255,184,.98);
-        animation-duration:620ms;
+        opacity:.88;
+        box-shadow:inset 0 0 20px rgba(235,255,205,1),inset 0 0 34px rgba(157,255,69,.5);
+        animation-duration:560ms;
       }
-      @keyframes startupContainedFlicker{0%,13%,18%,46%,52%,78%,100%{opacity:.72}15%,49%,80%{opacity:.42}16%,50%{opacity:.86}}
+      @keyframes startupContainedFlicker{0%,13%,18%,46%,52%,78%,100%{opacity:.62}15%,49%,80%{opacity:.38}16%,50%{opacity:.78}}
       .startupSequenceOwned .frameShutterTrack{animation:none!important;}
       .startupSequenceOwned.startupSequenceOpen .frameShutter--top .frameShutterTrack{animation:frameSlatsRollUp 2600ms var(--frame-motion-ease) forwards!important;}
       .startupSequenceOwned.startupSequenceOpen .frameShutter--bottom .frameShutterTrack{animation:frameSlatsRollDown 2600ms var(--frame-motion-ease) forwards!important;}
       @media(prefers-reduced-motion:reduce){
+        .frameStartupControls{transition-duration:100ms!important;}
         .startupSequenceOwned.startupSequenceOpen .frameShutterTrack{animation-duration:120ms!important;}
         .frameStartupChoice::after{animation:none!important;}
       }
@@ -128,13 +148,11 @@
     if(sequenceRunning)return;
     const gate=document.getElementById('entryGate');
     const controls=document.querySelector('.frameStartupControls');
-    const rotor=controls?.querySelector('.startupAccessRotor');
-    if(!gate||!controls||!rotor)return;
+    if(!gate||!controls)return;
     sequenceRunning=true;
     gate.dataset.userChoice='1';
     gate.dataset.openingSequence='1';
     gate.classList.add('startupSequenceOwned');
-    controls.classList.add('frameStartupControls--opening');
     controls.querySelectorAll('button').forEach(button=>{button.disabled=true;});
     const reduced=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
     const confirm=reduced?0:CONFIRM_MS;
@@ -142,7 +160,7 @@
     const pause=reduced?0:PAUSE_MS;
     const shutters=reduced?120:SHUTTER_MS;
     setTimeout(()=>{
-      rotor.classList.add('is-open');
+      controls.classList.add('frameStartupControls--opening');
       setTimeout(()=>{
         controls.hidden=true;
         activateDock();
@@ -165,6 +183,7 @@
       runSequence(button);
       return;
     }
+    document.querySelector('.frameStartupControls')?.classList.add('frameStartupControls--selected-network');
     networkPending=true;
     gate.dataset.openingSequence='1';
   }

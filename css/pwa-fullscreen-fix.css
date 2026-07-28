@@ -1,6 +1,10 @@
 /* Installed iOS WebApp layout correction.
    The Frame System must not become the containing block that clips fixed dock elements. */
 @media (display-mode: standalone) {
+  :root {
+    --pwa-safe-bottom: max(env(safe-area-inset-bottom), 34px);
+  }
+
   html,
   body {
     width: 100% !important;
@@ -20,9 +24,6 @@
     inset: 0 !important;
   }
 
-  /* Do not use transform for centering: on WebKit it makes this ancestor the
-     containing block for fixed descendants. Combined with overflow:hidden,
-     that was cutting the dock at the Frame System boundary. */
   .app.frameShell {
     position: fixed !important;
     inset: 0 !important;
@@ -36,19 +37,20 @@
     background-color: #11150e !important;
   }
 
-  /* Extend the industrial dock through the complete Home Indicator area.
-     The small negative offset avoids an uncovered WebKit strip at the
-     physical bottom edge in installed standalone mode. */
+  /* Keep the dock anchored to the actual viewport bottom and explicitly include
+     the Home Indicator area even when WebKit reports a zero safe-area inset. */
   .frameShellBottom.pipDock {
     position: fixed !important;
     left: 50% !important;
     right: auto !important;
-    bottom: calc(-1 * env(safe-area-inset-bottom)) !important;
+    bottom: 0 !important;
     width: var(--frame-shell-w) !important;
-    height: calc(var(--nav-h) + (2 * env(safe-area-inset-bottom))) !important;
-    padding-bottom: calc(9px + (2 * env(safe-area-inset-bottom))) !important;
+    height: calc(var(--nav-h) + var(--pwa-safe-bottom)) !important;
+    min-height: calc(var(--nav-h) + var(--pwa-safe-bottom)) !important;
+    padding-bottom: calc(9px + var(--pwa-safe-bottom)) !important;
     transform: translateX(-50%) !important;
     overflow: visible !important;
+    background-color: #11150e !important;
   }
 
   /* Startup controls are positioned by the runtime against the measured dock
