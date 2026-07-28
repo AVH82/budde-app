@@ -43,53 +43,64 @@ html.designerMode .startupAccessPanel{pointer-events:auto!important;z-index:3!im
   .frameStartupControls--selected-local .startupAccessGlow--local{animation:none!important;opacity:.82;filter:blur(9px) brightness(1.3)}
 }
 
-/* iOS PWA — align every fixed frame layer with the real screen safe areas.
-   Safari URL mode keeps the existing geometry. */
+/* iOS PWA — all fixed frame layers follow the native safe areas.
+   No pixel translation is used, so the layout adapts to each device. */
 @media (display-mode: standalone){
+  :root{
+    --pwa-safe-top:env(safe-area-inset-top,0px);
+    --pwa-safe-bottom:env(safe-area-inset-bottom,0px);
+  }
+
   .frameShellTop,
   body.scannerFullscreen .frameShellTop{
-    top:env(safe-area-inset-top)!important;
+    top:var(--pwa-safe-top)!important;
   }
 
   body.scannerFullscreen .app.frameShell{
-    padding-top:calc(var(--header-art-h) + env(safe-area-inset-top) + 8px)!important;
+    padding-top:calc(var(--header-art-h) + var(--pwa-safe-top) + 8px)!important;
   }
   body.scannerFullscreen .frameRail{
-    top:calc(var(--header-art-h) + env(safe-area-inset-top) - 6px)!important;
+    top:calc(var(--header-art-h) + var(--pwa-safe-top) - 6px)!important;
   }
 
-  .frameShellBottom.pipDock,
-  .frameStartupControls{
-    bottom:calc(0px - env(safe-area-inset-bottom))!important;
+  .frameShellBottom.pipDock{
+    bottom:0!important;
+    height:calc(var(--nav-h,104px) + var(--pwa-safe-bottom))!important;
+    padding-bottom:var(--pwa-safe-bottom)!important;
+    align-content:end!important;
   }
   .frameShellBottom .nav{
-    transform:translateY(12px)!important;
+    align-self:end!important;
+    margin-bottom:0!important;
+    transform:none!important;
   }
   .app.frameShell{
-    padding-bottom:calc(var(--nav-h,104px) + 10px)!important;
+    padding-bottom:calc(var(--nav-h,104px) + var(--pwa-safe-bottom) + 10px)!important;
   }
   .frameRail{
-    bottom:calc(var(--nav-h,104px) - 14px)!important;
+    bottom:calc(var(--nav-h,104px) + var(--pwa-safe-bottom) - 2px)!important;
   }
 
   .frameStartupControls{
-    bottom:calc(-12px - env(safe-area-inset-bottom))!important;
-    --startup-panel-y:-54%;
-    --startup-panel-height:205%;
+    bottom:0!important;
+    height:calc(var(--nav-h,104px) + var(--pwa-safe-bottom))!important;
+    padding-bottom:var(--pwa-safe-bottom)!important;
+    --startup-panel-y:-50%;
+    --startup-panel-height:200%;
   }
 
   .frameShutter--bottom,
   .entryGate::after{
-    bottom:calc(var(--nav-h,104px) - 14px)!important;
+    bottom:calc(var(--nav-h,104px) + var(--pwa-safe-bottom) - 2px)!important;
   }
   .frameShutter--top,
   .entryGate::before{
-    top:calc(var(--frame-top-h) + env(safe-area-inset-top) - 2px)!important;
+    top:calc(var(--frame-top-h) + var(--pwa-safe-top) - 2px)!important;
   }
   .frameShutter--top,
   .frameShutter--bottom,
   .entryGate::before,
   .entryGate::after{
-    height:calc((100dvh - var(--frame-top-h) - var(--nav-h,104px) - env(safe-area-inset-top) + 12px) / 2 + 12px)!important;
+    height:calc((100dvh - var(--frame-top-h) - var(--nav-h,104px) - var(--pwa-safe-top) - var(--pwa-safe-bottom)) / 2 + 12px)!important;
   }
 }
