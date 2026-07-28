@@ -163,3 +163,7 @@ const GoogleDriveAdapter={
 };
 
 window.GoogleDriveAdapter = GoogleDriveAdapter;
+const googleDriveSafetyScript=document.createElement('script');
+googleDriveSafetyScript.src='js/google-drive-safety.js?v=pr244';
+googleDriveSafetyScript.defer=true;
+document.head.appendChild(googleDriveSafetyScript);
