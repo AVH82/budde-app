@@ -43,8 +43,44 @@ html.designerMode .startupAccessPanel{pointer-events:auto!important;z-index:3!im
   .frameStartupControls--selected-local .startupAccessGlow--local{animation:none!important;opacity:.82;filter:blur(9px) brightness(1.3)}
 }
 
-/* iOS PWA — keep the terminal header below the system status area.
-   Safari URL mode keeps the existing layout. */
+/* iOS PWA — align every fixed frame layer with the real screen safe areas.
+   Safari URL mode keeps the existing geometry. */
 @media (display-mode: standalone){
-  .frameShellTop{top:env(safe-area-inset-top)!important;}
+  .frameShellTop,
+  body.scannerFullscreen .frameShellTop{
+    top:env(safe-area-inset-top)!important;
+  }
+
+  body.scannerFullscreen .app.frameShell{
+    padding-top:calc(var(--header-art-h) + env(safe-area-inset-top) + 8px)!important;
+  }
+  body.scannerFullscreen .frameRail{
+    top:calc(var(--header-art-h) + env(safe-area-inset-top) - 6px)!important;
+  }
+
+  .frameShellBottom.pipDock,
+  .frameStartupControls{
+    bottom:calc(0px - env(safe-area-inset-bottom))!important;
+  }
+  .app.frameShell{
+    padding-bottom:calc(var(--nav-h,104px) + 22px)!important;
+  }
+  .frameRail{
+    bottom:calc(var(--nav-h,104px) - 2px)!important;
+  }
+
+  .frameShutter--bottom,
+  .entryGate::after{
+    bottom:calc(var(--nav-h,104px) - 2px)!important;
+  }
+  .frameShutter--top,
+  .entryGate::before{
+    top:calc(var(--frame-top-h) + env(safe-area-inset-top) - 2px)!important;
+  }
+  .frameShutter--top,
+  .frameShutter--bottom,
+  .entryGate::before,
+  .entryGate::after{
+    height:calc((100dvh - var(--frame-top-h) - var(--nav-h,104px) - env(safe-area-inset-top)) / 2 + 12px)!important;
+  }
 }
