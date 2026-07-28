@@ -1,0 +1,46 @@
+name: Hotfix cache references
+
+on:
+  push:
+    branches:
+      - main
+    paths:
+      - .github/workflows/hotfix-cache-reference.yml
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  patch-index:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout main
+        uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - name: Force fresh application scripts
+        run: |
+          python - <<'PY'
+          from pathlib import Path
+          path = Path('index.html')
+          text = path.read_text(encoding='utf-8')
+          text = text.replace('js/storage.google-drive.js"></script>', 'js/storage.google-drive.js?v=pr251"></script>')
+          text = text.replace('js/storage.google-drive.js?v=pr248"></script>', 'js/storage.google-drive.js?v=pr251"></script>')
+          text = text.replace('js/app.js?v=ast058"></script>', 'js/app.js?v=pr251"></script>')
+          text = text.replace('js/app.js?v=pr250"></script>', 'js/app.js?v=pr251"></script>')
+          path.write_text(text, encoding='utf-8')
+          PY
+
+      - name: Commit hotfix when needed
+        run: |
+          if git diff --quiet -- index.html; then
+            echo "Index already patched."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html
+          git commit -m "fix: forcer les scripts applicatifs pr251"
+          git push origin main
