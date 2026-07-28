@@ -155,7 +155,26 @@
     console.info('[Budd€ iOS PWA diagnostic]',data);
     window.__BUDDE_IOS_PWA_DIAGNOSTIC__=data;
   }
-  async function refresh(){render(await snapshot())}
+
+  let refreshInFlight=false;
+  let refreshQueued=false;
+  async function refresh(){
+    if(refreshInFlight){
+      refreshQueued=true;
+      return;
+    }
+    refreshInFlight=true;
+    try{
+      render(await snapshot());
+    }finally{
+      refreshInFlight=false;
+      if(refreshQueued){
+        refreshQueued=false;
+        void refresh();
+      }
+    }
+  }
+
   addEventListener('load',refresh,{once:true});
   addEventListener('resize',refresh);
   window.visualViewport?.addEventListener('resize',refresh);
