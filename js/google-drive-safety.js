@@ -1,5 +1,6 @@
 (()=>{
   const STORAGE_KEY='budde-data-v1';
+  const CANONICAL_FILE_KEY='budde-google-drive-file-id-v1';
 
   function readLocalDb(){
     try{return JSON.parse(localStorage.getItem(STORAGE_KEY)||'null')}catch(error){return null}
@@ -20,23 +21,66 @@
   }
 
   function setText(id,message){const element=document.getElementById(id);if(element)element.textContent=message}
+  function getCanonicalFileId(){return localStorage.getItem(CANONICAL_FILE_KEY)||''}
+  function setCanonicalFileId(fileId){if(fileId)localStorage.setItem(CANONICAL_FILE_KEY,String(fileId))}
+  function clearCanonicalFileId(){localStorage.removeItem(CANONICAL_FILE_KEY)}
 
   const adapter=window.GoogleDriveAdapter;
-  if(adapter&&!adapter.__verifiedBackupPatched){
+  if(adapter&&!adapter.__canonicalFilePatched){
     const originalSave=adapter.save.bind(adapter);
+    const originalLoad=adapter.load.bind(adapter);
+
+    async function downloadFileById(fileId){
+      const token=await adapter.getAccessToken();
+      const params=new URLSearchParams({alt:'media'});
+      const response=await fetch(`${adapter.DRIVE_API}/files/${encodeURIComponent(fileId)}?${params.toString()}`,{
+        headers:{Authorization:`Bearer ${token}`}
+      });
+      const text=await response.text();
+      if(!response.ok){
+        let body;
+        try{body=text?JSON.parse(text):{}}catch(error){body={error:{message:text}}}
+        const message=adapter.driveErrorMessage(body,'Téléchargement de la sauvegarde Google Drive impossible.');
+        const error=new Error(message);
+        error.status=response.status;
+        throw error;
+      }
+      try{return JSON.parse(text)}catch(error){throw new Error('Sauvegarde Google Drive invalide : JSON illisible.')}
+    }
+
+    adapter.load=async function canonicalLoad(){
+      const canonicalId=getCanonicalFileId();
+      if(canonicalId){
+        try{
+          const data=await downloadFileById(canonicalId);
+          console.info('Google Drive : chargement du fichier canonique.',{id:canonicalId,updatedAt:data?.updatedAt});
+          return data;
+        }catch(error){
+          if(error?.status===404){
+            clearCanonicalFileId();
+            console.warn('Google Drive : fichier canonique introuvable, retour à la recherche par nom.',{id:canonicalId});
+          }else throw error;
+        }
+      }
+      return originalLoad();
+    };
+
     adapter.save=async function verifiedSave(db){
       const result=await originalSave(db);
-      const downloaded=await adapter.load();
+      if(!result?.id)throw new Error('Sauvegarde Google Drive non vérifiable : identifiant de fichier absent.');
+      setCanonicalFileId(result.id);
+      const downloaded=await downloadFileById(result.id);
       if(stableSnapshot(downloaded)!==stableSnapshot(db)){
-        throw new Error('Vérification Google Drive échouée : le fichier relu ne correspond pas aux données locales.');
+        throw new Error('Vérification Google Drive échouée : le fichier écrit ne correspond pas aux données locales.');
       }
-      console.info('Google Drive : sauvegarde vérifiée après relecture.',{
+      console.info('Google Drive : sauvegarde vérifiée sur le fichier exact.',{
+        id:result.id,
         updatedAt:downloaded?.updatedAt,
         expenses:downloaded?.expenses?.length||0
       });
       return {...result,verified:true,verifiedUpdatedAt:downloaded?.updatedAt||null};
     };
-    adapter.__verifiedBackupPatched=true;
+    adapter.__canonicalFilePatched=true;
   }
 
   const restoreButton=document.getElementById('googleDriveRestoreButton');
