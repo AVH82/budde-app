@@ -134,3 +134,41 @@ html.designerMode .startupAccessPanel{pointer-events:auto!important;z-index:3!im
     height:calc((100dvh - var(--frame-top-h) - var(--pwa-dock-h) - var(--pwa-safe-top)) / 2 + 12px)!important;
   }
 }
+
+/* PR260 — extend the dock into the physical iOS bottom safe area while keeping controls clear of the home indicator. */
+@media (display-mode: standalone){
+  :root{
+    --pwa-dock-visible-h:calc(var(--pwa-dock-h) - var(--pwa-safe-bottom));
+  }
+  .frameShellBottom.pipDock{
+    bottom:calc(0px - var(--pwa-safe-bottom))!important;
+    padding-bottom:calc(var(--pwa-safe-bottom) / 2)!important;
+  }
+  .frameStartupControls{
+    bottom:calc(0px - var(--pwa-safe-bottom))!important;
+    padding-bottom:calc(var(--pwa-safe-bottom) / 2)!important;
+  }
+  .app.frameShell{
+    padding-bottom:calc(var(--pwa-dock-visible-h) + 10px)!important;
+  }
+  .frameRail,
+  .frameShutter--bottom,
+  .entryGate::after{
+    bottom:calc(var(--pwa-dock-visible-h) - 2px)!important;
+  }
+  .frameShutter--top,
+  .frameShutter--bottom,
+  .entryGate::before,
+  .entryGate::after{
+    height:calc((100dvh - var(--frame-top-h) - var(--pwa-dock-visible-h) - var(--pwa-safe-top)) / 2 + 12px)!important;
+  }
+}
+
+/* Release labels must reflect the real application build instead of legacy CSS literals. */
+.frameShellTop .settingsTrustModule::before{content:'v3.6.55'!important;}
+#systemAppVersion::after,
+#diagnosticAppVersion::after,
+#entryAppVersion::after{content:'3.6.55'!important;}
+#systemBuildId::after,
+#diagnosticBuildId::after{content:'budde-3-6-55'!important;}
+#diagnosticExpectedCache::after{content:'budde-3-6-55-pr260'!important;}
