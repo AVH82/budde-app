@@ -15,6 +15,12 @@ Chaque entrée doit suivre ce modèle :
 - Documents mis à jour : fichiers `docs/` concernés.
 ```
 
+## 2026-07-28 — Sélecteur de mode sobre sans plaque
+
+- Décision : supprimer la plaque métallique du démarrage, conserver uniquement les boutons Network Mode et Local Mode juste au-dessus du dock, puis les faire se rétracter vers le bas après sélection. Avant activation, toute la navigation reste éteinte ; pendant l'ouverture du volet, seul Accueil scintille puis reste actif.
+- Portée : séquence Startup, boutons Network Mode / Local Mode, états lumineux du dock, authentification Google et mode local.
+- Raison : alléger visuellement le démarrage, renforcer la lecture mécanique du terminal et rendre l'état initial puis l'activation de la navigation plus explicites.
+- Documents mis à jour : `CHANGELOG_DESIGN.md`.
 
 ## 2026-07-08 — AST-006 CSS Metal Frame Prototype
 
