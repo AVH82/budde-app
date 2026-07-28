@@ -42,3 +42,9 @@ html.designerMode .startupAccessPanel{pointer-events:auto!important;z-index:3!im
   .frameStartupControls--selected-network .startupAccessGlow--network,
   .frameStartupControls--selected-local .startupAccessGlow--local{animation:none!important;opacity:.82;filter:blur(9px) brightness(1.3)}
 }
+
+/* iOS PWA — keep the terminal header below the system status area.
+   Safari URL mode keeps the existing layout. */
+@media (display-mode: standalone){
+  .frameShellTop{top:env(safe-area-inset-top)!important;}
+}
