@@ -29,34 +29,69 @@
     style.textContent=`
       html,body{background:#000!important;}
       .frameStartupControls{
-        bottom:calc(var(--startup-dock-offset, var(--nav-h)) - 2px)!important;
+        bottom:calc(var(--startup-dock-offset, calc(var(--nav-h) + env(safe-area-inset-bottom))) - 2px)!important;
+        height:clamp(68px,18vw,88px)!important;
+        min-height:0!important;
         z-index:390!important;
       }
       .frameShutter--bottom{
-        bottom:0!important;
-        height:calc((100dvh - var(--frame-top-h) - var(--nav-h) - env(safe-area-inset-top) - env(safe-area-inset-bottom)) / 2 + 12px + var(--startup-dock-offset, var(--nav-h)))!important;
+        bottom:calc(var(--startup-dock-offset, calc(var(--nav-h) + env(safe-area-inset-bottom))) - 2px)!important;
+        height:calc((100dvh - var(--frame-top-h) - var(--startup-dock-offset, calc(var(--nav-h) + env(safe-area-inset-bottom))) - env(safe-area-inset-top)) / 2 + 12px)!important;
         z-index:310!important;
       }
       .frameShellBottom.pipDock{z-index:400!important;}
-      .startupAccessChoices{overflow:hidden!important;}
-      .startupAccessGlow{
-        margin:5px!important;
-        width:calc(100% - 10px)!important;
-        height:calc(100% - 10px)!important;
-        border-radius:12px!important;
-        filter:none!important;
-        background:linear-gradient(180deg,rgba(185,255,103,.36),rgba(115,211,46,.18))!important;
-        box-shadow:inset 0 0 16px rgba(215,255,164,.78)!important;
+      .startupAccessScene,.startupAccessRotor,.startupAccessFace{height:100%!important;}
+      .startupAccessChoices{
+        inset:0 clamp(18px,5vw,28px)!important;
+        width:auto!important;
+        height:100%!important;
+        top:0!important;
+        left:0!important;
+        transform:none!important;
+        grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+        gap:clamp(12px,3vw,18px)!important;
+        overflow:visible!important;
+      }
+      .frameStartupChoice{
+        width:100%!important;
+        height:100%!important;
+        min-width:0!important;
         overflow:hidden!important;
+        border-radius:12px!important;
       }
-      .startupModePending .startupAccessGlow{
-        box-shadow:inset 0 0 20px rgba(215,255,164,.95)!important;
+      .frameStartupChoice>button{
+        width:100%!important;
+        height:100%!important;
+        background-size:100% 100%!important;
+        background-position:center!important;
+        filter:none!important;
       }
+      .startupAccessGlow{display:none!important;}
+      .frameStartupChoice::after{
+        content:"";
+        position:absolute;
+        z-index:0;
+        inset:8px;
+        border-radius:9px;
+        opacity:.68;
+        pointer-events:none;
+        background:linear-gradient(180deg,rgba(185,255,103,.32),rgba(115,211,46,.15));
+        box-shadow:inset 0 0 18px rgba(215,255,164,.86);
+        animation:startupContainedFlicker 1350ms steps(2,end) infinite;
+      }
+      .frameStartupControls--selected-network .frameStartupChoice--network::after,
+      .frameStartupControls--selected-local .frameStartupChoice--local::after{
+        opacity:.95;
+        box-shadow:inset 0 0 22px rgba(225,255,184,.98);
+        animation-duration:620ms;
+      }
+      @keyframes startupContainedFlicker{0%,13%,18%,46%,52%,78%,100%{opacity:.72}15%,49%,80%{opacity:.42}16%,50%{opacity:.86}}
       .startupSequenceOwned .frameShutterTrack{animation:none!important;}
       .startupSequenceOwned.startupSequenceOpen .frameShutter--top .frameShutterTrack{animation:frameSlatsRollUp 2600ms var(--frame-motion-ease) forwards!important;}
       .startupSequenceOwned.startupSequenceOpen .frameShutter--bottom .frameShutterTrack{animation:frameSlatsRollDown 2600ms var(--frame-motion-ease) forwards!important;}
       @media(prefers-reduced-motion:reduce){
         .startupSequenceOwned.startupSequenceOpen .frameShutterTrack{animation-duration:120ms!important;}
+        .frameStartupChoice::after{animation:none!important;}
       }
     `;
     document.head.appendChild(style);
