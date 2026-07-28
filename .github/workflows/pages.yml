@@ -28,13 +28,21 @@ jobs:
       - name: Build deterministic Pages artifact
         shell: bash
         run: |
+          DEPLOY_ID="${GITHUB_SHA::12}"
+          CACHE_NAME="budde-3-6-55-${DEPLOY_ID}"
+
           mkdir -p _site
           rsync -a --exclude='.git' --exclude='.github' --exclude='_site' ./ _site/
-          sed -i 's#css/ast-012-4.css?v=ast058#css/ast-012-4.css?v=pr267#g' _site/index.html
-          sed -i 's#css/designer-mode.css?v=pr241#css/designer-mode.css?v=pr267#g' _site/index.html
-          sed -i 's#</head>#<link rel="stylesheet" href="css/pwa-fullscreen-fix.css?v=pr267" data-pwa-fullscreen="pr267"></head>#' _site/index.html
-          sed -i 's/budde-3-6-55-pr262/budde-3-6-55-pr267/g' _site/css/ast-012-4.css
-          sed -i "s/budde-3-6-55-pr266/budde-3-6-55-pr267/g; s/CACHE_BUST_VERSION='pr266'/CACHE_BUST_VERSION='pr267'/g; s/pwa-fullscreen-fix.css?v=pr266/pwa-fullscreen-fix.css?v=pr267/g; s/ast-012-4.css?v=pr266/ast-012-4.css?v=pr267/g" _site/service-worker.js
+
+          sed -i -E "s#css/ast-012-4.css\?v=[^\"']+#css/ast-012-4.css?v=${DEPLOY_ID}#g" _site/index.html
+          sed -i -E "s#css/designer-mode.css\?v=[^\"']+#css/designer-mode.css?v=${DEPLOY_ID}#g" _site/index.html
+          sed -i -E "s#</head>#<link rel=\"stylesheet\" href=\"css/pwa-fullscreen-fix.css?v=${DEPLOY_ID}\" data-pwa-fullscreen=\"${DEPLOY_ID}\"></head>#" _site/index.html
+
+          sed -i -E "s/budde-3-6-55-pr[0-9]+/${CACHE_NAME}/g" _site/css/ast-012-4.css _site/css/pwa-fullscreen-fix.css
+          sed -i -E "s/const CACHE_NAME='[^']+';/const CACHE_NAME='${CACHE_NAME}';/" _site/service-worker.js
+          sed -i -E "s/const CACHE_BUST_VERSION='[^']+';/const CACHE_BUST_VERSION='${DEPLOY_ID}';/" _site/service-worker.js
+          sed -i -E "s#css/pwa-fullscreen-fix.css\?v=[^\"']+#css/pwa-fullscreen-fix.css?v=${DEPLOY_ID}#g" _site/service-worker.js
+          sed -i -E "s#css/ast-012-4.css\?v=[^\"']+#css/ast-012-4.css?v=${DEPLOY_ID}#g" _site/service-worker.js
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
