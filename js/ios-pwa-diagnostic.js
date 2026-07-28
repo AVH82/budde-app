@@ -2,8 +2,51 @@
   'use strict';
 
   const PARAMETER='ios-diagnostic';
-  const enabled=new URLSearchParams(location.search).get(PARAMETER)==='1';
-  if(!enabled)return;
+  const STORAGE_KEY='budde-ios-diagnostic';
+  const parameterValue=new URLSearchParams(location.search).get(PARAMETER);
+
+  if(parameterValue==='1')localStorage.setItem(STORAGE_KEY,'1');
+  if(parameterValue==='0')localStorage.removeItem(STORAGE_KEY);
+
+  const isEnabled=()=>localStorage.getItem(STORAGE_KEY)==='1';
+  const setEnabled=enabled=>{
+    if(enabled)localStorage.setItem(STORAGE_KEY,'1');
+    else localStorage.removeItem(STORAGE_KEY);
+    location.reload();
+  };
+
+  function installSettingsToggle(){
+    if(document.getElementById('iosPwaDiagnosticToggle'))return;
+    const anchor=document.getElementById('diagnosticExpectedCache');
+    if(!anchor)return;
+
+    const button=document.createElement('button');
+    button.id='iosPwaDiagnosticToggle';
+    button.type='button';
+    button.textContent=isEnabled()?'DÉSACTIVER DIAGNOSTIC IOS':'ACTIVER DIAGNOSTIC IOS';
+    button.setAttribute('aria-pressed',String(isEnabled()));
+    Object.assign(button.style,{display:'block',width:'100%',margin:'14px 0 0',padding:'12px',border:'1px solid #9dff45',borderRadius:'10px',background:'rgba(0,0,0,.72)',color:'#b9ff55',font:'inherit',letterSpacing:'.08em'});
+    button.addEventListener('click',()=>setEnabled(!isEnabled()));
+
+    const row=anchor.closest('.systemRow,.diagnosticRow,.settingsRow')||anchor.parentElement||anchor;
+    row.insertAdjacentElement('afterend',button);
+  }
+
+  const installToggleWhenReady=()=>{
+    installSettingsToggle();
+    if(!document.getElementById('iosPwaDiagnosticToggle')){
+      const observer=new MutationObserver(()=>{
+        installSettingsToggle();
+        if(document.getElementById('iosPwaDiagnosticToggle'))observer.disconnect();
+      });
+      observer.observe(document.documentElement,{childList:true,subtree:true});
+    }
+  };
+
+  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installToggleWhenReady,{once:true});
+  else installToggleWhenReady();
+
+  if(!isEnabled())return;
 
   const computedProperties=['position','overflow','overflow-y','transform','height','min-height','max-height','top','bottom','left','right','display'];
   const targets={
@@ -65,6 +108,7 @@
       capturedAt:new Date().toISOString(),
       location:location.href,
       userAgent:navigator.userAgent,
+      diagnosticActivation:{parameter:parameterValue,persistent:isEnabled(),storageKey:STORAGE_KEY},
       viewport:{
         innerHeight:window.innerHeight,
         outerHeight:window.outerHeight,
@@ -97,8 +141,15 @@
       output.id='iosPwaDiagnosticOutput';
       output.setAttribute('role','status');
       output.setAttribute('aria-live','polite');
-      Object.assign(output.style,{position:'fixed',inset:'8px',zIndex:'2147483647',margin:'0',padding:'12px',overflow:'auto',whiteSpace:'pre-wrap',wordBreak:'break-word',background:'rgba(0,0,0,.94)',color:'#b9ff55',font:'11px/1.4 ui-monospace,monospace'});
-      document.body.append(output);
+      Object.assign(output.style,{position:'fixed',inset:'8px',zIndex:'2147483647',margin:'0',padding:'48px 12px 12px',overflow:'auto',whiteSpace:'pre-wrap',wordBreak:'break-word',background:'rgba(0,0,0,.94)',color:'#b9ff55',font:'11px/1.4 ui-monospace,monospace'});
+
+      const disableButton=document.createElement('button');
+      disableButton.type='button';
+      disableButton.textContent='DÉSACTIVER';
+      Object.assign(disableButton.style,{position:'fixed',top:'16px',right:'16px',zIndex:'2147483647',padding:'8px 10px',border:'1px solid #9dff45',borderRadius:'8px',background:'#101510',color:'#b9ff55',font:'12px ui-monospace,monospace'});
+      disableButton.addEventListener('click',()=>setEnabled(false));
+
+      document.body.append(output,disableButton);
     }
     output.textContent=JSON.stringify(data,null,2);
     console.info('[Budd€ iOS PWA diagnostic]',data);
