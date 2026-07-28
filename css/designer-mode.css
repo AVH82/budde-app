@@ -62,16 +62,25 @@ html.designerMode .startupAccessPanel{pointer-events:auto!important;z-index:3!im
   .frameStartupControls{
     bottom:calc(0px - env(safe-area-inset-bottom))!important;
   }
+  .frameShellBottom .nav{
+    transform:translateY(12px)!important;
+  }
   .app.frameShell{
-    padding-bottom:calc(var(--nav-h,104px) + 22px)!important;
+    padding-bottom:calc(var(--nav-h,104px) + 10px)!important;
   }
   .frameRail{
-    bottom:calc(var(--nav-h,104px) - 2px)!important;
+    bottom:calc(var(--nav-h,104px) - 14px)!important;
+  }
+
+  .frameStartupControls{
+    bottom:calc(-12px - env(safe-area-inset-bottom))!important;
+    --startup-panel-y:-54%;
+    --startup-panel-height:205%;
   }
 
   .frameShutter--bottom,
   .entryGate::after{
-    bottom:calc(var(--nav-h,104px) - 2px)!important;
+    bottom:calc(var(--nav-h,104px) - 14px)!important;
   }
   .frameShutter--top,
   .entryGate::before{
@@ -81,6 +90,6 @@ html.designerMode .startupAccessPanel{pointer-events:auto!important;z-index:3!im
   .frameShutter--bottom,
   .entryGate::before,
   .entryGate::after{
-    height:calc((100dvh - var(--frame-top-h) - var(--nav-h,104px) - env(safe-area-inset-top)) / 2 + 12px)!important;
+    height:calc((100dvh - var(--frame-top-h) - var(--nav-h,104px) - env(safe-area-inset-top) + 12px) / 2 + 12px)!important;
   }
 }
