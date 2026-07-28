@@ -54,14 +54,44 @@
     dock:'.frameShellBottom.pipDock',
     startupPanel:'.startupAccessPanel',
     networkPanel:'.frameStartupChoice--network',
-    localPanel:'.frameStartupChoice--local'
+    localPanel:'.frameStartupChoice--local',
+    fixedViewportProbe:'#iosPwaFixedViewportProbe',
+    safeAreaProbe:'#iosPwaSafeAreaProbe'
   };
+
+  function installGeometryProbes(){
+    if(document.getElementById('iosPwaFixedViewportProbe'))return;
+
+    const fixedProbe=document.createElement('div');
+    fixedProbe.id='iosPwaFixedViewportProbe';
+    fixedProbe.setAttribute('aria-hidden','true');
+    Object.assign(fixedProbe.style,{position:'fixed',inset:'0',pointerEvents:'none',visibility:'hidden'});
+
+    const safeAreaProbe=document.createElement('div');
+    safeAreaProbe.id='iosPwaSafeAreaProbe';
+    safeAreaProbe.setAttribute('aria-hidden','true');
+    Object.assign(safeAreaProbe.style,{
+      position:'fixed',
+      inset:'0',
+      paddingTop:'env(safe-area-inset-top)',
+      paddingRight:'env(safe-area-inset-right)',
+      paddingBottom:'env(safe-area-inset-bottom)',
+      paddingLeft:'env(safe-area-inset-left)',
+      pointerEvents:'none',
+      visibility:'hidden',
+      boxSizing:'border-box'
+    });
+
+    document.body.append(fixedProbe,safeAreaProbe);
+  }
+
+  installGeometryProbes();
 
   const round=value=>typeof value==='number'?Math.round(value*100)/100:value;
   const rectangle=element=>{
     if(!element)return null;
     const rect=element.getBoundingClientRect();
-    return {top:round(rect.top),bottom:round(rect.bottom),height:round(rect.height),width:round(rect.width)};
+    return {top:round(rect.top),bottom:round(rect.bottom),left:round(rect.left),right:round(rect.right),height:round(rect.height),width:round(rect.width)};
   };
   const computed=element=>{
     if(!element)return null;
@@ -69,6 +99,21 @@
     return Object.fromEntries(computedProperties.map(property=>[property,style.getPropertyValue(property)]));
   };
   const media=query=>matchMedia(query).matches;
+  const px=value=>Number.parseFloat(value)||0;
+  const safeAreaValues=()=>{
+    const probe=document.getElementById('iosPwaSafeAreaProbe');
+    if(!probe)return null;
+    const style=getComputedStyle(probe);
+    return {
+      top:px(style.paddingTop),
+      right:px(style.paddingRight),
+      bottom:px(style.paddingBottom),
+      left:px(style.paddingLeft),
+      raw:{top:style.paddingTop,right:style.paddingRight,bottom:style.paddingBottom,left:style.paddingLeft}
+    };
+  };
+  const statusBarStyle=()=>document.querySelector('meta[name="apple-mobile-web-app-status-bar-style"]')?.content||null;
+  const viewportMeta=()=>document.querySelector('meta[name="viewport"]')?.content||null;
   const stylesheetInventory=()=>[...document.querySelectorAll('link[rel~="stylesheet"]')].map((link,index)=>{
     const url=new URL(link.href,location.href);
     const sheet=[...document.styleSheets].find(candidate=>candidate.href===link.href);
@@ -103,25 +148,40 @@
     return result;
   }
   async function snapshot(){
+    installGeometryProbes();
     const elements=Object.fromEntries(Object.entries(targets).map(([name,selector])=>[name,document.querySelector(selector)]));
+    const fixedProbeRect=rectangle(elements.fixedViewportProbe);
+    const safeAreas=safeAreaValues();
     return {
       capturedAt:new Date().toISOString(),
       location:location.href,
       userAgent:navigator.userAgent,
       diagnosticActivation:{parameter:parameterValue,persistent:isEnabled(),storageKey:STORAGE_KEY},
+      iosConfiguration:{viewportMeta:viewportMeta(),statusBarStyle:statusBarStyle()},
       viewport:{
+        innerWidth:window.innerWidth,
         innerHeight:window.innerHeight,
+        outerWidth:window.outerWidth,
         outerHeight:window.outerHeight,
+        visualViewportWidth:window.visualViewport?.width??null,
         visualViewportHeight:window.visualViewport?.height??null,
         visualViewportOffsetTop:window.visualViewport?.offsetTop??null,
         visualViewportOffsetLeft:window.visualViewport?.offsetLeft??null,
+        documentElementClientWidth:document.documentElement.clientWidth,
         documentElementClientHeight:document.documentElement.clientHeight,
+        bodyClientWidth:document.body.clientWidth,
         bodyClientHeight:document.body.clientHeight,
+        screenWidth:screen.width,
         screenHeight:screen.height,
-        screenAvailHeight:screen.availHeight
+        screenAvailWidth:screen.availWidth,
+        screenAvailHeight:screen.availHeight,
+        screenMinusInnerHeight:round(screen.height-window.innerHeight),
+        screenMinusFixedProbeHeight:fixedProbeRect?round(screen.height-fixedProbeRect.height):null
       },
+      safeAreaInsets:safeAreas,
+      fixedViewportProbe:fixedProbeRect,
       frameSystem:Object.fromEntries(Object.entries(elements).map(([name,element])=>[name,{selector:targets[name],found:Boolean(element),rect:rectangle(element)}])),
-      computedStyles:Object.fromEntries(['frameShell','dock','startupPanel'].map(name=>[name,computed(elements[name])])),
+      computedStyles:Object.fromEntries(['frameShell','dock','startupPanel','fixedViewportProbe','safeAreaProbe'].map(name=>[name,computed(elements[name])])),
       stylesheets:stylesheetInventory(),
       serviceWorker:await serviceWorkerInventory(),
       displayMode:{
