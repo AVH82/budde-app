@@ -70,9 +70,10 @@ const GoogleDriveAdapter={
       spaces:this.APPDATA_FOLDER,
       q:query,
       fields:'files(id,name,modifiedTime)',
-      pageSize:'1'
+      orderBy:'modifiedTime desc',
+      pageSize:'100'
     });
-    console.info('Google Drive : appel files.list dans appDataFolder.');
+    console.info('Google Drive : appel files.list dans appDataFolder, trié par modification décroissante.');
     const response=await fetch(`${this.DRIVE_API}/files?${params.toString()}`,{
       headers:{Authorization:`Bearer ${token}`}
     });
@@ -81,7 +82,14 @@ const GoogleDriveAdapter={
       console.error('Google Drive : échec files.list.', { status:response.status, body });
       throw new Error(this.driveErrorMessage(body,'Recherche de la sauvegarde Google Drive impossible.'));
     }
-    return body.files?.[0]||null;
+    const files=body.files||[];
+    if(files.length>1){
+      console.warn('Google Drive : plusieurs sauvegardes détectées, utilisation de la plus récente.', {
+        selected:files[0],
+        duplicates:files.slice(1)
+      });
+    }
+    return files[0]||null;
   },
   async createBackupFile(token,db){
     return this.uploadMultipart(token,`${this.DRIVE_UPLOAD_API}/files?uploadType=multipart&fields=id,name,modifiedTime`,{
