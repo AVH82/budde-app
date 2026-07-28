@@ -166,3 +166,54 @@ html.debugLayers .debugLayerHidden{opacity:0!important;visibility:hidden!importa
     height:calc((100dvh - var(--frame-top-h) - var(--pwa-dock-h) - env(safe-area-inset-top)) / 2 + 12px)!important;
   }
 }
+
+/* PR262 — true full-height dock: do not reserve the iOS bottom inset as an empty band. */
+html,
+body{
+  background:
+    repeating-linear-gradient(90deg,rgba(255,255,255,.035) 0 1px,transparent 1px 9px),
+    linear-gradient(180deg,#27251c 0%,#11150e 56%,#5a5138 100%)!important;
+}
+
+/* Higher specificity than the legacy AST-013 release badge. */
+html body .frameShellTop .settingsTrustModule::before{content:'v3.6.55'!important;}
+html body #systemAppVersion::after,
+html body #diagnosticAppVersion::after,
+html body #entryAppVersion::after{content:'3.6.55'!important;}
+html body #systemBuildId::after,
+html body #diagnosticBuildId::after{content:'budde-3-6-55'!important;}
+html body #diagnosticExpectedCache::after{content:'budde-3-6-55-pr262'!important;}
+
+@media (display-mode:standalone){
+  :root{
+    --pwa-actions-row-h:clamp(60px,15.5vw,72px);
+    --pwa-nav-row-h:clamp(56px,14.5vw,66px);
+    --pwa-dock-gap:5px;
+    --pwa-dock-pad-top:7px;
+    --pwa-dock-h:calc(var(--pwa-dock-pad-top) + var(--pwa-actions-row-h) + var(--pwa-dock-gap) + var(--pwa-nav-row-h) + 4px);
+  }
+  .frameShellBottom.pipDock{
+    bottom:0!important;
+    height:var(--pwa-dock-h)!important;
+    min-height:var(--pwa-dock-h)!important;
+    padding:var(--pwa-dock-pad-top) clamp(14px,4vw,22px) 4px!important;
+    overflow:hidden!important;
+  }
+  .frameStartupControls{
+    bottom:0!important;
+    height:var(--pwa-dock-h)!important;
+    min-height:var(--pwa-dock-h)!important;
+    padding-bottom:4px!important;
+    overflow:hidden!important;
+  }
+  .app.frameShell{padding-bottom:calc(var(--pwa-dock-h) + 8px)!important;}
+  .frameRail,
+  .frameShutter--bottom,
+  .entryGate::after{bottom:calc(var(--pwa-dock-h) - 2px)!important;}
+  .frameShutter--top,
+  .frameShutter--bottom,
+  .entryGate::before,
+  .entryGate::after{
+    height:calc((100dvh - var(--frame-top-h) - var(--pwa-dock-h) - env(safe-area-inset-top)) / 2 + 12px)!important;
+  }
+}
