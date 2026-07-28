@@ -1,6 +1,7 @@
 const GoogleDriveAdapter={
   FILE_NAME:'budde-data.json',
   FILE_ID_STORAGE_KEY:'budde-google-drive-file-id-v2',
+  DIAGNOSTIC_STORAGE_KEY:'budde-google-drive-file-diagnostic-v1',
   DRIVE_API:'https://www.googleapis.com/drive/v3',
   DRIVE_UPLOAD_API:'https://www.googleapis.com/upload/drive/v3',
   APPDATA_FOLDER:'appDataFolder',
@@ -9,13 +10,41 @@ const GoogleDriveAdapter={
   setCanonicalFileId(fileId){if(!fileId)return;try{localStorage.setItem(this.FILE_ID_STORAGE_KEY,String(fileId))}catch(error){}},
   clearCanonicalFileId(){try{localStorage.removeItem(this.FILE_ID_STORAGE_KEY)}catch(error){}},
   stableSnapshot(db){return JSON.stringify({updatedAt:db?.updatedAt||null,budgets:db?.budgets||{},budgetRules:Array.isArray(db?.budgetRules)?db.budgetRules:[],expenses:Array.isArray(db?.expenses)?db.expenses:[]})},
+  diagnosticBudget(data){const cardId=data?.currentCardId||data?.cards?.[0]?.id||'';const month=data?.currentMonth||'';const amount=cardId&&month?data?.budgets?.[cardId]?.[month]:undefined;return {cardId,month,amount:amount==null?null:Number(amount)}},
+  getDiagnosticHistory(){try{const value=JSON.parse(localStorage.getItem(this.DIAGNOSTIC_STORAGE_KEY)||'[]');return Array.isArray(value)?value:[]}catch(error){return []}},
+  recordDiagnostic(operation,{fileId='',modifiedTime=null,data=null,source='' }={}){
+    const budget=this.diagnosticBudget(data);
+    const entry={operation,fileId:String(fileId||''),modifiedTime:modifiedTime||null,updatedAt:data?.updatedAt||null,expenses:Array.isArray(data?.expenses)?data.expenses.length:0,budget,source,recordedAt:new Date().toISOString()};
+    const history=[entry,...this.getDiagnosticHistory()].slice(0,10);
+    try{localStorage.setItem(this.DIAGNOSTIC_STORAGE_KEY,JSON.stringify(history))}catch(error){}
+    console.info('Google Drive : diagnostic fichier.',entry);
+    this.renderDiagnostic(history);
+    window.dispatchEvent(new CustomEvent('budde:google-drive-diagnostic',{detail:entry}));
+    return entry;
+  },
+  renderDiagnostic(history=this.getDiagnosticHistory()){
+    if(typeof document==='undefined')return;
+    const box=document.querySelector('.googleAuthBox');
+    if(!box)return;
+    let panel=document.getElementById('googleDriveFileDiagnostic');
+    if(!panel){panel=document.createElement('div');panel.id='googleDriveFileDiagnostic';panel.className='systemDiagnostic';panel.innerHTML='<h4>Diagnostic fichier Google Drive</h4><p class="driveBackupStatus">Compare les identifiants utilisés par la dernière sauvegarde et la dernière restauration.</p><div id="googleDriveFileDiagnosticRows"></div>';box.appendChild(panel)}
+    const rows=document.getElementById('googleDriveFileDiagnosticRows');
+    if(!rows)return;
+    const latestSave=history.find(item=>item.operation==='sauvegarde');
+    const latestLoad=history.find(item=>item.operation==='restauration');
+    const format=item=>{if(!item)return 'Aucune opération enregistrée';const budget=item.budget?.month?` • ${item.budget.month} : ${item.budget.amount==null?'hérité':`${item.budget.amount} €`}`:'';return `${item.fileId||'ID absent'} • Drive ${item.modifiedTime||'date inconnue'} • JSON ${item.updatedAt||'date inconnue'}${budget}`};
+    const verdict=latestSave&&latestLoad?(latestSave.fileId===latestLoad.fileId?'Même fichier utilisé':'FICHIERS DIFFÉRENTS DÉTECTÉS'):'Comparaison en attente';
+    rows.innerHTML=`<dl class="settingsStatus systemStatus diagnosticStatus"><div><dt>Dernière sauvegarde</dt><dd>${format(latestSave)}</dd></div><div><dt>Dernière restauration</dt><dd>${format(latestLoad)}</dd></div><div><dt>Comparaison</dt><dd>${verdict}</dd></div></dl>`;
+  },
   async load(){
     const token=await this.getAccessToken();
     const canonicalId=this.getCanonicalFileId();
     if(canonicalId){
       try{
+        const metadata=await this.getFileMetadata(token,canonicalId);
         const data=await this.downloadFileById(token,canonicalId);
-        console.info('Google Drive : restauration depuis le fichier canonique.',{id:canonicalId,updatedAt:data?.updatedAt});
+        this.recordDiagnostic('restauration',{fileId:canonicalId,modifiedTime:metadata?.modifiedTime,data,source:'canonique local'});
+        console.info('Google Drive : restauration depuis le fichier canonique.',{id:canonicalId,modifiedTime:metadata?.modifiedTime,updatedAt:data?.updatedAt});
         return data;
       }catch(error){
         if(error?.status!==404)throw error;
@@ -26,6 +55,7 @@ const GoogleDriveAdapter={
     if(!existing?.id)throw new Error('Aucune sauvegarde Google Drive trouvée.');
     this.setCanonicalFileId(existing.id);
     const data=await this.downloadFileById(token,existing.id);
+    this.recordDiagnostic('restauration',{fileId:existing.id,modifiedTime:existing.modifiedTime,data,source:'recherche Drive'});
     console.info('Google Drive : restauration depuis le fichier sélectionné.',{id:existing.id,modifiedTime:existing.modifiedTime,updatedAt:data?.updatedAt});
     return data;
   },
@@ -41,6 +71,7 @@ const GoogleDriveAdapter={
     this.setCanonicalFileId(result.id);
     const downloaded=await this.downloadFileById(token,result.id);
     if(this.stableSnapshot(downloaded)!==this.stableSnapshot(db))throw new Error('Vérification Google Drive échouée : le fichier écrit ne correspond pas aux données locales.');
+    this.recordDiagnostic('sauvegarde',{fileId:result.id,modifiedTime:result.modifiedTime,data:downloaded,source:targetId?'mise à jour':'création'});
     console.info('Google Drive : sauvegarde vérifiée sur le fichier exact.',{id:result.id,modifiedTime:result.modifiedTime,updatedAt:downloaded?.updatedAt,budgets:downloaded?.budgets,expenses:downloaded?.expenses?.length||0});
     return {...result,verified:true,verifiedUpdatedAt:downloaded?.updatedAt||null};
   },
@@ -91,3 +122,4 @@ const GoogleDriveAdapter={
 };
 
 window.GoogleDriveAdapter=GoogleDriveAdapter;
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',()=>GoogleDriveAdapter.renderDiagnostic(),{once:true});else GoogleDriveAdapter.renderDiagnostic();
