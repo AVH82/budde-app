@@ -6,8 +6,8 @@ const read=file=>fs.readFileSync(file,'utf8');
 test('PR241 keeps the six production geometry values in static CSS',()=>{
   const css=read('css/frame-system-v2.css');
   for(const declaration of [
-    '--startup-panel-x:-1.6%', '--startup-panel-y:-69%',
-    '--startup-panel-width:103.7%', '--startup-panel-height:228%',
+    '--startup-panel-x:0%', '--startup-panel-y:0%',
+    '--startup-panel-width:100%', '--startup-panel-height:100%',
     '--startup-panel-scale-x:1', '--startup-panel-scale-y:1'
   ]) assert.match(css,new RegExp(declaration.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')));
   assert.match(css,/\.startupAccessPanel\{[^}]*left:var\(--startup-panel-x\);[^}]*top:var\(--startup-panel-y\);[^}]*width:var\(--startup-panel-width\);[^}]*height:var\(--startup-panel-height\);[^}]*transform:scaleX\(var\(--startup-panel-scale-x\)\) scaleY\(var\(--startup-panel-scale-y\)\)/s);
