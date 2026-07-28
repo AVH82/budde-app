@@ -1,5 +1,11 @@
-/* PR265 — Installed iOS WebApp: paint through the bottom system area and
+/* PR266 — Installed iOS WebApp: paint through the bottom system area and
    make the startup access panel cover the complete two-row dock. */
+
+/* Visible deployment marker: overrides the legacy PR262 diagnostic label. */
+html body #diagnosticExpectedCache::after {
+  content: 'budde-3-6-55-pr266' !important;
+}
+
 @media (display-mode: standalone) {
   :root {
     --pwa-bottom-paint: max(env(safe-area-inset-bottom), 96px);
