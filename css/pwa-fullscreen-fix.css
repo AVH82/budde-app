@@ -1,6 +1,10 @@
-/* PR264 — Installed iOS WebApp: use WebKit's actual available viewport height.
-   The app background must paint the complete screen; safe-area values protect controls only. */
+/* PR265 — Installed iOS WebApp: paint through the bottom system area and
+   make the startup access panel cover the complete two-row dock. */
 @media (display-mode: standalone) {
+  :root {
+    --pwa-bottom-paint: max(env(safe-area-inset-bottom), 96px);
+  }
+
   html,
   body {
     width: 100% !important;
@@ -14,27 +18,17 @@
     background-image: linear-gradient(180deg, #27251c 0%, #11150e 56%, #5a5138 100%) !important;
   }
 
-  html {
-    height: -webkit-fill-available !important;
-    min-height: -webkit-fill-available !important;
-  }
-
   body {
     position: fixed !important;
     inset: 0 !important;
-    height: -webkit-fill-available !important;
-    min-height: -webkit-fill-available !important;
   }
 
   .app.frameShell {
     position: fixed !important;
-    top: 0 !important;
-    right: auto !important;
-    bottom: 0 !important;
-    left: 50% !important;
+    inset: 0 auto 0 50% !important;
     width: var(--frame-shell-w) !important;
-    height: -webkit-fill-available !important;
-    min-height: -webkit-fill-available !important;
+    height: auto !important;
+    min-height: 0 !important;
     max-height: none !important;
     transform: translateX(-50%) !important;
     background-color: #11150e !important;
@@ -47,6 +41,69 @@
 
   .frameShellBottom.pipDock {
     overflow: visible !important;
+  }
+
+  /* Continue the metallic dock skin through the area iOS paints below the
+     document's reported viewport, without moving the actual buttons. */
+  .frameShellBottom.pipDock::after {
+    content: "" !important;
+    display: block !important;
+    position: absolute !important;
+    z-index: -1 !important;
+    left: -1px !important;
+    right: -1px !important;
+    top: calc(100% - 2px) !important;
+    height: var(--pwa-bottom-paint) !important;
+    border-left: 1px solid rgba(154,131,82,.74) !important;
+    border-right: 1px solid rgba(154,131,82,.74) !important;
+    background:
+      repeating-linear-gradient(90deg,rgba(255,255,255,.05) 0 1px,transparent 1px 9px),
+      linear-gradient(180deg,#11150e 0%,#27251c 48%,#5a5138 100%) !important;
+  }
+
+  /* The startup mask owns exactly the same footprint as the dock. */
+  .frameStartupControls {
+    width: var(--frame-shell-w) !important;
+    height: var(--pwa-dock-h) !important;
+    min-height: var(--pwa-dock-h) !important;
+    padding: 0 !important;
+    overflow: visible !important;
+  }
+
+  .startupAccessScene,
+  .startupAccessRotor,
+  .startupAccessFace {
+    position: absolute !important;
+    inset: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+  }
+
+  .startupAccessPanel {
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: fill !important;
+    transform: none !important;
+    transform-origin: center !important;
+  }
+
+  .startupAccessChoices {
+    width: calc(100% - clamp(32px,8vw,52px)) !important;
+    top: 50% !important;
+    transform: translate(-50%,-50%) !important;
+  }
+
+  .frameStartupControls::after {
+    content: "" !important;
+    position: absolute !important;
+    z-index: -1 !important;
+    left: 0 !important;
+    right: 0 !important;
+    top: calc(100% - 2px) !important;
+    height: var(--pwa-bottom-paint) !important;
+    background: linear-gradient(180deg,#5a5138,#27251c) !important;
   }
 
   .app.frameShell main {
