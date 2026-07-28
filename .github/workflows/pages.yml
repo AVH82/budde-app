@@ -39,8 +39,9 @@ jobs:
           sed -i -E "s#</head>#<link rel=\"stylesheet\" href=\"css/pwa-fullscreen-fix.css?v=${DEPLOY_ID}\" data-pwa-fullscreen=\"${DEPLOY_ID}\"></head>#" _site/index.html
 
           # Apply the iOS system chrome metadata directly to the deployed HTML.
-          sed -i -E 's#<meta name="theme-color" content="[^"]+">#<meta name="theme-color" content="#000000">#' _site/index.html
-          sed -i -E 's#<meta name="apple-mobile-web-app-status-bar-style" content="[^"]+">#<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">#' _site/index.html
+          # Use | as the sed delimiter because the replacement contains #000000.
+          sed -i -E 's|<meta name="theme-color" content="[^"]+">|<meta name="theme-color" content="#000000">|' _site/index.html
+          sed -i -E 's|<meta name="apple-mobile-web-app-status-bar-style" content="[^"]+">|<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">|' _site/index.html
 
           # Load the PR #274 startup fix directly from the deployed HTML instead of
           # relying on a Service Worker response rewrite that may not control the first load.
