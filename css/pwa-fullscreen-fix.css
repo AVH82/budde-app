@@ -37,20 +37,37 @@
     background-color: #11150e !important;
   }
 
-  /* Keep the dock anchored to the actual viewport bottom and explicitly include
-     the Home Indicator area even when WebKit reports a zero safe-area inset. */
+  /* Extend the industrial dock beyond the layout viewport so its skin also
+     paints the complete Home Indicator region in installed iOS mode. */
   .frameShellBottom.pipDock {
     position: fixed !important;
     left: 50% !important;
     right: auto !important;
-    bottom: 0 !important;
+    bottom: calc(-1 * var(--pwa-safe-bottom)) !important;
     width: var(--frame-shell-w) !important;
-    height: calc(var(--nav-h) + var(--pwa-safe-bottom)) !important;
-    min-height: calc(var(--nav-h) + var(--pwa-safe-bottom)) !important;
-    padding-bottom: calc(9px + var(--pwa-safe-bottom)) !important;
+    height: calc(var(--nav-h) + (2 * var(--pwa-safe-bottom))) !important;
+    min-height: calc(var(--nav-h) + (2 * var(--pwa-safe-bottom))) !important;
+    padding-bottom: calc(9px + (2 * var(--pwa-safe-bottom))) !important;
     transform: translateX(-50%) !important;
     overflow: visible !important;
     background-color: #11150e !important;
+  }
+
+  .frameShellBottom.pipDock::after {
+    content: "" !important;
+    position: absolute !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: calc(-1 * var(--pwa-safe-bottom)) !important;
+    height: calc(var(--pwa-safe-bottom) + 2px) !important;
+    background: inherit !important;
+    pointer-events: none !important;
+    z-index: -1 !important;
+  }
+
+  .frameShellBottom .dockActions,
+  .frameShellBottom .nav {
+    transform: translateY(9px) !important;
   }
 
   /* Startup controls are positioned by the runtime against the measured dock
@@ -64,6 +81,10 @@
     padding: 0 !important;
     transform: translateX(-50%) !important;
     overflow: visible !important;
+  }
+
+  .frameStartupControls.frameStartupControls--opening {
+    z-index: 350 !important;
   }
 
   .startupAccessScene,
