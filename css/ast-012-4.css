@@ -45,19 +45,19 @@
 
 /* Visible release version — single override for all rendered labels. */
 .frameShellTop .settingsTrustModule::before{
-  content:'v3.6.52'!important;
+  content:'v3.6.55'!important;
 }
 #systemAppVersion::after,
 #diagnosticAppVersion::after,
 #entryAppVersion::after{
-  content:'3.6.52'!important;
+  content:'3.6.55'!important;
 }
 #systemBuildId::after,
 #diagnosticBuildId::after{
-  content:'budde-3-6-52'!important;
+  content:'budde-3-6-55'!important;
 }
 #diagnosticExpectedCache::after{
-  content:'budde-3-6-52'!important;
+  content:'budde-3-6-55-pr261'!important;
 }
 
 @media(max-width:380px){
@@ -121,3 +121,48 @@
 .frameShellTop .settingsTrustModule--trust .settingsTrustNeedle{z-index:2!important;}
 .frameShellTop .settingsTrustModule>.headerFrameImage--trust{z-index:3!important;}
 html.debugLayers .debugLayerHidden{opacity:0!important;visibility:hidden!important;pointer-events:none!important;}
+
+/* PR261 — keep the full two-row dock inside the viewport in installed PWA mode. */
+@media (display-mode:standalone){
+  :root{
+    --pwa-actions-row-h:clamp(62px,16vw,74px);
+    --pwa-nav-row-h:clamp(58px,15vw,68px);
+    --pwa-dock-gap:6px;
+    --pwa-dock-pad-top:8px;
+    --pwa-dock-h:calc(var(--pwa-dock-pad-top) + var(--pwa-actions-row-h) + var(--pwa-dock-gap) + var(--pwa-nav-row-h) + env(safe-area-inset-bottom));
+  }
+  .frameShellBottom.pipDock{
+    bottom:0!important;
+    height:var(--pwa-dock-h)!important;
+    min-height:var(--pwa-dock-h)!important;
+    padding:var(--pwa-dock-pad-top) clamp(14px,4vw,22px) calc(4px + env(safe-area-inset-bottom))!important;
+    grid-template-rows:var(--pwa-actions-row-h) var(--pwa-nav-row-h)!important;
+    gap:var(--pwa-dock-gap)!important;
+    align-content:end!important;
+    overflow:visible!important;
+  }
+  .frameShellBottom .dockActions,
+  .frameShellBottom .nav{
+    min-height:0!important;
+    margin:0!important;
+  }
+  .frameShellBottom .dockActions{height:var(--pwa-actions-row-h)!important;}
+  .frameShellBottom .nav{height:var(--pwa-nav-row-h)!important;padding:5px 7px!important;}
+  .frameShellBottom .nav button{height:100%!important;min-height:0!important;}
+  .frameStartupControls{
+    bottom:0!important;
+    height:var(--pwa-dock-h)!important;
+    min-height:var(--pwa-dock-h)!important;
+    padding-bottom:env(safe-area-inset-bottom)!important;
+  }
+  .app.frameShell{padding-bottom:calc(var(--pwa-dock-h) + 10px)!important;}
+  .frameRail,
+  .frameShutter--bottom,
+  .entryGate::after{bottom:calc(var(--pwa-dock-h) - 2px)!important;}
+  .frameShutter--top,
+  .frameShutter--bottom,
+  .entryGate::before,
+  .entryGate::after{
+    height:calc((100dvh - var(--frame-top-h) - var(--pwa-dock-h) - env(safe-area-inset-top)) / 2 + 12px)!important;
+  }
+}
