@@ -1,0 +1,48 @@
+/* PR263 — Installed iOS WebApp: the root shell owns the complete viewport.
+   Safe-area values may protect controls, but must never create an unused page band. */
+@media (display-mode: standalone) {
+  html,
+  body {
+    width: 100% !important;
+    height: 100vh !important;
+    height: 100lvh !important;
+    min-height: 100vh !important;
+    min-height: 100lvh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    overscroll-behavior: none !important;
+    background: linear-gradient(180deg, #27251c 0%, #11150e 56%, #5a5138 100%) !important;
+  }
+
+  body {
+    position: fixed !important;
+    inset: 0 !important;
+  }
+
+  .app.frameShell {
+    position: fixed !important;
+    top: 0 !important;
+    right: auto !important;
+    bottom: 0 !important;
+    left: 50% !important;
+    width: var(--frame-shell-w) !important;
+    height: auto !important;
+    min-height: 0 !important;
+    max-height: none !important;
+    transform: translateX(-50%) !important;
+  }
+
+  .frameShellBottom.pipDock,
+  .frameStartupControls {
+    bottom: 0 !important;
+  }
+
+  .frameShellBottom.pipDock {
+    overflow: visible !important;
+  }
+
+  .app.frameShell main {
+    min-height: 0 !important;
+  }
+}
