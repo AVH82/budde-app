@@ -1,22 +1,18 @@
-/* Installed iOS WebApp layout correction.
-   The Frame System must not become the containing block that clips fixed dock elements. */
+/* Installed iOS WebApp stabilization.
+   Safari remains the single source of truth for component geometry.
+   Standalone mode only normalizes the viewport root and preserves the same
+   dock, startup controls, safe-area and stacking rules as the shared layout. */
 @media (display-mode: standalone) {
-  :root {
-    --pwa-safe-bottom: max(env(safe-area-inset-bottom), 34px);
-  }
-
   html,
   body {
     width: 100% !important;
-    height: 100dvh !important;
-    min-height: 100dvh !important;
+    height: 100% !important;
+    min-height: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
     overflow: hidden !important;
     overscroll-behavior: none !important;
-    background:
-      repeating-linear-gradient(90deg,rgba(255,255,255,.05) 0 1px,transparent 1px 9px),
-      linear-gradient(180deg,#27251c 0%,#11150e 56%,#5a5138 100%) !important;
+    background: #000 !important;
   }
 
   body {
@@ -24,54 +20,48 @@
     inset: 0 !important;
   }
 
+  /* Keep the shared Frame System geometry. Do not create a second standalone
+     layout with different heights, offsets or transforms. */
   .app.frameShell {
     position: fixed !important;
     inset: 0 !important;
     width: var(--frame-shell-w) !important;
-    height: 100dvh !important;
-    min-height: 100dvh !important;
+    height: 100% !important;
+    min-height: 100% !important;
     max-height: none !important;
     margin: 0 auto !important;
     transform: none !important;
     overflow: visible !important;
-    background-color: #11150e !important;
   }
 
-  /* Extend the industrial dock beyond the layout viewport so its skin also
-     paints the complete Home Indicator region in installed iOS mode. */
+  /* Same dock geometry as Safari: bottom:0 and one safe-area contribution.
+     No negative offset, doubled height, synthetic 34px fallback or extra
+     translation of the internal controls. */
   .frameShellBottom.pipDock {
     position: fixed !important;
     left: 50% !important;
     right: auto !important;
-    bottom: calc(-1 * var(--pwa-safe-bottom)) !important;
+    bottom: 0 !important;
     width: var(--frame-shell-w) !important;
-    height: calc(var(--nav-h) + (2 * var(--pwa-safe-bottom))) !important;
-    min-height: calc(var(--nav-h) + (2 * var(--pwa-safe-bottom))) !important;
-    padding-bottom: calc(9px + (2 * var(--pwa-safe-bottom))) !important;
+    height: calc(var(--nav-h, 104px) + env(safe-area-inset-bottom)) !important;
+    min-height: calc(var(--nav-h, 104px) + env(safe-area-inset-bottom)) !important;
+    padding-bottom: calc(9px + env(safe-area-inset-bottom)) !important;
     transform: translateX(-50%) !important;
     overflow: visible !important;
-    background-color: #11150e !important;
   }
 
   .frameShellBottom.pipDock::after {
-    content: "" !important;
-    position: absolute !important;
-    left: 0 !important;
-    right: 0 !important;
-    bottom: calc(-1 * var(--pwa-safe-bottom)) !important;
-    height: calc(var(--pwa-safe-bottom) + 2px) !important;
-    background: inherit !important;
-    pointer-events: none !important;
-    z-index: -1 !important;
+    content: none !important;
+    display: none !important;
   }
 
   .frameShellBottom .dockActions,
   .frameShellBottom .nav {
-    transform: translateY(9px) !important;
+    transform: none !important;
   }
 
-  /* Startup controls are positioned by the runtime against the measured dock
-     top. Do not stretch them over the full dock in standalone mode. */
+  /* Startup geometry and z-index are owned by the shared runtime/CSS, exactly
+     as in Safari. Standalone only keeps the component fixed to the shell. */
   .frameStartupControls {
     position: fixed !important;
     left: 50% !important;
@@ -81,10 +71,6 @@
     padding: 0 !important;
     transform: translateX(-50%) !important;
     overflow: visible !important;
-  }
-
-  .frameStartupControls.frameStartupControls--opening {
-    z-index: 350 !important;
   }
 
   .startupAccessScene,
