@@ -25,10 +25,21 @@ jobs:
       - name: Configure Pages
         uses: actions/configure-pages@v5
 
+      - name: Build deterministic Pages artifact
+        shell: bash
+        run: |
+          mkdir -p _site
+          rsync -a --exclude='.git' --exclude='.github' --exclude='_site' ./ _site/
+          sed -i 's#css/ast-012-4.css?v=ast058#css/ast-012-4.css?v=pr267#g' _site/index.html
+          sed -i 's#css/designer-mode.css?v=pr241#css/designer-mode.css?v=pr267#g' _site/index.html
+          sed -i 's#</head>#<link rel="stylesheet" href="css/pwa-fullscreen-fix.css?v=pr267" data-pwa-fullscreen="pr267"></head>#' _site/index.html
+          sed -i 's/budde-3-6-55-pr262/budde-3-6-55-pr267/g' _site/css/ast-012-4.css
+          sed -i "s/budde-3-6-55-pr266/budde-3-6-55-pr267/g; s/CACHE_BUST_VERSION='pr266'/CACHE_BUST_VERSION='pr267'/g; s/pwa-fullscreen-fix.css?v=pr266/pwa-fullscreen-fix.css?v=pr267/g; s/ast-012-4.css?v=pr266/ast-012-4.css?v=pr267/g" _site/service-worker.js
+
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: .
+          path: _site
 
   deploy:
     needs: build
