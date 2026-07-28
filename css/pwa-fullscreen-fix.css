@@ -4,8 +4,8 @@
   html,
   body {
     width: 100% !important;
-    height: 100% !important;
-    min-height: 100% !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
     margin: 0 !important;
     padding: 0 !important;
     overflow: hidden !important;
@@ -27,8 +27,8 @@
     position: fixed !important;
     inset: 0 !important;
     width: var(--frame-shell-w) !important;
-    height: 100% !important;
-    min-height: 100% !important;
+    height: 100dvh !important;
+    min-height: 100dvh !important;
     max-height: none !important;
     margin: 0 auto !important;
     transform: none !important;
@@ -36,24 +36,29 @@
     background-color: #11150e !important;
   }
 
+  /* Extend the industrial dock through the complete Home Indicator area.
+     The small negative offset avoids an uncovered WebKit strip at the
+     physical bottom edge in installed standalone mode. */
   .frameShellBottom.pipDock {
     position: fixed !important;
     left: 50% !important;
     right: auto !important;
-    bottom: 0 !important;
+    bottom: calc(-1 * env(safe-area-inset-bottom)) !important;
     width: var(--frame-shell-w) !important;
+    height: calc(var(--nav-h) + (2 * env(safe-area-inset-bottom))) !important;
+    padding-bottom: calc(9px + (2 * env(safe-area-inset-bottom))) !important;
     transform: translateX(-50%) !important;
     overflow: visible !important;
   }
 
+  /* Startup controls are positioned by the runtime against the measured dock
+     top. Do not stretch them over the full dock in standalone mode. */
   .frameStartupControls {
     position: fixed !important;
     left: 50% !important;
     right: auto !important;
-    bottom: 0 !important;
     width: var(--frame-shell-w) !important;
-    height: var(--pwa-dock-h) !important;
-    min-height: var(--pwa-dock-h) !important;
+    min-height: 0 !important;
     padding: 0 !important;
     transform: translateX(-50%) !important;
     overflow: visible !important;
@@ -69,18 +74,7 @@
   }
 
   .startupAccessPanel {
-    position: absolute !important;
-    inset: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-    object-fit: fill !important;
-    transform: none !important;
-  }
-
-  .startupAccessChoices {
-    width: calc(100% - clamp(32px,8vw,52px)) !important;
-    top: 50% !important;
-    transform: translate(-50%,-50%) !important;
+    display: none !important;
   }
 
   .app.frameShell main {
