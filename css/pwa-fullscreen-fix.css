@@ -1,23 +1,29 @@
-/* PR263 — Installed iOS WebApp: the root shell owns the complete viewport.
-   Safe-area values may protect controls, but must never create an unused page band. */
+/* PR264 — Installed iOS WebApp: use WebKit's actual available viewport height.
+   The app background must paint the complete screen; safe-area values protect controls only. */
 @media (display-mode: standalone) {
   html,
   body {
     width: 100% !important;
-    height: 100vh !important;
-    height: 100lvh !important;
-    min-height: 100vh !important;
-    min-height: 100lvh !important;
+    height: 100% !important;
+    min-height: 100% !important;
     margin: 0 !important;
     padding: 0 !important;
     overflow: hidden !important;
     overscroll-behavior: none !important;
-    background: linear-gradient(180deg, #27251c 0%, #11150e 56%, #5a5138 100%) !important;
+    background-color: #11150e !important;
+    background-image: linear-gradient(180deg, #27251c 0%, #11150e 56%, #5a5138 100%) !important;
+  }
+
+  html {
+    height: -webkit-fill-available !important;
+    min-height: -webkit-fill-available !important;
   }
 
   body {
     position: fixed !important;
     inset: 0 !important;
+    height: -webkit-fill-available !important;
+    min-height: -webkit-fill-available !important;
   }
 
   .app.frameShell {
@@ -27,10 +33,11 @@
     bottom: 0 !important;
     left: 50% !important;
     width: var(--frame-shell-w) !important;
-    height: auto !important;
-    min-height: 0 !important;
+    height: -webkit-fill-available !important;
+    min-height: -webkit-fill-available !important;
     max-height: none !important;
     transform: translateX(-50%) !important;
+    background-color: #11150e !important;
   }
 
   .frameShellBottom.pipDock,
