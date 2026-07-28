@@ -39,7 +39,8 @@
         will-change:transform;
       }
       .frameStartupControls.frameStartupControls--opening{
-        transform:translate(-50%,calc(var(--startup-dock-offset, calc(var(--nav-h) + env(safe-area-inset-bottom))) + 10px))!important;
+        z-index:350!important;
+        transform:translate(-50%,calc(var(--startup-dock-offset, calc(var(--nav-h) + env(safe-area-inset-bottom))) + 16px))!important;
         opacity:1!important;
         visibility:visible!important;
       }
@@ -49,13 +50,17 @@
         z-index:310!important;
       }
       .frameShellBottom.pipDock{z-index:400!important;}
+      .frameShellBottom .dockActions,
+      .frameShellBottom .nav{
+        transform:translateY(7px)!important;
+      }
       .startupAccessScene,.startupAccessRotor,.startupAccessFace{height:100%!important;}
       .startupAccessRotor,.startupAccessRotor.is-open{
         transform:none!important;
         transition:none!important;
       }
       .startupAccessChoices{
-        inset:0 4px 0 12px!important;
+        inset:0 8px!important;
         width:auto!important;
         height:100%!important;
         top:0!important;
@@ -66,6 +71,8 @@
         overflow:visible!important;
       }
       .frameStartupChoice{
+        position:relative!important;
+        isolation:isolate!important;
         width:100%!important;
         height:100%!important;
         min-width:0!important;
@@ -73,6 +80,8 @@
         border-radius:12px!important;
         opacity:1!important;
       }
+      .frameStartupChoice--network{transform:translateX(8px)!important;}
+      .frameStartupChoice--local{transform:translateX(2px)!important;}
       .frameStartupChoice>button{
         position:relative!important;
         z-index:2!important;
@@ -84,34 +93,37 @@
         opacity:1!important;
         visibility:visible!important;
       }
+      .frameStartupChoice--local>button{
+        background-size:106% 106%!important;
+      }
       .startupAccessGlow{display:none!important;}
-      .frameStartupChoice::after{
+      .frameStartupChoice::before{
         content:"";
         position:absolute;
-        z-index:3;
-        inset:8px;
+        z-index:1;
+        inset:7px;
         border-radius:9px;
-        opacity:.58;
+        opacity:.60;
         pointer-events:none;
-        background:radial-gradient(ellipse at center,rgba(205,255,126,.52) 0,rgba(157,255,69,.28) 48%,rgba(115,211,46,.08) 76%,transparent 100%);
-        box-shadow:inset 0 0 16px rgba(225,255,184,.9),inset 0 0 30px rgba(157,255,69,.34);
-        mix-blend-mode:screen;
+        background:radial-gradient(ellipse at center,rgba(205,255,126,.62) 0,rgba(157,255,69,.34) 48%,rgba(115,211,46,.10) 78%,transparent 100%);
+        box-shadow:inset 0 0 18px rgba(225,255,184,.92),inset 0 0 34px rgba(157,255,69,.42);
         animation:startupContainedFlicker 1250ms steps(2,end) infinite;
       }
-      .frameStartupControls--selected-network .frameStartupChoice--network::after,
-      .frameStartupControls--selected-local .frameStartupChoice--local::after{
-        opacity:.88;
-        box-shadow:inset 0 0 20px rgba(235,255,205,1),inset 0 0 34px rgba(157,255,69,.5);
+      .frameStartupChoice::after{content:none!important;display:none!important;}
+      .frameStartupControls--selected-network .frameStartupChoice--network::before,
+      .frameStartupControls--selected-local .frameStartupChoice--local::before{
+        opacity:.92;
+        box-shadow:inset 0 0 22px rgba(235,255,205,1),inset 0 0 38px rgba(157,255,69,.58);
         animation-duration:560ms;
       }
-      @keyframes startupContainedFlicker{0%,13%,18%,46%,52%,78%,100%{opacity:.62}15%,49%,80%{opacity:.38}16%,50%{opacity:.78}}
+      @keyframes startupContainedFlicker{0%,13%,18%,46%,52%,78%,100%{opacity:.66}15%,49%,80%{opacity:.42}16%,50%{opacity:.82}}
       .startupSequenceOwned .frameShutterTrack{animation:none!important;}
       .startupSequenceOwned.startupSequenceOpen .frameShutter--top .frameShutterTrack{animation:frameSlatsRollUp 2600ms var(--frame-motion-ease) forwards!important;}
       .startupSequenceOwned.startupSequenceOpen .frameShutter--bottom .frameShutterTrack{animation:frameSlatsRollDown 2600ms var(--frame-motion-ease) forwards!important;}
       @media(prefers-reduced-motion:reduce){
         .frameStartupControls{transition-duration:100ms!important;}
         .startupSequenceOwned.startupSequenceOpen .frameShutterTrack{animation-duration:120ms!important;}
-        .frameStartupChoice::after{animation:none!important;}
+        .frameStartupChoice::before{animation:none!important;}
       }
     `;
     document.head.appendChild(style);
