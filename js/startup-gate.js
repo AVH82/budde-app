@@ -2,14 +2,107 @@
   const FRAME_STYLESHEET='css/frame-system-v2.css?v=ast058';
   const RELEASE_STYLESHEET='css/ast-012-4.css?v=ast058';
   const HEADER_STYLESHEET='css/ast-013-2.css?v=ast058';
-  const STARTUP_ACCESS_PANEL='assets/frame/startup-access-panel.png?v=ast058';
-  const ACCESS_FLIP_MS=850;
-  const ACCESS_REDUCED_FLIP_MS=120;
-  const ACCESS_PRESS_DELAY_MS=190;
-  const ACCESS_FALLBACK_MARGIN_MS=250;
+  const ACCESS_COLLAPSE_MS=240;
+  const ACCESS_REDUCED_COLLAPSE_MS=100;
+  const ACCESS_PRESS_DELAY_MS=110;
+  const ACCESS_FALLBACK_MARGIN_MS=180;
   const SHUTTER_SLAT_ASPECT=122/797;
   const SHUTTER_COVERAGE_MARGIN=2;
   let awaitingGoogleAuth=false;
+
+  function injectStartupModeStyles(){
+    if(document.getElementById('startupModeCollapseStyles'))return;
+    const style=document.createElement('style');
+    style.id='startupModeCollapseStyles';
+    style.textContent=`
+      .frameStartupControls{
+        position:fixed!important;
+        left:50%!important;
+        bottom:calc(var(--nav-h) + env(safe-area-inset-bottom) + 4px)!important;
+        width:var(--frame-shell-w)!important;
+        height:clamp(62px,17vw,78px)!important;
+        transform:translateX(-50%)!important;
+        overflow:visible!important;
+        background:transparent!important;
+      }
+      .startupAccessScene,.startupAccessRotor,.startupAccessFace{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;}
+      .startupAccessScene{perspective:none!important;}
+      .startupAccessRotor{
+        transform:none!important;
+        transform-origin:center bottom!important;
+        transition:transform ${ACCESS_COLLAPSE_MS}ms cubic-bezier(.4,0,1,1),opacity ${ACCESS_COLLAPSE_MS}ms linear!important;
+      }
+      .startupAccessRotor.is-open{transform:translateY(calc(100% + 18px)) scale(.96)!important;opacity:0!important;}
+      .startupAccessFace--front{overflow:visible!important;background:transparent!important;}
+      .startupAccessFace--back,.startupAccessPanel{display:none!important;}
+      .startupAccessChoices{
+        position:absolute!important;
+        inset:0 clamp(12px,4vw,24px)!important;
+        width:auto!important;
+        max-width:none!important;
+        transform:none!important;
+        display:grid!important;
+        grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
+        gap:clamp(8px,2.5vw,16px)!important;
+      }
+      .frameStartupChoice{height:100%!important;}
+      .frameStartupChoice::before{display:none!important;}
+      .frameStartupChoice>button{filter:brightness(1.08) drop-shadow(0 0 5px rgba(157,255,69,.48))!important;}
+      .startupModePending .startupAccessGlow{
+        opacity:.82!important;
+        animation:startupModeFlicker 1350ms steps(2,end) infinite!important;
+        filter:blur(7px)!important;
+        box-shadow:0 0 16px rgba(157,255,69,.92),0 0 34px rgba(157,255,69,.62),inset 0 0 20px rgba(215,255,164,.9)!important;
+      }
+      .frameStartupControls--selected-network .startupAccessGlow--network,
+      .frameStartupControls--selected-local .startupAccessGlow--local{opacity:1!important;animation-duration:620ms!important;}
+      @keyframes startupModeFlicker{
+        0%,13%,18%,46%,52%,78%,100%{opacity:.9}
+        15%,49%,80%{opacity:.55}
+        16%,50%{opacity:1}
+      }
+      .startupModePending .frameShellBottom .nav button{
+        filter:grayscale(1) brightness(.28)!important;
+        opacity:.58!important;
+        box-shadow:none!important;
+        text-shadow:none!important;
+      }
+      .startupModePending .frameShellBottom .nav button::before,
+      .startupModePending .frameShellBottom .nav button::after{opacity:0!important;box-shadow:none!important;}
+      .startupModeActivating .frameShellBottom .nav button[data-view="home"]{
+        opacity:1!important;
+        filter:brightness(1.18) drop-shadow(0 0 7px rgba(157,255,69,.78))!important;
+        animation:startupDockIgnition 720ms steps(2,end) 2!important;
+      }
+      .startupModeActivating .frameShellBottom .nav button:not([data-view="home"]){filter:grayscale(1) brightness(.28)!important;opacity:.58!important;}
+      @keyframes startupDockIgnition{0%,22%,47%,72%,100%{opacity:1}12%,35%,61%,84%{opacity:.38}}
+      @media(prefers-reduced-motion:reduce){
+        .startupAccessRotor{transition-duration:${ACCESS_REDUCED_COLLAPSE_MS}ms!important;}
+        .startupModePending .startupAccessGlow,.startupModeActivating .frameShellBottom .nav button[data-view="home"]{animation:none!important;}
+      }
+    `;
+    document.head.appendChild(style);
+  }
+
+  function setDockStartupState(active){
+    document.body.classList.toggle('startupModePending',active);
+    const buttons=document.querySelectorAll('.frameShellBottom .nav button[data-view]');
+    if(active){
+      buttons.forEach(button=>{
+        button.classList.remove('active');
+        button.removeAttribute('aria-current');
+      });
+    }
+  }
+
+  function activateHomeDock(){
+    document.querySelectorAll('.frameShellBottom .nav button[data-view]').forEach(button=>{
+      const isHome=button.dataset.view==='home';
+      button.classList.toggle('active',isHome);
+      if(isHome)button.setAttribute('aria-current','page');
+      else button.removeAttribute('aria-current');
+    });
+  }
 
   function makeShutter(position){
     const shutter=document.createElement('div');
@@ -62,6 +155,7 @@
       headerLink.dataset.headerFix='ast019-buddy-panel';
       document.head.appendChild(headerLink);
     }
+    injectStartupModeStyles();
   }
 
   function buildFrameStartup(){
@@ -95,12 +189,6 @@
     back.className='startupAccessFace startupAccessFace--back';
     back.setAttribute('aria-hidden','true');
 
-    const accessPanel=document.createElement('img');
-    accessPanel.className='startupAccessPanel';
-    accessPanel.src=STARTUP_ACCESS_PANEL;
-    accessPanel.alt='';
-    accessPanel.setAttribute('aria-hidden','true');
-
     const choices=document.createElement('div');
     choices.className='startupAccessChoices';
 
@@ -131,7 +219,7 @@
       right.appendChild(offline);
     }
     choices.append(glowNetwork,glowLocal,left,right);
-    front.append(accessPanel,choices);
+    front.append(choices);
     rotor.append(front,back);
     scene.appendChild(rotor);
     controls.appendChild(scene);
@@ -139,24 +227,17 @@
     gate.prepend(top,bottom);
     document.body.appendChild(controls);
     if(legacyActions)legacyActions.hidden=true;
+    setDockStartupState(true);
 
     return gate;
   }
 
-  function getControls(){
-    return document.querySelector('.frameStartupControls');
-  }
+  function getControls(){return document.querySelector('.frameStartupControls');}
 
   function showBuddyStatus(message,state='neutral'){
     const legacyStatus=document.getElementById('entryGateStatus');
-    if(legacyStatus){
-      legacyStatus.textContent='';
-      delete legacyStatus.dataset.entryStatus;
-    }
-    if(window.Buddy?.show){
-      window.Buddy.show(state,{target:'#buddyHeader',message});
-      return;
-    }
+    if(legacyStatus){legacyStatus.textContent='';delete legacyStatus.dataset.entryStatus;}
+    if(window.Buddy?.show){window.Buddy.show(state,{target:'#buddyHeader',message});return;}
     const target=document.getElementById('buddyHeader');
     const text=target?.querySelector('.buddyBubble p');
     if(text)text.textContent=message;
@@ -167,10 +248,11 @@
     gate.hidden=false;
     gate.style.display='block';
     gate.style.visibility='visible';
+    setDockStartupState(true);
     const controls=getControls();
     if(controls){
       controls.hidden=false;
-      controls.classList.remove('frameStartupControls--opening');
+      controls.classList.remove('frameStartupControls--opening','frameStartupControls--selected-network','frameStartupControls--selected-local');
       controls.querySelector('.startupAccessRotor')?.classList.remove('is-open');
       controls.querySelectorAll('button').forEach(button=>{button.disabled=false;});
     }
@@ -185,7 +267,8 @@
     gate.classList.add('frameStartup--opening','entryGate--opening');
     controls?.classList.add('frameStartupControls--opening');
     controls?.querySelectorAll('button').forEach(button=>{button.disabled=true;});
-    document.body.classList.add('entryGateOpening');
+    document.body.classList.add('entryGateOpening','startupModeActivating');
+    activateHomeDock();
     const rotor=controls?.querySelector('.startupAccessRotor');
     if(!rotor)return;
     let cleaned=false;
@@ -194,21 +277,19 @@
       if(cleaned)return;
       cleaned=true;
       if(fallbackTimer!==null)clearTimeout(fallbackTimer);
-      document.body.classList.remove('entryGateOpening');
-      if(controls){
-        controls.hidden=true;
-        controls.classList.remove('frameStartupControls--opening');
-      }
+      document.body.classList.remove('entryGateOpening','startupModePending','startupModeActivating');
+      if(controls){controls.hidden=true;controls.classList.remove('frameStartupControls--opening');}
       gate.hidden=true;
       gate.classList.remove('frameStartup--opening','entryGate--opening');
+      activateHomeDock();
     };
     const reducedMotion=window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    const flipDuration=reducedMotion?ACCESS_REDUCED_FLIP_MS:ACCESS_FLIP_MS;
-    const fallbackDelay=ACCESS_PRESS_DELAY_MS+flipDuration+ACCESS_FALLBACK_MARGIN_MS;
+    const collapseDuration=reducedMotion?ACCESS_REDUCED_COLLAPSE_MS:ACCESS_COLLAPSE_MS;
+    const fallbackDelay=ACCESS_PRESS_DELAY_MS+collapseDuration+ACCESS_FALLBACK_MARGIN_MS;
     fallbackTimer=setTimeout(cleanup,fallbackDelay);
     setTimeout(()=>{
       rotor.addEventListener('transitionend',event=>{
-        if(event.target===rotor&&event.propertyName==='transform')cleanup();
+        if(event.target===rotor&&(event.propertyName==='transform'||event.propertyName==='opacity'))cleanup();
       },{once:true});
       rotor.classList.add('is-open');
     },ACCESS_PRESS_DELAY_MS);
@@ -218,11 +299,7 @@
     ensureStylesheet();
     const gate=buildFrameStartup();
     showGate(gate);
-    [0,100,350,800,1500,3000].forEach(delay=>{
-      setTimeout(()=>{
-        if(gate?.dataset.userChoice!=='1')showGate(gate);
-      },delay);
-    });
+    [0,100,350,800,1500,3000].forEach(delay=>{setTimeout(()=>{if(gate?.dataset.userChoice!=='1')showGate(gate);},delay);});
 
     const google=document.getElementById('entryGoogleButton');
     const offline=document.getElementById('entryOfflineButton');
