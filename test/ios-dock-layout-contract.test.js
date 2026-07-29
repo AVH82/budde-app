@@ -48,10 +48,12 @@ test('startup controls rest above the visible dock and remain clickable',()=>{
   assert.match(pwa,/\.frameStartupControls\s*\{[\s\S]*?pointer-events:\s*auto\s*!important[\s\S]*?z-index:\s*var\(--frame-z-startup\)\s*!important/);
 });
 
-test('lower shutter keeps its central junction and extends behind the lifted dock',()=>{
+test('lower shutter grows upward by one slat while keeping its dock anchor',()=>{
+  assert.match(pwa,/--pwa-lower-shutter-junction-lift:\s*clamp\(44px,\s*12vw,\s*52px\)/);
   assert.match(pwa,/\.frameShutter--bottom\s*\{[\s\S]*?bottom:\s*calc\(var\(--dock-total-height\) - 2px\)\s*!important/);
+  assert.match(pwa,/\.frameShutter--bottom\s*\{[\s\S]*?height:\s*calc\([\s\S]*?var\(--pwa-lower-shutter-junction-lift\)[\s\S]*?\)\s*!important/);
   assert.doesNotMatch(pwa,/\.frameStartupControls,\s*\.frameShutter--bottom/);
-  assert.doesNotMatch(pwa,/\.frameShutter--bottom\s*\{[\s\S]*?var\(--pwa-safe-top\)/);
+  assert.doesNotMatch(pwa,/\.frameShutter--bottom\s*\{[\s\S]*?bottom:[\s\S]*?var\(--pwa-safe-top\)/);
 });
 
 test('startup controls become non-interactive and pass under the dock only while opening',()=>{
