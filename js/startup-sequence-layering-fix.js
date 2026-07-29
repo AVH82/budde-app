@@ -40,6 +40,7 @@
     delete gate.dataset.openingSequence;
     controls.hidden=true;
     controls.classList.remove('frameStartupControls--opening');
+    document.querySelectorAll('.frameShutter').forEach(shutter=>{shutter.hidden=true;});
     document.body.classList.remove('entryGateOpening','startupModeActivating');
     activateDock();
     if(modeButton){
