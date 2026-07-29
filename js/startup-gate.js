@@ -53,19 +53,13 @@
       .startupModePending .frameShellBottom .dockActions button::before,
       .startupModePending .frameShellBottom .dockActions button::after{opacity:0!important;box-shadow:none!important;}
 
-      .startupModeActivating .frameShellBottom .nav button[data-view="home"],
-      .startupModeActivating .frameShellBottom .dockActions button{
-        opacity:1!important;
-        filter:brightness(1.18) drop-shadow(0 0 7px rgba(157,255,69,.78))!important;
-        animation:startupDockIgnition 720ms steps(2,end) 2!important;
+      .app.frameShell>.frameStartupControls{position:absolute!important;}
+      .app.frameShell>.frameStartupControls.frameStartupControls--opening{
+        z-index:calc(var(--frame-z-chrome) - 1)!important;
       }
-      .startupModeActivating .frameShellBottom .nav button:not([data-view="home"]){filter:grayscale(1) brightness(.28)!important;opacity:.58!important;}
-      @keyframes startupDockIgnition{0%,22%,47%,72%,100%{opacity:1}12%,35%,61%,84%{opacity:.38}}
 
       @media(prefers-reduced-motion:reduce){
-        .startupModePending .startupAccessGlow,
-        .startupModeActivating .frameShellBottom .nav button[data-view="home"],
-        .startupModeActivating .frameShellBottom .dockActions button{animation:none!important;}
+        .startupModePending .startupAccessGlow{animation:none!important;}
       }
     `;
     document.head.appendChild(style);
@@ -186,7 +180,8 @@
     scene.appendChild(rotor);
     controls.appendChild(scene);
     gate.prepend(makeShutter('top'),makeShutter('bottom'));
-    document.body.appendChild(controls);
+    const shell=document.querySelector('.app.frameShell');
+    (shell||document.body).appendChild(controls);
     if(legacyActions)legacyActions.hidden=true;
     setDockStartupState(true);
     return gate;
