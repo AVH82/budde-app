@@ -58,8 +58,22 @@
         z-index:calc(var(--frame-z-chrome) - 1)!important;
       }
 
+      /* Shutters now share the transformed frame-shell stacking context with
+         the dock and startup controls. This makes their numeric z-index order
+         effective instead of allowing the gate to paint over button visuals. */
+      body.entryGateOpening .frameShutter--top .frameShutterTrack{
+        animation:frameSlatsRollUp var(--frame-motion) var(--frame-motion-ease) forwards;
+      }
+      body.entryGateOpening .frameShutter--bottom .frameShutterTrack{
+        animation:frameSlatsRollDown var(--frame-motion) var(--frame-motion-ease) forwards;
+      }
+
       @media(prefers-reduced-motion:reduce){
         .startupModePending .startupAccessGlow{animation:none!important;}
+        body.entryGateOpening .frameShutterTrack{
+          animation-duration:120ms!important;
+          animation-timing-function:linear!important;
+        }
       }
     `;
     document.head.appendChild(style);
@@ -179,9 +193,11 @@
     rotor.append(front,back);
     scene.appendChild(rotor);
     controls.appendChild(scene);
-    gate.prepend(makeShutter('top'),makeShutter('bottom'));
+
     const shell=document.querySelector('.app.frameShell');
-    (shell||document.body).appendChild(controls);
+    const shutterHost=shell||document.body;
+    shutterHost.append(makeShutter('top'),makeShutter('bottom'),controls);
+
     if(legacyActions)legacyActions.hidden=true;
     setDockStartupState(true);
     return gate;
@@ -194,6 +210,7 @@
     gate.style.visibility='visible';
     setDockStartupState(true);
     document.body.classList.remove('startupModeActivating','entryGateOpening');
+    document.querySelectorAll('.frameShutter').forEach(shutter=>{shutter.hidden=false;});
     const controls=document.querySelector('.frameStartupControls');
     if(!controls)return;
     controls.hidden=false;
