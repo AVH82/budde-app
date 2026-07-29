@@ -24,8 +24,8 @@ test('the sequence script is the only owner of the opening transition',()=>{
   assert.doesNotMatch(bootstrap,/GoogleAuthService\?\.onChange/);
 });
 
-test('bootstrap builds extra shutter coverage for tall standalone screens',()=>{
-  assert.match(bootstrap,/const SHUTTER_COVERAGE_MARGIN=5/);
+test('bootstrap builds enough shutter coverage to reach the dock on tall standalone screens',()=>{
+  assert.match(bootstrap,/const SHUTTER_COVERAGE_MARGIN=8/);
   assert.match(bootstrap,/Math\.ceil\(\(usableHeight\/2\)\/slatHeight\)\+SHUTTER_COVERAGE_MARGIN/);
 });
 
@@ -36,6 +36,13 @@ test('startup controls share the shell stacking context and descend behind the d
   assert.match(bootstrap,/frameStartupControls--opening\{[\s\S]*z-index:calc\(var\(--frame-z-chrome\) - 1\)!important/);
   assert.match(sequence,/controls\.classList\.add\('frameStartupControls--opening'\)/);
   assert.match(sequence,/setTimeout\(\(\)=>\{\s*controls\.hidden=true;\s*activateDock\(\)/s);
+});
+
+test('lower shutter stays behind startup controls and the operational dock',()=>{
+  assert.match(frame,/--frame-z-shutter:310/);
+  assert.match(frame,/--frame-z-startup:420/);
+  assert.match(frame,/--frame-z-chrome:400/);
+  assert.match(frame,/\.frameShutter\{[\s\S]*z-index:var\(--frame-z-shutter\)/);
 });
 
 test('operational navigation has no prolonged startup ignition override',()=>{
