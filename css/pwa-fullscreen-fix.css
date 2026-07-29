@@ -28,7 +28,7 @@
   }
 
   /* Keep the shared Frame System geometry. The root canvas is explicitly tied
-     to 100dvh; the dock surface separately extends through the bottom safe area. */
+     to 100dvh and already includes the bottom safe area inside the viewport. */
   .app.frameShell {
     position: fixed !important;
     inset: 0 !important;
@@ -48,11 +48,10 @@
     top: var(--pwa-safe-top) !important;
   }
 
-  /* On installed iOS WebApps, 100dvh can end at the safe viewport edge. Extend
-     only the dock surface through the bottom safe area so its upper functional
-     boundary, shutter contract and control positions do not move. */
+  /* The standalone viewport already contains the bottom safe area. Keep the
+     complete dock border box inside it: functional rows first, safe area last. */
   .frameShellBottom.pipDock {
-    bottom: calc(0px - var(--dock-safe-bottom)) !important;
+    bottom: 0 !important;
   }
 
   .app.frameShell main {
