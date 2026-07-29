@@ -24,15 +24,14 @@
     });
   }
 
-  function activateDock(){
-    document.body.classList.remove('startupModePending','startupModeActivating');
-    setActiveNav('home');
+  function currentNavView(){
+    return document.querySelector('.frameShellBottom .nav button[data-view].active')?.dataset.view||'home';
   }
 
-  function igniteDock(){
-    document.body.classList.remove('startupModePending');
-    document.body.classList.add('startupModeActivating');
-    setActiveNav('home');
+  function activateDock(){
+    const selected=currentNavView();
+    document.body.classList.remove('startupModePending','startupModeActivating');
+    setActiveNav(selected);
   }
 
   function finalize(gate,controls,modeButton){
@@ -70,7 +69,7 @@
       controls.classList.add('frameStartupControls--opening');
       setTimeout(()=>{
         controls.hidden=true;
-        igniteDock();
+        activateDock();
         document.body.classList.add('entryGateOpening');
         gate.classList.add('frameStartup--opening','entryGate--opening','startupSequenceOpen');
         setTimeout(()=>finalize(gate,controls,modeButton),shutters+220);
