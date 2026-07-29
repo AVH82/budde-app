@@ -48,3 +48,12 @@ test('installed WebApp keeps the full dock inside the viewport',()=>{
   assert.doesNotMatch(pwa,/\.app\.frameShell\s*\{[\s\S]*?bottom:\s*calc\(0px - var\(--dock-safe-bottom\)\)/);
   assert.doesNotMatch(pwa,/\.frameStartupControls\s*\{[\s\S]*?bottom:\s*calc\(0px - var\(--dock-safe-bottom\)\)/);
 });
+
+test('standalone paints only a decorative extension below the fixed viewport',()=>{
+  assert.match(pwa,/--pwa-physical-bottom-extension:\s*0px/);
+  assert.match(pwa,/\.frameShellBottom\.pipDock > \.dockPhysicalExtension\s*\{[\s\S]*?top:\s*100%\s*!important[\s\S]*?height:\s*var\(--pwa-physical-bottom-extension\)\s*!important/);
+  assert.match(startup,/screen\?\.height\|\|window\.innerHeight\)-window\.innerHeight/);
+  assert.match(startup,/style\.setProperty\('--pwa-physical-bottom-extension',`\$\{extension\}px`\)/);
+  assert.match(startup,/surface\.className='dockPhysicalExtension'/);
+  assert.doesNotMatch(startup,/style\.(?:bottom|height)\s*=/);
+});
