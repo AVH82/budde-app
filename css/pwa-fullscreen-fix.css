@@ -5,8 +5,8 @@
 @media (display-mode: standalone) {
   :root {
     /* Keep the shell extended through the top safe-area amount so its painted
-       surface reaches the physical bottom. The operational dock and the startup
-       controls are both aligned to the visible viewport bottom. */
+       surface reaches the physical bottom. The operational dock and startup
+       controls align to the visible viewport bottom. */
     --pwa-safe-top: env(safe-area-inset-top, 0px);
     --pwa-physical-height: calc(100dvh + var(--pwa-safe-top));
   }
@@ -63,16 +63,17 @@
     pointer-events: none !important;
   }
 
-  /* Resting state: controls sit immediately above the visible dock and remain
-     clickable. The lower shutter meets the same boundary. */
-  .frameStartupControls,
-  .frameShutter--bottom {
-    bottom: calc(var(--dock-total-height) + var(--pwa-safe-top) - 2px) !important;
-  }
-
+  /* The controls alone are lifted to sit immediately above the visible dock.
+     The lower shutter keeps its original central junction and extends beneath
+     the dock, where the dock masks its lower edge during opening. */
   .frameStartupControls {
+    bottom: calc(var(--dock-total-height) + var(--pwa-safe-top) - 2px) !important;
     pointer-events: auto !important;
     z-index: var(--frame-z-startup) !important;
+  }
+
+  .frameShutter--bottom {
+    bottom: calc(var(--dock-total-height) - 2px) !important;
   }
 
   /* Opening state only: interactions stop and the controls move beneath the
