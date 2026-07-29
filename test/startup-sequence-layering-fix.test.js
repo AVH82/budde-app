@@ -24,9 +24,19 @@ test('the sequence script is the only owner of the opening transition',()=>{
   assert.doesNotMatch(bootstrap,/GoogleAuthService\?\.onChange/);
 });
 
-test('bootstrap builds enough shutter coverage to reach the dock on tall standalone screens',()=>{
-  assert.match(bootstrap,/const SHUTTER_COVERAGE_MARGIN=8/);
-  assert.match(bootstrap,/Math\.ceil\(\(usableHeight\/2\)\/slatHeight\)\+SHUTTER_COVERAGE_MARGIN/);
+test('lower shutter receives dedicated extra coverage',()=>{
+  assert.match(bootstrap,/const TOP_SHUTTER_COVERAGE_MARGIN=5/);
+  assert.match(bootstrap,/const BOTTOM_SHUTTER_COVERAGE_MARGIN=12/);
+  assert.match(bootstrap,/const coverageMargin=position==='bottom'[\s\S]*BOTTOM_SHUTTER_COVERAGE_MARGIN[\s\S]*TOP_SHUTTER_COVERAGE_MARGIN/);
+  assert.match(bootstrap,/Math\.ceil\(\(usableHeight\/2\)\/slatHeight\)\+coverageMargin/);
+  assert.doesNotMatch(bootstrap,/const SHUTTER_COVERAGE_MARGIN=/);
+});
+
+test('lower shutter paints any residual clipped area with the slat asset',()=>{
+  assert.match(bootstrap,/\.frameShutter--bottom \.frameShutterTrack\{[\s\S]*min-height:100%!important/);
+  assert.match(bootstrap,/background-image:url\('assets\/frame\/frame-shutter-slat\.png'\)!important/);
+  assert.match(bootstrap,/background-repeat:repeat-y!important/);
+  assert.match(bootstrap,/background-position:center bottom!important/);
 });
 
 test('startup controls share the shell stacking context and descend behind the dock',()=>{
