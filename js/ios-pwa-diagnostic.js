@@ -56,7 +56,10 @@
     networkPanel:'.frameStartupChoice--network',
     localPanel:'.frameStartupChoice--local',
     fixedViewportProbe:'#iosPwaFixedViewportProbe',
-    safeAreaProbe:'#iosPwaSafeAreaProbe'
+    safeAreaProbe:'#iosPwaSafeAreaProbe',
+    dockFunctionalArea:'#iosPwaDockFunctionalArea',
+    dockSafeArea:'#iosPwaDockSafeArea',
+    texturedBackground:'#iosPwaTexturedBackground'
   };
 
   function installGeometryProbes(){
@@ -82,6 +85,33 @@
       boxSizing:'border-box'
     });
 
+    const dock=document.querySelector('.frameShellBottom.pipDock');
+    if(dock){
+      const functional=document.createElement('div');
+      functional.id='iosPwaDockFunctionalArea';
+      const safe=document.createElement('div');
+      safe.id='iosPwaDockSafeArea';
+      const texture=document.createElement('div');
+      texture.id='iosPwaTexturedBackground';
+      for(const element of [functional,safe,texture]){
+        element.setAttribute('aria-hidden','true');
+        element.className='iosPwaGeometryGuide';
+      }
+      dock.append(texture,functional,safe);
+    }
+
+    const style=document.createElement('style');
+    style.id='iosPwaGeometryStyles';
+    style.textContent=`
+      #iosPwaFixedViewportProbe{visibility:visible!important;z-index:2147483638!important;outline:3px solid red!important;outline-offset:-3px}
+      .app.frameShell{outline:2px solid #168cff!important;outline-offset:-2px}
+      .frameShellBottom.pipDock{outline:3px solid #ffe45e!important;outline-offset:-3px}
+      .iosPwaGeometryGuide{display:block!important;position:absolute!important;left:0!important;right:0!important;pointer-events:none!important;background:transparent!important}
+      #iosPwaTexturedBackground{inset:0!important;z-index:2!important;outline:2px solid white!important;outline-offset:-5px}
+      #iosPwaDockFunctionalArea{top:0!important;height:var(--dock-functional-height)!important;z-index:4!important;outline:2px solid #35e06f!important;outline-offset:-7px}
+      #iosPwaDockSafeArea{top:auto!important;bottom:0!important;height:var(--dock-safe-bottom)!important;z-index:5!important;outline:2px solid #c95cff!important;outline-offset:-9px}
+    `;
+    document.head.appendChild(style);
     document.body.append(fixedProbe,safeAreaProbe);
   }
 
@@ -181,6 +211,14 @@
       safeAreaInsets:safeAreas,
       fixedViewportProbe:fixedProbeRect,
       frameSystem:Object.fromEntries(Object.entries(elements).map(([name,element])=>[name,{selector:targets[name],found:Boolean(element),rect:rectangle(element)}])),
+      lowerConsole:{
+        shellBottom:rectangle(elements.frameShell)?.bottom??null,
+        dockTop:rectangle(elements.dock)?.top??null,
+        dockBottom:rectangle(elements.dock)?.bottom??null,
+        dockHeight:rectangle(elements.dock)?.height??null,
+        safeAreaBottom:safeAreas?.bottom??null,
+        texturedBackgroundBottom:rectangle(elements.texturedBackground)?.bottom??null
+      },
       computedStyles:Object.fromEntries(['frameShell','dock','startupPanel','fixedViewportProbe','safeAreaProbe'].map(name=>[name,computed(elements[name])])),
       stylesheets:stylesheetInventory(),
       serviceWorker:await serviceWorkerInventory(),

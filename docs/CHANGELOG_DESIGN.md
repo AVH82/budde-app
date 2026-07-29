@@ -84,3 +84,9 @@ Chaque entrée doit suivre ce modèle :
 - Portée : design, terminologie, composants, animations, personnage Budd€, conventions techniques et historique des validations.
 - Raison : permettre à toute IA ou tout développeur d'intervenir sans diluer l'identité graphique, ergonomique et technique du terminal.
 - Documents mis à jour : `START_HERE.md`, `DESIGN_BIBLE.md`, `TERMINOLOGY.md`, `COMPONENT_LIBRARY.md`, `ANIMATION_GUIDE.md`, `BUDDE_CHARACTER_BIBLE.md`, `CODING_GUIDELINES.md`, `CHANGELOG_DESIGN.md`.
+## 2026-07-29 — Contrat unique de console basse iOS
+
+- La console basse utilise désormais une hauteur fonctionnelle et une safe area séparées, dont la somme constitue son unique hauteur totale.
+- Scanner, Ajouter et les cinq commandes de navigation restent dans la zone fonctionnelle ; la zone Home Indicator prolonge nativement le métal et la texture de la console.
+- La scène de démarrage et le volet inférieur réutilisent la limite haute de cette même console, sans mesure JavaScript ni translation verticale propre au mode standalone.
+- Le diagnostic iOS, désactivé par défaut, peut matérialiser le viewport, le FrameShell, le dock total, sa zone fonctionnelle, sa safe area et sa surface texturée.

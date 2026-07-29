@@ -3,23 +3,24 @@ const assert=require('node:assert/strict');
 const fs=require('node:fs');
 
 const fix=fs.readFileSync('js/startup-sequence-layering-fix.js','utf8');
+const frame=fs.readFileSync('css/frame-system-v2.css','utf8');
 const sw=fs.readFileSync('service-worker.js','utf8');
 
-test('mode controls are anchored from the measured dock top',()=>{
-  assert.match(fix,/--startup-dock-offset/);
-  assert.match(fix,/getBoundingClientRect\(\)\.top/);
-  assert.match(fix,/bottom:calc\(var\(--startup-dock-offset/);
+test('startup sequence uses the shared CSS dock contract',()=>{
+  assert.match(frame,/\.frameStartupControls\{[\s\S]*bottom:calc\(var\(--dock-total-height\) - 2px\)/);
+  assert.match(frame,/\.frameStartupControls--opening\{[\s\S]*var\(--dock-total-height\)/);
+  assert.doesNotMatch(fix,/--startup-dock-offset|getBoundingClientRect\(\)\.top/);
 });
 
 test('local mode is intercepted before legacy handlers and shutters open after collapse',()=>{
   assert.match(fix,/stopImmediatePropagation\(\)/);
-  assert.match(fix,/setTimeout\(\(\)=>\{\s*rotor\.classList\.add\('is-open'\)/s);
+  assert.match(fix,/setTimeout\(\(\)=>\{\s*controls\.classList\.add\('frameStartupControls--opening'\)/s);
   assert.match(fix,/setTimeout\(\(\)=>\{\s*controls\.hidden=true;[\s\S]*startupSequenceOpen/s);
 });
 
-test('bottom shutter extends behind the dock and glow remains contained',()=>{
-  assert.match(fix,/\.frameShutter--bottom\{[\s\S]*bottom:0!important/s);
-  assert.match(fix,/\.startupAccessGlow\{[\s\S]*filter:none!important;[\s\S]*box-shadow:inset/s);
+test('bottom shutter and controls share the dock top boundary',()=>{
+  assert.match(frame,/\.frameShutter--bottom\{[\s\S]*bottom:calc\(var\(--dock-total-height\) - 2px\)/s);
+  assert.match(frame,/\.startupAccessGlow\{display:none!important/);
 });
 
 test('service worker injects and versions the layering fix',()=>{

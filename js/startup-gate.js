@@ -28,39 +28,6 @@
     const style=document.createElement('style');
     style.id='startupModeCollapseStyles';
     style.textContent=`
-      .frameStartupControls{
-        position:fixed!important;
-        left:50%!important;
-        bottom:calc(var(--nav-h) + 4px)!important;
-        width:var(--frame-shell-w)!important;
-        height:clamp(62px,17vw,78px)!important;
-        transform:translateX(-50%)!important;
-        overflow:visible!important;
-        background:transparent!important;
-      }
-      .startupAccessScene,.startupAccessRotor,.startupAccessFace{position:absolute!important;inset:0!important;width:100%!important;height:100%!important;}
-      .startupAccessScene{perspective:none!important;}
-      .startupAccessRotor{
-        transform:none!important;
-        transform-origin:center bottom!important;
-        transition:transform ${ACCESS_COLLAPSE_MS}ms cubic-bezier(.4,0,1,1),opacity ${ACCESS_COLLAPSE_MS}ms linear!important;
-      }
-      .startupAccessRotor.is-open{transform:translateY(calc(100% + 24px)) scale(.96)!important;opacity:0!important;}
-      .startupAccessFace--front{overflow:visible!important;background:transparent!important;}
-      .startupAccessFace--back,.startupAccessPanel{display:none!important;}
-      .startupAccessChoices{
-        position:absolute!important;
-        inset:0 clamp(12px,4vw,24px)!important;
-        width:auto!important;
-        max-width:none!important;
-        transform:none!important;
-        display:grid!important;
-        grid-template-columns:minmax(0,1fr) minmax(0,1fr)!important;
-        gap:clamp(8px,2.5vw,16px)!important;
-      }
-      .frameStartupChoice{height:100%!important;}
-      .frameStartupChoice::before{display:none!important;}
-      .frameStartupChoice>button{filter:brightness(1.08) drop-shadow(0 0 5px rgba(157,255,69,.48))!important;}
       .startupModePending .startupAccessGlow{
         opacity:.82!important;
         animation:startupModeFlicker 1350ms steps(2,end) infinite!important;

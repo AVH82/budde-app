@@ -34,57 +34,7 @@
     overflow: visible !important;
   }
 
-  /* Same dock geometry as Safari: bottom:0 and one safe-area contribution.
-     No negative offset, doubled height, synthetic 34px fallback or extra
-     translation of the internal controls. */
-  .frameShellBottom.pipDock {
-    position: fixed !important;
-    left: 50% !important;
-    right: auto !important;
-    bottom: 0 !important;
-    width: var(--frame-shell-w) !important;
-    height: calc(var(--nav-h, 104px) + env(safe-area-inset-bottom)) !important;
-    min-height: calc(var(--nav-h, 104px) + env(safe-area-inset-bottom)) !important;
-    padding-bottom: calc(9px + env(safe-area-inset-bottom)) !important;
-    transform: translateX(-50%) !important;
-    overflow: visible !important;
-  }
-
-  .frameShellBottom.pipDock::after {
-    content: none !important;
-    display: none !important;
-  }
-
-  .frameShellBottom .dockActions,
-  .frameShellBottom .nav {
-    transform: none !important;
-  }
-
-  /* Startup geometry and z-index are owned by the shared runtime/CSS, exactly
-     as in Safari. Standalone only keeps the component fixed to the shell. */
-  .frameStartupControls {
-    position: fixed !important;
-    left: 50% !important;
-    right: auto !important;
-    width: var(--frame-shell-w) !important;
-    min-height: 0 !important;
-    padding: 0 !important;
-    transform: translateX(-50%) !important;
-    overflow: visible !important;
-  }
-
-  .startupAccessScene,
-  .startupAccessRotor,
-  .startupAccessFace {
-    position: absolute !important;
-    inset: 0 !important;
-    width: 100% !important;
-    height: 100% !important;
-  }
-
-  .startupAccessPanel {
-    display: none !important;
-  }
+  /* Dock and startup geometry are shared with Safari in frame-system-v2.css. */
 
   .app.frameShell main {
     min-height: 0 !important;
