@@ -39,7 +39,7 @@
         will-change:transform;
       }
       .frameStartupControls.frameStartupControls--opening{
-        z-index:350!important;
+        z-index:110!important;
         transform:translate(-50%,calc(var(--startup-dock-offset, calc(var(--nav-h) + env(safe-area-inset-bottom))) + 16px))!important;
         opacity:1!important;
         visibility:visible!important;
@@ -49,10 +49,35 @@
         height:calc((100dvh - var(--frame-top-h) - var(--startup-dock-offset, calc(var(--nav-h) + env(safe-area-inset-bottom))) - env(safe-area-inset-top)) / 2 + 12px)!important;
         z-index:310!important;
       }
-      .frameShellBottom.pipDock{z-index:400!important;}
+      .frameShellBottom.pipDock{
+        z-index:400!important;
+        isolation:isolate!important;
+      }
+      .frameShellBottom.pipDock::after{
+        content:""!important;
+        display:block!important;
+        position:absolute!important;
+        z-index:1!important;
+        top:0!important;
+        right:clamp(12px,3.6vw,20px)!important;
+        bottom:calc(7px + env(safe-area-inset-bottom))!important;
+        left:clamp(12px,3.6vw,20px)!important;
+        border-radius:16px 16px 0 0!important;
+        pointer-events:none!important;
+        background:
+          repeating-linear-gradient(90deg,rgba(255,255,255,.025) 0 1px,transparent 1px 9px),
+          linear-gradient(180deg,rgba(12,16,10,.995),rgba(3,6,3,.998))!important;
+        box-shadow:inset 0 0 28px rgba(0,0,0,.94)!important;
+      }
       .frameShellBottom .dockActions,
       .frameShellBottom .nav{
+        position:relative!important;
+        z-index:3!important;
         transform:translateY(7px)!important;
+      }
+      @media(display-mode:standalone){
+        .frameShellBottom .dockActions,
+        .frameShellBottom .nav{transform:translateY(13px)!important;}
       }
       .startupAccessScene,.startupAccessRotor,.startupAccessFace{height:100%!important;}
       .startupAccessRotor,.startupAccessRotor.is-open{
@@ -115,6 +140,17 @@
         opacity:.92;
         box-shadow:inset 0 0 22px rgba(235,255,205,1),inset 0 0 38px rgba(157,255,69,.58);
         animation-duration:560ms;
+      }
+      #iosPwaDiagnosticOutput{
+        top:calc(env(safe-area-inset-top) + 8px)!important;
+        right:8px!important;
+        bottom:calc(env(safe-area-inset-bottom) + 8px)!important;
+        left:8px!important;
+        padding-top:56px!important;
+      }
+      #iosPwaDiagnosticOutput + button{
+        top:calc(env(safe-area-inset-top) + 16px)!important;
+        right:16px!important;
       }
       @keyframes startupContainedFlicker{0%,13%,18%,46%,52%,78%,100%{opacity:.66}15%,49%,80%{opacity:.42}16%,50%{opacity:.82}}
       .startupSequenceOwned .frameShutterTrack{animation:none!important;}
