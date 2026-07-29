@@ -9,6 +9,9 @@
        controls align to the visible viewport bottom. */
     --pwa-safe-top: env(safe-area-inset-top, 0px);
     --pwa-physical-height: calc(100dvh + var(--pwa-safe-top));
+    /* Raise only the lower shutter's central junction by roughly one slat.
+       Its lower edge remains anchored behind the dock. */
+    --pwa-lower-shutter-junction-lift: clamp(44px, 12vw, 52px);
   }
 
   html,
@@ -64,8 +67,8 @@
   }
 
   /* The controls alone are lifted to sit immediately above the visible dock.
-     The lower shutter keeps its original central junction and extends beneath
-     the dock, where the dock masks its lower edge during opening. */
+     The lower shutter keeps its original bottom anchor and grows upward by one
+     slat so both yellow/black junctions meet without changing the animation. */
   .frameStartupControls {
     bottom: calc(var(--dock-total-height) + var(--pwa-safe-top) - 2px) !important;
     pointer-events: auto !important;
@@ -74,6 +77,11 @@
 
   .frameShutter--bottom {
     bottom: calc(var(--dock-total-height) - 2px) !important;
+    height: calc(
+      (100dvh - var(--frame-top-h) - var(--dock-total-height) - env(safe-area-inset-top)) / 2
+      + 12px
+      + var(--pwa-lower-shutter-junction-lift)
+    ) !important;
   }
 
   /* Opening state only: interactions stop and the controls move beneath the
