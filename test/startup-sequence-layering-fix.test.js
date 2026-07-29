@@ -29,17 +29,21 @@ test('bootstrap builds extra shutter coverage for tall standalone screens',()=>{
   assert.match(bootstrap,/Math\.ceil\(\(usableHeight\/2\)\/slatHeight\)\+SHUTTER_COVERAGE_MARGIN/);
 });
 
-test('startup controls descend behind the dock before the shutters open',()=>{
+test('startup controls share the shell stacking context and descend behind the dock',()=>{
+  assert.match(bootstrap,/const shell=document\.querySelector\('\.app\.frameShell'\)/);
+  assert.match(bootstrap,/\(shell\|\|document\.body\)\.appendChild\(controls\)/);
+  assert.match(bootstrap,/\.app\.frameShell>\.frameStartupControls\{position:absolute!important;\}/);
+  assert.match(bootstrap,/frameStartupControls--opening\{[\s\S]*z-index:calc\(var\(--frame-z-chrome\) - 1\)!important/);
   assert.match(sequence,/controls\.classList\.add\('frameStartupControls--opening'\)/);
-  assert.match(sequence,/setTimeout\(\(\)=>\{\s*controls\.hidden=true;\s*igniteDock\(\)/s);
-  assert.match(frame,/\.frameStartupControls--opening\{[\s\S]*z-index:calc\(var\(--frame-z-chrome\) - 1\)/);
+  assert.match(sequence,/setTimeout\(\(\)=>\{\s*controls\.hidden=true;\s*activateDock\(\)/s);
 });
 
-test('operational navigation has one exclusive active button',()=>{
+test('operational navigation has no prolonged startup ignition override',()=>{
   assert.match(sequence,/function setActiveNav\(view='home'\)/);
   assert.match(sequence,/button\.classList\.toggle\('active',active\)/);
   assert.match(sequence,/requestAnimationFrame\(\(\)=>setActiveNav\(view\)\)/);
-  assert.doesNotMatch(sequence,/function activateDock\(\)[\s\S]*classList\.add\('startupModeActivating'\)/);
+  assert.doesNotMatch(sequence,/function igniteDock|classList\.add\('startupModeActivating'\)/);
+  assert.doesNotMatch(bootstrap,/startupDockIgnition|startupModeActivating \.frameShellBottom/);
 });
 
 test('bootstrap only builds and resets the startup scene',()=>{
