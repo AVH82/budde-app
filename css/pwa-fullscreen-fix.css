@@ -1,13 +1,20 @@
 /* Installed iOS WebApp stabilization.
    Safari remains the single source of truth for component geometry.
-   Standalone mode only normalizes the viewport root and preserves the same
-   dock, startup controls, safe-area and stacking rules as the shared layout. */
+   Standalone mode only normalizes the physical viewport root and preserves the
+   same dock, startup controls, safe-area and stacking rules as the shared layout. */
 @media (display-mode: standalone) {
+  :root {
+    /* The installed WebApp uses the physical dynamic viewport as its canvas.
+       Component geometry remains owned by the shared Frame System. */
+    --pwa-physical-height: 100dvh;
+    --pwa-safe-top: env(safe-area-inset-top, 0px);
+  }
+
   html,
   body {
     width: 100% !important;
-    height: 100% !important;
-    min-height: 100% !important;
+    height: var(--pwa-physical-height) !important;
+    min-height: var(--pwa-physical-height) !important;
     margin: 0 !important;
     padding: 0 !important;
     overflow: hidden !important;
@@ -20,21 +27,33 @@
     inset: 0 !important;
   }
 
-  /* Keep the shared Frame System geometry. Do not create a second standalone
-     layout with different heights, offsets or transforms. */
+  /* Keep the shared Frame System geometry. The root canvas is explicitly tied
+     to 100dvh so bottom:0 means the physical lower edge of the iPhone rather
+     than the shorter legacy percentage viewport. */
   .app.frameShell {
     position: fixed !important;
     inset: 0 !important;
     width: var(--frame-shell-w) !important;
-    height: 100% !important;
-    min-height: 100% !important;
-    max-height: none !important;
+    height: var(--pwa-physical-height) !important;
+    min-height: var(--pwa-physical-height) !important;
+    max-height: var(--pwa-physical-height) !important;
     margin: 0 auto !important;
     transform: none !important;
     overflow: visible !important;
   }
 
-  /* Dock and startup geometry are shared with Safari in frame-system-v2.css. */
+  /* The header artwork starts below the iOS status / camera safe area. Its
+     content spacing already includes the same inset in ast-013-2.css. */
+  .frameShellTop,
+  body.scannerFullscreen .frameShellTop {
+    top: var(--pwa-safe-top) !important;
+  }
+
+  /* Dock and startup geometry are shared with Safari in frame-system-v2.css.
+     The dock stays at bottom:0; safe-area spacing only moves controls inside it. */
+  .frameShellBottom.pipDock {
+    bottom: 0 !important;
+  }
 
   .app.frameShell main {
     min-height: 0 !important;
