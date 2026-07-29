@@ -48,6 +48,17 @@ test('startup controls rest above the visible dock and remain clickable',()=>{
   assert.match(pwa,/\.frameStartupControls\s*\{[\s\S]*?pointer-events:\s*auto\s*!important[\s\S]*?z-index:\s*var\(--frame-z-startup\)\s*!important/);
 });
 
+test('moving startup assembly owns an opaque black backplate',()=>{
+  assert.match(pwa,/\.frameStartupControls\s*\{[\s\S]*?isolation:\s*isolate\s*!important/);
+  assert.match(pwa,/\.frameStartupControls::before\s*\{[\s\S]*?position:\s*absolute\s*!important[\s\S]*?background:\s*rgba\(0,\s*0,\s*0,\s*\.94\)\s*!important/);
+  assert.match(pwa,/\.frameStartupControls \.startupAccessScene\s*\{[\s\S]*?z-index:\s*1\s*!important/);
+});
+
+test('Local visual asset is enlarged without changing its clickable cell',()=>{
+  assert.match(pwa,/\.frameStartupChoice--local > button\s*\{[\s\S]*?background-size:\s*112% 112%\s*!important/);
+  assert.doesNotMatch(pwa,/\.frameStartupChoice--local\s*\{[\s\S]*?(?:width|height):/);
+});
+
 test('lower shutter grows upward by one slat while keeping its dock anchor',()=>{
   assert.match(pwa,/--pwa-lower-shutter-junction-lift:\s*clamp\(44px,\s*12vw,\s*52px\)/);
   assert.match(pwa,/\.frameShutter--bottom\s*\{[\s\S]*?bottom:\s*calc\(var\(--dock-total-height\) - 2px\)\s*!important/);
