@@ -15,15 +15,24 @@
     document.body.style.backgroundColor='#000';
   }
 
-  function activateDock(){
-    document.body.classList.remove('startupModePending');
-    document.body.classList.add('startupModeActivating');
+  function setActiveNav(view='home'){
     document.querySelectorAll('.frameShellBottom .nav button[data-view]').forEach(button=>{
-      const home=button.dataset.view==='home';
-      button.classList.toggle('active',home);
-      if(home)button.setAttribute('aria-current','page');
+      const active=button.dataset.view===view;
+      button.classList.toggle('active',active);
+      if(active)button.setAttribute('aria-current','page');
       else button.removeAttribute('aria-current');
     });
+  }
+
+  function activateDock(){
+    document.body.classList.remove('startupModePending','startupModeActivating');
+    setActiveNav('home');
+  }
+
+  function igniteDock(){
+    document.body.classList.remove('startupModePending');
+    document.body.classList.add('startupModeActivating');
+    setActiveNav('home');
   }
 
   function finalize(gate,controls,modeButton){
@@ -61,7 +70,7 @@
       controls.classList.add('frameStartupControls--opening');
       setTimeout(()=>{
         controls.hidden=true;
-        activateDock();
+        igniteDock();
         document.body.classList.add('entryGateOpening');
         gate.classList.add('frameStartup--opening','entryGate--opening','startupSequenceOpen');
         setTimeout(()=>finalize(gate,controls,modeButton),shutters+220);
@@ -86,9 +95,17 @@
     gate.dataset.openingSequence='1';
   }
 
+  function syncOperationalNavigation(event){
+    const button=event.target.closest?.('.frameShellBottom .nav button[data-view]');
+    if(!button)return;
+    const view=button.dataset.view;
+    requestAnimationFrame(()=>setActiveNav(view));
+  }
+
   function prepare(){
     setSystemChrome();
     document.addEventListener('click',intercept,true);
+    document.addEventListener('click',syncOperationalNavigation,false);
     if(window.GoogleAuthService?.onChange){
       window.GoogleAuthService.onChange(status=>{
         if(!networkPending||!status?.signedIn)return;
