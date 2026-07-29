@@ -11,7 +11,7 @@ const legacy=[
 ].join('\n');
 const startup=fs.readFileSync('js/startup-sequence-layering-fix.js','utf8');
 
-test('dock contract counts the safe area exactly once',()=>{
+ test('dock contract counts the safe area exactly once',()=>{
   assert.match(frame,/--dock-safe-bottom:env\(safe-area-inset-bottom,0px\)/);
   assert.match(frame,/--dock-functional-height:var\(--nav-h,148px\)/);
   assert.match(frame,/--dock-total-height:calc\(var\(--dock-functional-height\) \+ var\(--dock-safe-bottom\)\)/);
@@ -41,11 +41,10 @@ test('installed WebApp header begins below the iOS top safe area',()=>{
   assert.match(pwa,/\.frameShellTop,[\s\S]*?body\.scannerFullscreen \.frameShellTop\s*\{[\s\S]*?top:\s*var\(--pwa-safe-top\)\s*!important/);
 });
 
-test('complete lower console is lifted by the top safe area',()=>{
+test('operational dock stays lifted while startup controls meet its visible top',()=>{
   assert.match(pwa,/\.frameShellBottom\.pipDock\s*\{[\s\S]*?bottom:\s*var\(--pwa-safe-top\)\s*!important/);
-  assert.match(pwa,/\.frameStartupControls\s*\{[\s\S]*?bottom:\s*calc\(var\(--dock-total-height\) \+ var\(--pwa-safe-top\) - 2px\)\s*!important/);
-  assert.match(pwa,/\.frameShutter--bottom\s*\{[\s\S]*?bottom:\s*calc\(var\(--dock-total-height\) \+ var\(--pwa-safe-top\) - 2px\)\s*!important/);
-  assert.doesNotMatch(pwa,/\.frameShellBottom\.pipDock\s*\{[\s\S]*?bottom:\s*0\s*!important/);
+  assert.match(pwa,/\.frameStartupControls,[\s\S]*?\.frameShutter--bottom\s*\{[\s\S]*?bottom:\s*calc\(var\(--dock-total-height\) - 2px\)\s*!important/);
+  assert.doesNotMatch(pwa,/\.frameStartupControls\s*\{[\s\S]*?var\(--pwa-safe-top\)/);
 });
 
 test('obsolete decorative bottom extension is fully removed',()=>{

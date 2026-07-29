@@ -24,6 +24,24 @@ test('the sequence script is the only owner of the opening transition',()=>{
   assert.doesNotMatch(bootstrap,/GoogleAuthService\?\.onChange/);
 });
 
+test('bootstrap builds extra shutter coverage for tall standalone screens',()=>{
+  assert.match(bootstrap,/const SHUTTER_COVERAGE_MARGIN=5/);
+  assert.match(bootstrap,/Math\.ceil\(\(usableHeight\/2\)\/slatHeight\)\+SHUTTER_COVERAGE_MARGIN/);
+});
+
+test('startup controls descend behind the dock before the shutters open',()=>{
+  assert.match(sequence,/controls\.classList\.add\('frameStartupControls--opening'\)/);
+  assert.match(sequence,/setTimeout\(\(\)=>\{\s*controls\.hidden=true;\s*igniteDock\(\)/s);
+  assert.match(frame,/\.frameStartupControls--opening\{[\s\S]*z-index:calc\(var\(--frame-z-chrome\) - 1\)/);
+});
+
+test('operational navigation has one exclusive active button',()=>{
+  assert.match(sequence,/function setActiveNav\(view='home'\)/);
+  assert.match(sequence,/button\.classList\.toggle\('active',active\)/);
+  assert.match(sequence,/requestAnimationFrame\(\(\)=>setActiveNav\(view\)\)/);
+  assert.doesNotMatch(sequence,/function activateDock\(\)[\s\S]*classList\.add\('startupModeActivating'\)/);
+});
+
 test('bootstrap only builds and resets the startup scene',()=>{
   assert.match(bootstrap,/function buildFrameStartup\(\)/);
   assert.match(bootstrap,/function showGate\(gate\)/);

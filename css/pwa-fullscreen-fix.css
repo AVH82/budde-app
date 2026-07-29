@@ -5,8 +5,8 @@
 @media (display-mode: standalone) {
   :root {
     /* Keep the shell extended through the top safe-area amount so its painted
-       surface reaches the physical bottom. Lower-console components are offset
-       upward by the same amount and therefore remain inside the real viewport. */
+       surface reaches the physical bottom. The operational dock alone is lifted
+       by that amount; startup controls remain directly above the visible dock. */
     --pwa-safe-top: env(safe-area-inset-top, 0px);
     --pwa-physical-height: calc(100dvh + var(--pwa-safe-top));
   }
@@ -52,18 +52,17 @@
     top: var(--pwa-safe-top) !important;
   }
 
-  /* The transformed shell is taller than the actual viewport by the top safe
-     area. Lift the complete lower console by exactly that amount. */
+  /* Keep the validated operational dock geometry. */
   .frameShellBottom.pipDock {
     bottom: var(--pwa-safe-top) !important;
   }
 
-  .frameStartupControls {
-    bottom: calc(var(--dock-total-height) + var(--pwa-safe-top) - 2px) !important;
-  }
-
+  /* The access buttons and the lower shutter must meet the visible dock top,
+     not the bottom of the extended shell. They therefore do not receive the
+     additional top-safe-area lift applied to the dock itself. */
+  .frameStartupControls,
   .frameShutter--bottom {
-    bottom: calc(var(--dock-total-height) + var(--pwa-safe-top) - 2px) !important;
+    bottom: calc(var(--dock-total-height) - 2px) !important;
   }
 
   .app.frameShell main {

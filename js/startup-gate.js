@@ -5,7 +5,7 @@
   const RELEASE_STYLESHEET='css/ast-012-4.css?v=ast058';
   const HEADER_STYLESHEET='css/ast-013-2.css?v=ast058';
   const SHUTTER_SLAT_ASPECT=122/797;
-  const SHUTTER_COVERAGE_MARGIN=2;
+  const SHUTTER_COVERAGE_MARGIN=5;
 
   function configureSystemChrome(){
     let theme=document.querySelector('meta[name="theme-color"]');
