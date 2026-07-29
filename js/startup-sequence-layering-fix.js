@@ -6,6 +6,28 @@
   let networkPending=false;
   let sequenceRunning=false;
 
+  function isStandalone(){
+    return window.matchMedia?.('(display-mode: standalone)').matches||navigator.standalone===true;
+  }
+
+  function syncPhysicalBottomExtension(){
+    const extension=isStandalone()
+      ?Math.max(0,Math.round((window.screen?.height||window.innerHeight)-window.innerHeight))
+      :0;
+    document.documentElement.style.setProperty('--pwa-physical-bottom-extension',`${extension}px`);
+
+    const dock=document.querySelector('.frameShellBottom.pipDock');
+    if(!dock)return;
+    let surface=dock.querySelector('.dockPhysicalExtension');
+    if(!surface){
+      surface=document.createElement('div');
+      surface.className='dockPhysicalExtension';
+      surface.setAttribute('aria-hidden','true');
+      dock.appendChild(surface);
+    }
+    surface.hidden=extension===0;
+  }
+
   function setSystemChrome(){
     const theme=document.querySelector('meta[name="theme-color"]');
     if(theme)theme.content='#000000';
@@ -88,6 +110,10 @@
 
   function prepare(){
     setSystemChrome();
+    syncPhysicalBottomExtension();
+    window.addEventListener('resize',syncPhysicalBottomExtension);
+    window.addEventListener('orientationchange',syncPhysicalBottomExtension);
+    window.visualViewport?.addEventListener('resize',syncPhysicalBottomExtension);
     document.addEventListener('click',intercept,true);
     if(window.GoogleAuthService?.onChange){
       window.GoogleAuthService.onChange(status=>{
