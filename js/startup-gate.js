@@ -5,8 +5,7 @@
   const RELEASE_STYLESHEET='css/ast-012-4.css?v=ast058';
   const HEADER_STYLESHEET='css/ast-013-2.css?v=ast058';
   const SHUTTER_SLAT_ASPECT=122/797;
-  const TOP_SHUTTER_COVERAGE_MARGIN=5;
-  const BOTTOM_SHUTTER_COVERAGE_MARGIN=12;
+  const SHUTTER_COVERAGE_MARGIN=5;
 
   function configureSystemChrome(){
     let theme=document.querySelector('meta[name="theme-color"]');
@@ -59,16 +58,6 @@
         z-index:calc(var(--frame-z-chrome) - 1)!important;
       }
 
-      /* Lower shutter only: keep a painted slat reserve inside the clipped
-         container so the area behind Network/Local never falls back to black. */
-      .frameShutter--bottom .frameShutterTrack{
-        min-height:100%!important;
-        background-image:url('assets/frame/frame-shutter-slat.png')!important;
-        background-repeat:repeat-y!important;
-        background-position:center bottom!important;
-        background-size:100% auto!important;
-      }
-
       @media(prefers-reduced-motion:reduce){
         .startupModePending .startupAccessGlow{animation:none!important;}
       }
@@ -104,10 +93,7 @@
       (parseFloat(rootStyle.getPropertyValue('--frame-top-h'))||118)-
       (parseFloat(rootStyle.getPropertyValue('--dock-total-height'))||148));
     const slatHeight=Math.max(1,shellWidth*SHUTTER_SLAT_ASPECT);
-    const coverageMargin=position==='bottom'
-      ? BOTTOM_SHUTTER_COVERAGE_MARGIN
-      : TOP_SHUTTER_COVERAGE_MARGIN;
-    const slatCount=Math.max(3,Math.ceil((usableHeight/2)/slatHeight)+coverageMargin);
+    const slatCount=Math.max(3,Math.ceil((usableHeight/2)/slatHeight)+SHUTTER_COVERAGE_MARGIN);
     const slats=Array.from({length:slatCount},()=>{
       const slat=document.createElement('img');
       slat.className='frameShutterSlat';
