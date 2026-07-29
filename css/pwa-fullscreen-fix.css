@@ -73,6 +73,32 @@
     bottom: calc(var(--dock-total-height) + var(--pwa-safe-top) - 2px) !important;
     pointer-events: auto !important;
     z-index: var(--frame-z-startup) !important;
+    isolation: isolate !important;
+  }
+
+  /* A black backplate belongs to the moving Network/Local assembly itself.
+     It sits behind both button assets and their glow, but above the shutter,
+     and therefore follows the exact same downward transition. */
+  .frameStartupControls::before {
+    content: "" !important;
+    position: absolute !important;
+    inset: 0 clamp(10px, 2.5vw, 14px) !important;
+    z-index: 0 !important;
+    border-radius: 12px !important;
+    background: rgba(0, 0, 0, .94) !important;
+    box-shadow: inset 0 0 18px rgba(0, 0, 0, .95) !important;
+    pointer-events: none !important;
+  }
+
+  .frameStartupControls .startupAccessScene {
+    z-index: 1 !important;
+  }
+
+  /* The Local PNG contains more transparent internal padding than Network.
+     Compensate only its rendered asset so both visible plates occupy the same
+     measured slot without changing either clickable grid cell. */
+  .frameStartupChoice--local > button {
+    background-size: 112% 112% !important;
   }
 
   .frameShutter--bottom {
@@ -84,8 +110,8 @@
     ) !important;
   }
 
-  /* Opening state only: interactions stop and the controls move beneath the
-     dock in the shared stacking context. */
+  /* Opening state only: interactions stop and the complete controls assembly,
+     including its black backplate, moves beneath the dock. */
   .frameStartupControls--opening {
     pointer-events: none !important;
     z-index: calc(var(--frame-z-chrome) - 1) !important;
