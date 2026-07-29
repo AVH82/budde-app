@@ -11,7 +11,7 @@ const legacy=[
 ].join('\n');
 const startup=fs.readFileSync('js/startup-sequence-layering-fix.js','utf8');
 
- test('dock contract counts the safe area exactly once',()=>{
+test('dock contract counts the safe area exactly once',()=>{
   assert.match(frame,/--dock-safe-bottom:env\(safe-area-inset-bottom,0px\)/);
   assert.match(frame,/--dock-functional-height:var\(--nav-h,148px\)/);
   assert.match(frame,/--dock-total-height:calc\(var\(--dock-functional-height\) \+ var\(--dock-safe-bottom\)\)/);
@@ -41,10 +41,15 @@ test('installed WebApp header begins below the iOS top safe area',()=>{
   assert.match(pwa,/\.frameShellTop,[\s\S]*?body\.scannerFullscreen \.frameShellTop\s*\{[\s\S]*?top:\s*var\(--pwa-safe-top\)\s*!important/);
 });
 
-test('operational dock stays lifted while startup controls meet its visible top',()=>{
+test('startup controls rest above the visible dock and remain clickable',()=>{
   assert.match(pwa,/\.frameShellBottom\.pipDock\s*\{[\s\S]*?bottom:\s*var\(--pwa-safe-top\)\s*!important/);
-  assert.match(pwa,/\.frameStartupControls,[\s\S]*?\.frameShutter--bottom\s*\{[\s\S]*?bottom:\s*calc\(var\(--dock-total-height\) - 2px\)\s*!important/);
-  assert.doesNotMatch(pwa,/\.frameStartupControls\s*\{[\s\S]*?var\(--pwa-safe-top\)/);
+  assert.match(pwa,/\.frameStartupControls,[\s\S]*?\.frameShutter--bottom\s*\{[\s\S]*?bottom:\s*calc\(var\(--dock-total-height\) \+ var\(--pwa-safe-top\) - 2px\)\s*!important/);
+  assert.match(pwa,/\.entryGate\.frameStartup\s*\{[\s\S]*?pointer-events:\s*none\s*!important/);
+  assert.match(pwa,/\.frameStartupControls\s*\{[\s\S]*?pointer-events:\s*auto\s*!important[\s\S]*?z-index:\s*var\(--frame-z-startup\)\s*!important/);
+});
+
+test('startup controls become non-interactive and pass under the dock only while opening',()=>{
+  assert.match(pwa,/\.frameStartupControls--opening\s*\{[\s\S]*?pointer-events:\s*none\s*!important[\s\S]*?z-index:\s*calc\(var\(--frame-z-chrome\) - 1\)\s*!important/);
 });
 
 test('obsolete decorative bottom extension is fully removed',()=>{
