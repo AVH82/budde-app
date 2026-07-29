@@ -30,30 +30,26 @@ test('dock rows have no compensating vertical transform',()=>{
   assert.doesNotMatch(startup,/--startup-dock-offset|getBoundingClientRect\(\)\.top/);
 });
 
-test('installed WebApp anchors the frame to the physical dynamic viewport',()=>{
-  assert.match(pwa,/--pwa-physical-height:\s*100dvh/);
+test('installed WebApp root reaches the physical screen bottom',()=>{
+  assert.match(pwa,/--pwa-safe-top:\s*env\(safe-area-inset-top,\s*0px\)/);
+  assert.match(pwa,/--pwa-physical-height:\s*calc\(100dvh \+ var\(--pwa-safe-top\)\)/);
   assert.match(pwa,/height:\s*var\(--pwa-physical-height\)\s*!important/);
   assert.match(pwa,/max-height:\s*var\(--pwa-physical-height\)\s*!important/);
-  assert.doesNotMatch(pwa,/height:\s*100%\s*!important/);
+  assert.doesNotMatch(pwa,/--pwa-physical-height:\s*100dvh\s*;/);
 });
 
 test('installed WebApp header begins below the iOS top safe area',()=>{
-  assert.match(pwa,/--pwa-safe-top:\s*env\(safe-area-inset-top,\s*0px\)/);
   assert.match(pwa,/\.frameShellTop,[\s\S]*?body\.scannerFullscreen \.frameShellTop\s*\{[\s\S]*?top:\s*var\(--pwa-safe-top\)\s*!important/);
 });
 
-test('installed WebApp keeps the full dock inside the viewport',()=>{
+test('installed WebApp keeps the full dock at the physical root bottom',()=>{
   assert.match(pwa,/\.frameShellBottom\.pipDock\s*\{[\s\S]*?bottom:\s*0\s*!important/);
   assert.doesNotMatch(pwa,/bottom:\s*calc\(0px - var\(--dock-safe-bottom\)\)/);
   assert.doesNotMatch(pwa,/\.app\.frameShell\s*\{[\s\S]*?bottom:\s*calc\(0px - var\(--dock-safe-bottom\)\)/);
   assert.doesNotMatch(pwa,/\.frameStartupControls\s*\{[\s\S]*?bottom:\s*calc\(0px - var\(--dock-safe-bottom\)\)/);
 });
 
-test('standalone paints only a decorative extension below the fixed viewport',()=>{
-  assert.match(pwa,/--pwa-physical-bottom-extension:\s*0px/);
-  assert.match(pwa,/\.frameShellBottom\.pipDock > \.dockPhysicalExtension\s*\{[\s\S]*?top:\s*100%\s*!important[\s\S]*?height:\s*var\(--pwa-physical-bottom-extension\)\s*!important/);
-  assert.match(startup,/screen\?\.height\|\|window\.innerHeight\)-window\.innerHeight/);
-  assert.match(startup,/style\.setProperty\('--pwa-physical-bottom-extension',`\$\{extension\}px`\)/);
-  assert.match(startup,/surface\.className='dockPhysicalExtension'/);
-  assert.doesNotMatch(startup,/style\.(?:bottom|height)\s*=/);
+test('obsolete decorative bottom extension is fully removed',()=>{
+  assert.doesNotMatch(pwa,/pwa-physical-bottom-extension|dockPhysicalExtension/);
+  assert.doesNotMatch(startup,/syncPhysicalBottomExtension|dockPhysicalExtension|screen\?\.height|--pwa-physical-bottom-extension/);
 });
