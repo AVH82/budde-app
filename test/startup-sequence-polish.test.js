@@ -5,10 +5,11 @@ const fs=require('node:fs');
 const startup=fs.readFileSync('js/startup-gate.js','utf8');
 const manifest=JSON.parse(fs.readFileSync('manifest.webmanifest','utf8'));
 const worker=fs.readFileSync('service-worker.js','utf8');
+const frame=fs.readFileSync('css/frame-system-v2.css','utf8');
 
 test('mode controls are anchored directly above the dock on every viewport',()=>{
-  assert.match(startup,/bottom:calc\(var\(--nav-h\) \+ 4px\)!important/);
-  assert.doesNotMatch(startup,/bottom:calc\(var\(--nav-h\) \+ env\(safe-area-inset-bottom\)/);
+  assert.match(frame,/bottom:calc\(var\(--dock-total-height\) - 2px\)/);
+  assert.doesNotMatch(startup,/bottom:calc\(var\(--nav-h\)/);
 });
 
 test('all dock controls are dark before mode selection',()=>{

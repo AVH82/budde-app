@@ -5,7 +5,7 @@ const css=fs.readFileSync('css/frame-system-v2.css','utf8');
 
 test('startup plate fills the complete lower console and its safe area',()=>{
   for(const declaration of ['--startup-panel-x:0%','--startup-panel-y:0%','--startup-panel-width:100%','--startup-panel-height:100%']) assert.ok(css.includes(declaration));
-  assert.match(css,/\.frameStartupControls\{[\s\S]*bottom:0;[\s\S]*height:calc\(var\(--nav-h\) \+ env\(safe-area-inset-bottom\)\)/);
+  assert.match(css,/\.frameStartupControls\{[\s\S]*bottom:calc\(var\(--dock-total-height\) - 2px\);[\s\S]*height:clamp\(72px,19vw,92px\)/);
 });
 
 test('mode controls are enlarged and seated in the upper control row',()=>{
