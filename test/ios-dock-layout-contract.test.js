@@ -43,9 +43,15 @@ test('installed WebApp header begins below the iOS top safe area',()=>{
 
 test('startup controls rest above the visible dock and remain clickable',()=>{
   assert.match(pwa,/\.frameShellBottom\.pipDock\s*\{[\s\S]*?bottom:\s*var\(--pwa-safe-top\)\s*!important/);
-  assert.match(pwa,/\.frameStartupControls,[\s\S]*?\.frameShutter--bottom\s*\{[\s\S]*?bottom:\s*calc\(var\(--dock-total-height\) \+ var\(--pwa-safe-top\) - 2px\)\s*!important/);
+  assert.match(pwa,/\.frameStartupControls\s*\{[\s\S]*?bottom:\s*calc\(var\(--dock-total-height\) \+ var\(--pwa-safe-top\) - 2px\)\s*!important/);
   assert.match(pwa,/\.entryGate\.frameStartup\s*\{[\s\S]*?pointer-events:\s*none\s*!important/);
   assert.match(pwa,/\.frameStartupControls\s*\{[\s\S]*?pointer-events:\s*auto\s*!important[\s\S]*?z-index:\s*var\(--frame-z-startup\)\s*!important/);
+});
+
+test('lower shutter keeps its central junction and extends behind the lifted dock',()=>{
+  assert.match(pwa,/\.frameShutter--bottom\s*\{[\s\S]*?bottom:\s*calc\(var\(--dock-total-height\) - 2px\)\s*!important/);
+  assert.doesNotMatch(pwa,/\.frameStartupControls,\s*\.frameShutter--bottom/);
+  assert.doesNotMatch(pwa,/\.frameShutter--bottom\s*\{[\s\S]*?var\(--pwa-safe-top\)/);
 });
 
 test('startup controls become non-interactive and pass under the dock only while opening',()=>{
