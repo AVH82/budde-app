@@ -34,11 +34,16 @@ test('installed WebApp anchors the frame to the physical dynamic viewport',()=>{
   assert.match(pwa,/--pwa-physical-height:\s*100dvh/);
   assert.match(pwa,/height:\s*var\(--pwa-physical-height\)\s*!important/);
   assert.match(pwa,/max-height:\s*var\(--pwa-physical-height\)\s*!important/);
-  assert.match(pwa,/\.frameShellBottom\.pipDock\s*\{[\s\S]*?bottom:\s*0\s*!important/);
   assert.doesNotMatch(pwa,/height:\s*100%\s*!important/);
 });
 
 test('installed WebApp header begins below the iOS top safe area',()=>{
   assert.match(pwa,/--pwa-safe-top:\s*env\(safe-area-inset-top,\s*0px\)/);
   assert.match(pwa,/\.frameShellTop,[\s\S]*?body\.scannerFullscreen \.frameShellTop\s*\{[\s\S]*?top:\s*var\(--pwa-safe-top\)\s*!important/);
+});
+
+test('installed WebApp extends only the dock surface through the bottom safe area',()=>{
+  assert.match(pwa,/\.frameShellBottom\.pipDock\s*\{[\s\S]*?bottom:\s*calc\(0px - var\(--dock-safe-bottom\)\)\s*!important/);
+  assert.doesNotMatch(pwa,/\.app\.frameShell\s*\{[\s\S]*?bottom:\s*calc\(0px - var\(--dock-safe-bottom\)\)/);
+  assert.doesNotMatch(pwa,/\.frameStartupControls\s*\{[\s\S]*?bottom:\s*calc\(0px - var\(--dock-safe-bottom\)\)/);
 });

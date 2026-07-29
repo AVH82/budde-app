@@ -28,8 +28,7 @@
   }
 
   /* Keep the shared Frame System geometry. The root canvas is explicitly tied
-     to 100dvh so bottom:0 means the physical lower edge of the iPhone rather
-     than the shorter legacy percentage viewport. */
+     to 100dvh; the dock surface separately extends through the bottom safe area. */
   .app.frameShell {
     position: fixed !important;
     inset: 0 !important;
@@ -49,10 +48,11 @@
     top: var(--pwa-safe-top) !important;
   }
 
-  /* Dock and startup geometry are shared with Safari in frame-system-v2.css.
-     The dock stays at bottom:0; safe-area spacing only moves controls inside it. */
+  /* On installed iOS WebApps, 100dvh can end at the safe viewport edge. Extend
+     only the dock surface through the bottom safe area so its upper functional
+     boundary, shutter contract and control positions do not move. */
   .frameShellBottom.pipDock {
-    bottom: 0 !important;
+    bottom: calc(0px - var(--dock-safe-bottom)) !important;
   }
 
   .app.frameShell main {
