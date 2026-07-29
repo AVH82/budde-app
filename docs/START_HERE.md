@@ -17,6 +17,7 @@ Ce document est le point d'entrée obligatoire avant toute modification de Budd�
 11. `docs/AI_COLLABORATION_GUIDE.md` — appliquer la méthode de collaboration IA, d'audit et de PR.
 12. `docs/ASSET_LIBRARY.md` — appliquer le cycle de vie officiel des assets graphiques validés.
 13. `docs/CHANGELOG_DESIGN.md` — vérifier l'historique des validations et y ajouter toute décision graphique validée.
+14. `docs/BUDDY_LEARNING_STORAGE.md` — pour toute évolution des diagnostics OCR, justificatifs ou données d'amélioration de Buddy.
 
 ## Règles obligatoires
 
