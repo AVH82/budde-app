@@ -30,23 +30,22 @@ test('dock rows have no compensating vertical transform',()=>{
   assert.doesNotMatch(startup,/--startup-dock-offset|getBoundingClientRect\(\)\.top/);
 });
 
-test('installed WebApp root uses the actual standalone viewport height',()=>{
+test('installed WebApp keeps an extended painted shell',()=>{
   assert.match(pwa,/--pwa-safe-top:\s*env\(safe-area-inset-top,\s*0px\)/);
-  assert.match(pwa,/--pwa-physical-height:\s*100dvh\s*;/);
+  assert.match(pwa,/--pwa-physical-height:\s*calc\(100dvh \+ var\(--pwa-safe-top\)\)/);
   assert.match(pwa,/height:\s*var\(--pwa-physical-height\)\s*!important/);
   assert.match(pwa,/max-height:\s*var\(--pwa-physical-height\)\s*!important/);
-  assert.doesNotMatch(pwa,/calc\(100dvh \+ var\(--pwa-safe-top\)\)/);
 });
 
 test('installed WebApp header begins below the iOS top safe area',()=>{
   assert.match(pwa,/\.frameShellTop,[\s\S]*?body\.scannerFullscreen \.frameShellTop\s*\{[\s\S]*?top:\s*var\(--pwa-safe-top\)\s*!important/);
 });
 
-test('installed WebApp keeps the full dock at the viewport bottom',()=>{
-  assert.match(pwa,/\.frameShellBottom\.pipDock\s*\{[\s\S]*?bottom:\s*0\s*!important/);
-  assert.doesNotMatch(pwa,/bottom:\s*calc\(0px - var\(--dock-safe-bottom\)\)/);
-  assert.doesNotMatch(pwa,/\.app\.frameShell\s*\{[\s\S]*?bottom:\s*calc\(0px - var\(--dock-safe-bottom\)\)/);
-  assert.doesNotMatch(pwa,/\.frameStartupControls\s*\{[\s\S]*?bottom:\s*calc\(0px - var\(--dock-safe-bottom\)\)/);
+test('complete lower console is lifted by the top safe area',()=>{
+  assert.match(pwa,/\.frameShellBottom\.pipDock\s*\{[\s\S]*?bottom:\s*var\(--pwa-safe-top\)\s*!important/);
+  assert.match(pwa,/\.frameStartupControls\s*\{[\s\S]*?bottom:\s*calc\(var\(--dock-total-height\) \+ var\(--pwa-safe-top\) - 2px\)\s*!important/);
+  assert.match(pwa,/\.frameShutter--bottom\s*\{[\s\S]*?bottom:\s*calc\(var\(--dock-total-height\) \+ var\(--pwa-safe-top\) - 2px\)\s*!important/);
+  assert.doesNotMatch(pwa,/\.frameShellBottom\.pipDock\s*\{[\s\S]*?bottom:\s*0\s*!important/);
 });
 
 test('obsolete decorative bottom extension is fully removed',()=>{
