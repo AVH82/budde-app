@@ -56,12 +56,12 @@ test('AST-048 rotor is view-driven and trustmeter internals keep validated scale
 });
 
 test('AST-048 version, cache and cache-busting are coherent', () => {
-  assert.match(app(), /const APP_VERSION='3\.6\.55'/);
+  assert.match(app(), /const APP_VERSION='3\.6\.56'/);
   assert.match(app(), /const EXPECTED_CACHE_NAME=APP_BUILD_ID/);
-  assert.match(index(), /Budd€ v3\.6\.55/);
-  assert.match(index(), /build budde-3-6-55/);
-  assert.match(index(), /v=ast058/);
-  assert.match(sw(), /const CACHE_NAME='budde-3-6-55'/);
-  assert.match(sw(), /js\/app\.js\?v=ast058/);
+  assert.match(index(), /Budd€ v3\.6\.56/);
+  assert.match(index(), /build budde-3-6-56/);
+  assert.match(index(), /css\/pipboy\.css\?v=merchant-collapse-1/);
+  assert.match(sw(), /const CACHE_NAME='budde-3-6-56-merchant-collapse-1'/);
+  assert.match(sw(), /js\/app\.js\?v=merchant-collapse-1/);
   assert.match(startup(), /v=ast058/);
 });
