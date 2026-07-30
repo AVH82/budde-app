@@ -1050,3 +1050,20 @@ body.pivotModuleReady .settingsTrustRotor{
 @media (prefers-reduced-motion: reduce){
   body.pivotModuleReady .settingsTrustRotor{transition:none!important}
 }
+
+/* Module Commerçants — historique repliable */
+.merchantGroup{position:relative;z-index:1;border-top:1px solid rgba(157,255,69,.16)}
+.merchantGroup:first-child{border-top:0}
+.merchantSummary{width:100%;margin:0;border:0!important;border-radius:0!important;background:transparent!important;color:inherit!important;font:inherit;text-align:left;text-transform:none!important;box-shadow:none!important;cursor:pointer}
+.merchantSummary:focus-visible{outline:2px solid #9dff45;outline-offset:-2px;box-shadow:inset 0 0 14px rgba(157,255,69,.18)!important}
+.merchantSummary .meta,.merchantSummary .merchant{display:block}
+.merchantTotal{display:flex;align-items:center;gap:8px;justify-content:flex-end}
+.merchantChevron{font-size:22px;line-height:1;transition:transform 160ms ease}
+.merchantGroup--open .merchantChevron{transform:rotate(180deg)}
+.merchantHistory{padding:0 8px 8px 18px;border-left:2px solid rgba(157,255,69,.35);background:rgba(2,6,2,.46)}
+.merchantHistory[hidden]{display:none}
+.merchantHistory .expense{grid-template-columns:38px minmax(0,1fr) minmax(74px,auto)}
+.merchantHistory .logoRound{width:32px;height:32px}
+.merchantEmptyState{position:relative;z-index:1;margin:12px 0 4px;color:#9ddc4a;line-height:1.4}
+@media(max-width:380px){.merchantHistory{padding-left:8px;padding-right:2px}.merchantSummary{grid-template-columns:36px minmax(0,1fr) auto!important}.merchantTotal{gap:4px}.merchantChevron{font-size:18px}}
+@media(prefers-reduced-motion:reduce){.merchantChevron{transition:none}}
